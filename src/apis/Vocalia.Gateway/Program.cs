@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ocelot.Middleware;
 using Ocelot.DependencyInjection;
+using System.Net;
 
 namespace Vocalia.Gateway
 {
@@ -17,7 +18,9 @@ namespace Vocalia.Gateway
         public static void Main(string[] args)
         {
             new WebHostBuilder()
-            .UseKestrel()
+            .UseKestrel(options => {
+                options.Listen(IPAddress.Loopback, 5080); //HTTP port
+            })
             .UseContentRoot(Directory.GetCurrentDirectory())
             .ConfigureAppConfiguration((hostingContext, config) =>
             {

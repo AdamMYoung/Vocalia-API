@@ -6,12 +6,12 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "vocalia.podcast",
           "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/podcast/{everything}",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
     //Account
     {
@@ -19,12 +19,12 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "vocalia.account",
           "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/account/{everything}",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
     //Ingest
     {
@@ -32,12 +32,12 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "vocalia.ingest",
           "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/ingest/{everything}",
-      "UpstreamHttpMethod": [ "Get, Put, Post" ]
+      "UpstreamHttpMethod": [ "GET" ]
     },
     //Editor
     {
@@ -45,12 +45,12 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "vocalia.editor",
           "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/editor/{everything}",
-      "UpstreamHttpMethod": [ "Get, Put, Post" ]
+      "UpstreamHttpMethod": [ "GET", "PUT", "POST" ]
     },
     //Publishing
     {
@@ -58,12 +58,12 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "vocalia.publishing",
           "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/publish/{everything}",
-      "UpstreamHttpMethod": [ "Get, Put, Post" ]
+      "UpstreamHttpMethod": [ "GET", "PUT", "POST" ]
     },
     //Social
     {
@@ -71,15 +71,15 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "vocalia.social",
           "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/social/{everything}",
-      "UpstreamHttpMethod": [ "Get, Post" ]
+      "UpstreamHttpMethod": [ "GET", "POST" ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://api.vocalia.co.uk"
+    
   }
 }
