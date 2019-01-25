@@ -1,0 +1,85 @@
+{
+  "ReRoutes": [
+    //Podcast
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/podcast/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    //Account
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/account/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    //Ingest
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ingest/{everything}",
+      "UpstreamHttpMethod": [ "Get, Put, Post" ]
+    },
+    //Editor
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/editor/{everything}",
+      "UpstreamHttpMethod": [ "Get, Put, Post" ]
+    },
+    //Publishing
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/publish/{everything}",
+      "UpstreamHttpMethod": [ "Get, Put, Post" ]
+    },
+    //Social
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/social/{everything}",
+      "UpstreamHttpMethod": [ "Get, Post" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://api.vocalia.co.uk"
+  }
+}
