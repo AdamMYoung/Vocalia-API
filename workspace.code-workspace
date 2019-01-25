@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "src\\APIs\\Vocalia.Account"
+		},
+		{
+			"path": "src\\APIs\\Vocalia.Editor"
+		},
+		{
+			"path": "src\\APIs\\Vocalia.Ingest"
+		},
+		{
+			"path": "src\\APIs\\Vocalia.IO"
+		},
+		{
+			"path": "src\\APIs\\Vocalia.Podcast"
+		},
+		{
+			"path": "src\\website\\Vocalia.Create"
+		},
+		{
+			"path": "src\\website\\Vocalia.Home"
+		},
+		{
+			"path": "src\\website\\Vocalia.Listen"
+		}
+	],
+	"settings": {}
+}

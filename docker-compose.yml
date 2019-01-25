@@ -1,0 +1,34 @@
+version: "3.4"
+
+services:
+  vocalia.account:
+    image: ${DOCKER_REGISTRY-}vocaliaaccount
+    build:
+      context: .
+      dockerfile: src\apis\Vocalia.Account\Dockerfile
+  vocalia.editor:
+    image: ${DOCKER_REGISTRY-}vocaliaeditor
+    build:
+      context: .
+      dockerfile: src\apis\Vocalia.Editor\Dockerfile
+  vocalia.ingest:
+    image: ${DOCKER_REGISTRY-}vocaliaingest
+    build:
+      context: .
+      dockerfile: src\apis\Vocalia.Ingest\Dockerfile
+  vocalia.social:
+    image: ${DOCKER_REGISTRY-}vocaliasocial
+    build:
+      context: .
+      dockerfile: src\apis\Vocalia.Social\Dockerfile
+  vocalia.podcast:
+    image: ${DOCKER_REGISTRY-}vocaliapodcast
+    build:
+      context: .
+      dockerfile: src\apis\Vocalia.Podcast\Dockerfile
+  vocalia.publishing:
+    image: ${DOCKER_REGISTRY-}vocaliapublishing
+    build:
+      context: .
+      dockerfile: src\apis\Vocalia.Publishing\Dockerfile
+
