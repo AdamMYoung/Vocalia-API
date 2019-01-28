@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Vocalia.Social.Controllers
+namespace Vocalia.Gateway.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -14,7 +14,7 @@ namespace Vocalia.Social.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] { "Social", "Social" };
+            return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5

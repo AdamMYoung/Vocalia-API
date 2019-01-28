@@ -10,9 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Vocalia.Facades.GPodder;
 
-namespace Vocalia.Podcast
+namespace Vocalia.Gateway
 {
     public class Startup
     {
@@ -27,8 +26,6 @@ namespace Vocalia.Podcast
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-            services.AddSingleton<IGPodderFacade, GPodderFacade>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
