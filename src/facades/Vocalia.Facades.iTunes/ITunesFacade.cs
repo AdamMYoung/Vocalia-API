@@ -35,7 +35,7 @@ namespace Vocalia.Podcast.Facades.iTunes
         private string ParseRssUrl(string jsonData)
         {
             var json = JObject.Parse(jsonData);
-            return json[0].Value<string>("feedUrl");
+            return json.Value<JArray>("results")[0].Value<string>("feedUrl");
         }
 
         public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> GetTopPodcastsAsync(int count, bool isExplicit = true)
