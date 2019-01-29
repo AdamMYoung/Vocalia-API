@@ -7,7 +7,6 @@ namespace Vocalia.Facades.GPodder
 {
     public interface IGPodderFacade
     {
-
         /// <summary>
         /// Gets the top podcasts in the GPodder database. Optionally sorts by genre.
         /// </summary>

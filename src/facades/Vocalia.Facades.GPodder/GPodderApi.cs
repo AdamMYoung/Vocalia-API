@@ -15,7 +15,15 @@ namespace Vocalia.Facades.GPodder
         /// <param name="number">Number of podcasts to return.</param>
         /// <returns></returns>
         [Get("/toplist/{number}.json")]
-        Task<IEnumerable<Podcast>> GetTopPodcastsAsync(int number);
+        Task<IEnumerable<GPodderEntry>> GetTopPodcastsAsync(int number);
+
+        /// <summary>
+        /// Gets the podcast data from the provided mygpo_link.
+        /// </summary>
+        /// <param name="url">Url to search for.</param>
+        /// <returns></returns>
+        [Get("/api/2/data/podcast.json")]
+        Task<Podcast> GetPodcastDataAsync(string url);
 
         /// <summary>
         /// Returns the top podcasts from the GPodder database sorting by tag.
@@ -24,7 +32,7 @@ namespace Vocalia.Facades.GPodder
         /// <param name="count">Number of podcasts to return.</param>
         /// <returns></returns>
         [Get("/api/2/tag/{tag}/{count}.json")]
-        Task<IEnumerable<Podcast>> GetPodcastsByTagAsync(string tag, int count);
+        Task<IEnumerable<GPodderEntry>> GetPodcastsByTagAsync(string tag, int count);
 
         /// <summary>
         /// Searches the GPodder database for the provided query.
@@ -32,6 +40,6 @@ namespace Vocalia.Facades.GPodder
         /// <param name="query">Query to search for.</param>
         /// <returns></returns>
         [Get("/search.json")]
-        Task<IEnumerable<Podcast>> SearchPodcastsAsync([AliasAs("q")] string query);
+        Task<IEnumerable<GPodderEntry>> SearchPodcastsAsync([AliasAs("q")] string query);
     }
 }

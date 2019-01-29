@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Vocalia.Facades.GPodder;
 using Vocalia.Podcast.DomainModels;
 using Vocalia.Podcast.Facades.iTunes;
+using Vocalia.Podcast.Repositories;
 
 namespace Vocalia.Podcast.Controllers
 {
@@ -14,16 +15,9 @@ namespace Vocalia.Podcast.Controllers
     [ApiController]
     public class PodcastController : ControllerBase
     {
-        private IGPodderFacade GPodderService { get; set; }
-        private IITunesFacade ITunesService { get; set; }
+        public IPodcastRepository Repository { get; }
 
-        private readonly int defaultPodcastCount = 20;
-
-        public PodcastController(IGPodderFacade gpodderFacade, IITunesFacade iTunesFacade)
-        {
-            GPodderService = gpodderFacade;
-            ITunesService = iTunesFacade;
-        }
+        public PodcastController(IPodcastRepository repository) => Repository = repository;
 
         /// <summary>
         /// Returns all podcast categories.
@@ -33,9 +27,9 @@ namespace Vocalia.Podcast.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
+            var categories = await Repository.GetCategoriesAsync();
 
-
-            return Ok();
+            return Ok(categories);
         }
 
         /// <summary>
@@ -46,14 +40,11 @@ namespace Vocalia.Podcast.Controllers
         /// <returns></returns>
         [Route("top")]
         [HttpGet]
-        public async Task<IActionResult> GetTopPodcasts(int? limit, DTOs.Category category = null)
+        public async Task<IActionResult> GetTopPodcasts(int? limit)
         {
-            var count = limit ?? defaultPodcastCount;
+            var podcasts = await Repository.GetTopPodcastsAsync(limit);
 
-            //var gPodderPodcasts = await GPodder.GetTopPodcastsAsync(count, category);
-            var iTunesPodcasts = await ITunesService.GetTopPodcastsAsync(count);
-
-            return Ok(iTunesPodcasts);
+            return Ok(podcasts);
         }
     }
 }

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Ocelot.Middleware;
+using Ocelot.DependencyInjection;
+using System.Net;
 
 namespace Vocalia.Gateway
 {
@@ -14,11 +17,34 @@ namespace Vocalia.Gateway
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            new WebHostBuilder()
+            .UseKestrel(options => {
+                options.Listen(IPAddress.Loopback, 5080); //HTTP port
+            })
+            .UseContentRoot(Directory.GetCurrentDirectory())
+            .ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                config
+                    .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
+                    .AddJsonFile("appsettings.json", true, true)
+                    .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true, true)
+                    .AddJsonFile("ocelot.json")
+                    .AddEnvironmentVariables();
+            })
+            .ConfigureServices(s => {
+                s.AddOcelot();
+            })
+            .ConfigureLogging((hostingContext, logging) =>
+            {
+                //add your logging
+            })
+            .UseIISIntegration()
+            .Configure(app =>
+            {
+                app.UseOcelot().Wait();
+            })
+            .Build()
+            .Run();
         }
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
     }
 }

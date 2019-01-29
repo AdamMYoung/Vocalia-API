@@ -26,7 +26,11 @@ namespace Vocalia.Facades.GPodder
         /// <returns></returns>
         public async Task<IEnumerable<Podcast>> GetTopPodcastsAsync(int limit, string tag = null)
         {
-            var podcasts = tag == null ? await Service.GetTopPodcastsAsync(limit) : await Service.GetPodcastsByTagAsync(tag, limit);
+            var entries = tag == null ? await Service.GetTopPodcastsAsync(limit) : await Service.GetPodcastsByTagAsync(tag, limit);
+
+            IList<Podcast> podcasts = new List<Podcast>();
+            Parallel.ForEach(entries, async (file) => podcasts.Add(await Service.GetPodcastDataAsync(file.MyGPOLink)));
+
             return podcasts.OrderByDescending(x => x.Subscribers);
         }
 
@@ -37,7 +41,11 @@ namespace Vocalia.Facades.GPodder
         /// <returns></returns>
         public async Task<IEnumerable<Podcast>> SearchPodcastsAsync(string query)
         {
-            var podcasts = await Service.SearchPodcastsAsync(query);
+            var entries = await Service.SearchPodcastsAsync(query);
+
+            IList<Podcast> podcasts = new List<Podcast>();
+            Parallel.ForEach(entries, async (file) => podcasts.Add(await Service.GetPodcastDataAsync(file.MyGPOLink)));
+
             return podcasts.OrderByDescending(x => x.Subscribers);
         }
 

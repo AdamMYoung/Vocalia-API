@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
-    <UserSecretsId>844fa856-1797-451e-9d76-68e6939f1837</UserSecretsId>
+    <UserSecretsId>e72b6f0b-2a77-4a29-8727-1ffbcedd6d7a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.0.2105168" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.2" />
+    <PackageReference Include="Ocelot" Version="13.0.0" />
   </ItemGroup>
 
 </Project>

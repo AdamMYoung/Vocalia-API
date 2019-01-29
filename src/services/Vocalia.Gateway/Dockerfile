@@ -8,10 +8,10 @@ EXPOSE 443
 
 FROM microsoft/dotnet:2.1-sdk-nanoserver-1803 AS build
 WORKDIR /src
-COPY ["src/services/Vocalia.Gateway/Vocalia.Gateway.csproj", "src/services/Vocalia.Gateway/"]
-RUN dotnet restore "src/services/Vocalia.Gateway/Vocalia.Gateway.csproj"
+COPY ["src/apis/Vocalia.Gateway/Vocalia.Gateway.csproj", "src/apis/Vocalia.Gateway/"]
+RUN dotnet restore "src/apis/Vocalia.Gateway/Vocalia.Gateway.csproj"
 COPY . .
-WORKDIR "/src/src/services/Vocalia.Gateway"
+WORKDIR "/src/src/apis/Vocalia.Gateway"
 RUN dotnet build "Vocalia.Gateway.csproj" -c Release -o /app
 
 FROM build AS publish
