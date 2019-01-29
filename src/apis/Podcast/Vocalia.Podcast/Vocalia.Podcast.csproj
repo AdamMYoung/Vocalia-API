@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\facades\Vocalia.Facades.GPodder\Vocalia.Facades.GPodder.csproj" />
-    <ProjectReference Include="..\..\facades\Vocalia.Facades.iTunes\Vocalia.Facades.iTunes.csproj" />
+    <ProjectReference Include="..\Facades\Vocalia.Facades.GPodder\Vocalia.Facades.GPodder.csproj" />
+    <ProjectReference Include="..\Facades\Vocalia.Facades.iTunes\Vocalia.Facades.iTunes.csproj" />
   </ItemGroup>
 
 </Project>

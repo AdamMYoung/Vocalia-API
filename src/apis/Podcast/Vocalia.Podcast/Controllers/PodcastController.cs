@@ -29,6 +29,9 @@ namespace Vocalia.Podcast.Controllers
         {
             var categories = await Repository.GetCategoriesAsync();
 
+            if (categories == null)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
             return Ok(categories);
         }
 
