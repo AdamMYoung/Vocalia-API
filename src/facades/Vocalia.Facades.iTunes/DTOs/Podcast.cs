@@ -4,7 +4,14 @@ using System.Text;
 
 namespace Vocalia.Facades.iTunes.DTOs
 {
-    class Podcast
+    public class Podcast
     {
+        public string Name { get; set; }
+
+        public string ArtistName { get; set; }
+
+        public string ImageUrl { get; set; }
+
+        public string RssUrl { get; set; }
     }
 }

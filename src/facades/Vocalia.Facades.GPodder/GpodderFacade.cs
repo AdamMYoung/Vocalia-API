@@ -9,29 +9,37 @@ namespace Vocalia.Facades.GPodder
 {
     public class GPodderFacade : IGPodderFacade
     {
-        private GPodderApi Service { get; set; } 
+        /// <summary>
+        /// GPodder service to query.
+        /// </summary>
+        private GPodderApi Service { get; set; }
 
-        public GPodderFacade()
-        {
-            Service = RestService.For<GPodderApi>("https://gpodder.net");
-        }
+        /// <summary>
+        /// Instantiates a new GPodderFacade to query the GPodder podcast database.
+        /// </summary>
+        public GPodderFacade() => Service = RestService.For<GPodderApi>("https://gpodder.net");
 
-        public async Task<IEnumerable<CategoryTag>> GetCategoriesAsync(int count)
+        /// <summary>
+        /// Gets the top podcasts in the GPodder database.
+        /// </summary>
+        /// <param name="limit">Number of podcasts to return.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Podcast>> GetTopPodcastsAsync(int limit, string tag = null)
         {
-            var categories = await Service.GetCategoriesAsync(count);
-            return categories.OrderByDescending(x => x.Usage);
-        }
-
-        public async Task<IEnumerable<Podcast>> GetTopPodcastsAsync(int limit)
-        {
-            var podcasts = await Service.GetTopPodcastsAsync(limit);
+            var podcasts = tag == null ? await Service.GetTopPodcastsAsync(limit) : await Service.GetPodcastsByTagAsync(tag, limit);
             return podcasts.OrderByDescending(x => x.Subscribers);
         }
 
-        public async Task<IEnumerable<Podcast>> GetPodcastsByCategoryAsync(string tag, int count)
+        /// <summary>
+        /// Searches the GPodder database for the provided query.
+        /// </summary>
+        /// <param name="query">String to search for.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Podcast>> SearchPodcastsAsync(string query)
         {
-            var podcasts = await Service.GetPodcastsByTagAsync(tag, count);
+            var podcasts = await Service.SearchPodcastsAsync(query);
             return podcasts.OrderByDescending(x => x.Subscribers);
         }
+
     }
 }

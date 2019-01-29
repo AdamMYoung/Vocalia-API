@@ -7,26 +7,20 @@ namespace Vocalia.Facades.GPodder
 {
     public interface IGPodderFacade
     {
-        /// <summary>
-        /// Returns categories stored in the GPodder database.
-        /// </summary>
-        /// <param name="count">Number of categories to return.</param>
-        /// <returns></returns>
-        Task<IEnumerable<DTOs.CategoryTag>> GetCategoriesAsync(int count);
 
         /// <summary>
-        /// Gets the top podcasts in the GPodder database.
+        /// Gets the top podcasts in the GPodder database. Optionally sorts by genre.
         /// </summary>
         /// <param name="limit">Number of podcasts to return.</param>
+        /// <param name="genre">Genre to search by.</param>
         /// <returns></returns>
-        Task<IEnumerable<DTOs.Podcast>> GetTopPodcastsAsync(int limit);
+        Task<IEnumerable<DTOs.Podcast>> GetTopPodcastsAsync(int limit, string tag = null);
 
         /// <summary>
-        /// Gets all podcasts belonging to the passed category. <see cref="DTOs.CategoryTag"/>.
+        /// Searches the GPodder database for the provided query.
         /// </summary>
-        /// <param name="tag">Category to filter by.</param>
-        /// <param name="count">Number of podcasts to return.</param>
+        /// <param name="query">String to search for.</param>
         /// <returns></returns>
-        Task<IEnumerable<DTOs.Podcast>> GetPodcastsByCategoryAsync(string tag, int count);
+        Task<IEnumerable<DTOs.Podcast>> SearchPodcastsAsync(string query);
     }
 }

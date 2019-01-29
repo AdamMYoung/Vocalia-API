@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Vocalia.Facades.GPodder;
+using Vocalia.Podcast.Facades.iTunes;
 
 namespace Vocalia.Podcast.Controllers
 {
@@ -12,43 +13,39 @@ namespace Vocalia.Podcast.Controllers
     [ApiController]
     public class PodcastController : ControllerBase
     {
-        private IGPodderFacade GPodder { get; set; }
+        private IGPodderFacade GPodderService { get; set; }
+        private IITunesFacade ITunesService { get; set; }
 
         private readonly int defaultPodcastCount = 20;
-        private readonly int defaultCategoryCount = 20;
 
-        public PodcastController(IGPodderFacade gpodderFacade)
+        public PodcastController(IGPodderFacade gpodderFacade, IITunesFacade iTunesFacade)
         {
-            GPodder = gpodderFacade;
+            GPodderService = gpodderFacade;
+            ITunesService = iTunesFacade;
         }
 
         /// <summary>
-        /// Returns podcast categories sorted by popularity. Can be optionally limited.
+        /// Returns all podcast categories.
         /// </summary>
-        /// <param name="limit"></param>
         /// <returns></returns>
         [Route("categories")]
         [HttpGet]
-        public async Task<IActionResult> GetCategories(int? limit)
+        public async Task<IActionResult> GetCategories()
         {
-            var count = limit ?? defaultCategoryCount;
 
-            var gPodderCategories = await GPodder.GetCategoriesAsync(count);
-
-            return Ok(gPodderCategories);
+            return Ok();
         }
 
         [Route("top")]
         [HttpGet]
-        public async Task<IActionResult> GetPodcasts(int? limit, string category = null)
+        public async Task<IActionResult> GetTopPodcasts(int? limit, string category = null)
         {
             var count = limit ?? defaultPodcastCount;
 
-            var gPodderPodcasts = category != null ?
-                await GPodder.GetPodcastsByCategoryAsync(category, count) : 
-                await GPodder.GetTopPodcastsAsync(count);
+            //var gPodderPodcasts = await GPodder.GetTopPodcastsAsync(count, category);
+            var iTunesPodcasts = await ITunesService.GetTopPodcastsAsync(count);
 
-            return Ok(gPodderPodcasts);
+            return Ok(iTunesPodcasts);
         }
     }
 }
