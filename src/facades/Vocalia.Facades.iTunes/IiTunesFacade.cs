@@ -19,8 +19,10 @@ namespace Vocalia.Podcast.Facades.iTunes
         /// Searches the iTunes database for the query term, optionally sorting by genre.
         /// </summary>
         /// <param name="query">Term to search for.</param>
+        /// <param name="count">Number of results to return.</param>
         /// <param name="genreCode">Optional genre to sort by.</param>
+        /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
-        Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int? genreCode = null);
+        Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, int? genreCode = null, bool isExplicit = true);
     }
 }

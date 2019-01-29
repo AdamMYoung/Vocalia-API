@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Vocalia.Facades.GPodder;
+using Vocalia.Podcast.DomainModels;
 using Vocalia.Podcast.Facades.iTunes;
 
 namespace Vocalia.Podcast.Controllers
@@ -33,12 +34,19 @@ namespace Vocalia.Podcast.Controllers
         public async Task<IActionResult> GetCategories()
         {
 
+
             return Ok();
         }
 
+        /// <summary>
+        /// Gets the top podcasts from all supported services.
+        /// </summary>
+        /// <param name="limit">Number of entries to return.</param>
+        /// <param name="category">Category to filter by.</param>
+        /// <returns></returns>
         [Route("top")]
         [HttpGet]
-        public async Task<IActionResult> GetTopPodcasts(int? limit, string category = null)
+        public async Task<IActionResult> GetTopPodcasts(int? limit, DTOs.Category category = null)
         {
             var count = limit ?? defaultPodcastCount;
 

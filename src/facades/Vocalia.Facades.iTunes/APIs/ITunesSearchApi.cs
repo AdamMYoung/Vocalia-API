@@ -16,8 +16,8 @@ namespace Vocalia.Facades.iTunes
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
         [Get("/search")]
-        Task<IEnumerable<DTOs.Podcast>> SearchPodcastsAsync([AliasAs("term")] string query, 
-            [AliasAs("limit")] int count, [AliasAs("explicit")] bool isExplicit = true);
+        Task<IEnumerable<DTOs.Podcast>> SearchPodcastsAsync([AliasAs("term")] string query, [AliasAs("limit")] int count, 
+            [AliasAs("genreIndex")] int? genreId = null, [AliasAs("explicit")] bool isExplicit = true);
 
         /// <summary>
         /// Searches the iTunes podcast database for the specified ID, and returns a link to the podcast's RSS feed.
