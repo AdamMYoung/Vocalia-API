@@ -16,5 +16,7 @@ namespace Vocalia.Facades.iTunes.DTOs
 
         [JsonProperty(PropertyName = "artworkUrl100")]
         public string ArtworkUrl { get; set; }
+
+        public IEnumerable<RssGenre> Genres { get; set; }
     }
 }

@@ -13,8 +13,6 @@ namespace Vocalia.Podcast.DomainModels
 
         public int ITunesID { get; set; }
 
-        public int ListenNotesID { get; set; }
-
         public string GPodderTag { get; set; }
 
         public string Title { get; set; }

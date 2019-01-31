@@ -1,21 +1,20 @@
 #Depending on the operating system of the host machines(s) that will build or run the containers, the image specified in the FROM statement may need to be changed.
-#For more information, please see https://aka.ms/containercompat
+#For more information, please see http://aka.ms/containercompat 
 
-FROM microsoft/dotnet:2.1-aspnetcore-runtime-nanoserver-1803 AS base
+FROM microsoft/dotnet:2.2-aspnetcore-runtime-nanoserver-1803 AS base
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 
-FROM microsoft/dotnet:2.1-sdk-nanoserver-1803 AS build
+FROM microsoft/dotnet:2.2-sdk-nanoserver-1803 AS build
 WORKDIR /src
-COPY ["src/apis/Vocalia.Gateway/Vocalia.Gateway.csproj", "src/apis/Vocalia.Gateway/"]
-RUN dotnet restore "src/apis/Vocalia.Gateway/Vocalia.Gateway.csproj"
+COPY src/services/Vocalia.Gateway/Vocalia.Gateway.csproj src/services/Vocalia.Gateway/
+RUN dotnet restore src/services/Vocalia.Gateway/Vocalia.Gateway.csproj
 COPY . .
-WORKDIR "/src/src/apis/Vocalia.Gateway"
-RUN dotnet build "Vocalia.Gateway.csproj" -c Release -o /app
+WORKDIR /src/src/services/Vocalia.Gateway
+RUN dotnet build Vocalia.Gateway.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "Vocalia.Gateway.csproj" -c Release -o /app
+RUN dotnet publish Vocalia.Gateway.csproj -c Release -o /app
 
 FROM base AS final
 WORKDIR /app

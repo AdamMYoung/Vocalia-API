@@ -47,16 +47,20 @@ namespace Vocalia.Podcast.Facades.iTunes
         /// <param name="count">Number of items to return.</param>
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> GetTopPodcastsAsync(int count, bool isExplicit = true)
+        public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> GetTopPodcastsAsync(int count, string languageISOCode, bool isExplicit, int? genreId = null)
         {
             var rssResult = isExplicit ? 
-                await RssService.GetTopPodcastsExplicitAsync(count) : 
-                await RssService.GetTopPodcastsChildFriendlyAsync(count);
+                await RssService.GetTopPodcastsExplicitAsync(count, languageISOCode) : 
+                await RssService.GetTopPodcastsChildFriendlyAsync(count, languageISOCode);
 
-            IList<Vocalia.Facades.iTunes.DTOs.Podcast> podcasts = new List<Vocalia.Facades.iTunes.DTOs.Podcast>();
-            for(int i = 0; i < rssResult.Feed.Results.Count(); i++)
+            var filteredPodcasts = genreId.HasValue ? 
+                rssResult.Feed.Results.Where(x => x.Genres.Any(c => c.GenreId == genreId.Value)).ToList() :
+                rssResult.Feed.Results.ToList();
+
+            var podcasts = new List<Vocalia.Facades.iTunes.DTOs.Podcast>();
+            for(int i = 0; i < filteredPodcasts.Count(); i++)
             {
-                var feedItem = rssResult.Feed.Results[i];
+                var feedItem = filteredPodcasts[i];
                 podcasts.Add(new Vocalia.Facades.iTunes.DTOs.Podcast()
                 {
                     Name = feedItem.Name,
@@ -77,10 +81,9 @@ namespace Vocalia.Podcast.Facades.iTunes
         /// <param name="genreCode">Optional genre to sort by.</param>
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, 
-            int? genreCode = null, bool isExplicit = true)
+        public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, string languageISOCode, bool isExplicit, int? genreCode = null)
         {
-            var podcasts = await SearchService.SearchPodcastsAsync(query, count, genreCode, isExplicit);
+            var podcasts = await SearchService.SearchPodcastsAsync(query, count, languageISOCode, genreCode, isExplicit);
             return podcasts;
         }
     }

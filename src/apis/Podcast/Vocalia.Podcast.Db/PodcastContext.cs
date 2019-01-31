@@ -11,7 +11,6 @@ namespace Vocalia.Podcast.Db
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.Property(c => c.ITunesID).IsRequired();
-            builder.Property(c => c.ListenNotesID).IsRequired();
             builder.Property(c => c.GpodderTag).IsRequired();
             builder.Property(c => c.Title).IsRequired();
             builder.Property(c => c.IconUrl).IsRequired();
@@ -51,6 +50,7 @@ namespace Vocalia.Podcast.Db
             builder.Property(p => p.RSS).IsRequired();
             builder.Property(p => p.ImageUrl).IsRequired();
             builder.Property(p => p.Active).IsRequired();
+            builder.Property(p => p.Subscribers).IsRequired();
             builder.Property(p => p.IsExplicit).IsRequired();
 
             builder.HasOne(p => p.Category)

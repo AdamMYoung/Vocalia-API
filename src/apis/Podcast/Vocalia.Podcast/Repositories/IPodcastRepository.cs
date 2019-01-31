@@ -13,10 +13,10 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="limit">Number of entries to return.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int? limit, bool allowExplicit = true);
+        Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int? limit, int? categoryId, bool allowExplicit = true);
 
         /// <summary>
-        /// Returns all categories of the service.
+        /// Returns all categories from the Voalica service.
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<DomainModels.Category>> GetCategoriesAsync();

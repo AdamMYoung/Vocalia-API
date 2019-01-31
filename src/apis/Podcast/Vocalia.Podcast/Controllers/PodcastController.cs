@@ -32,7 +32,14 @@ namespace Vocalia.Podcast.Controllers
             if (categories == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
 
-            return Ok(categories);
+            var categoryDTOs = categories.Select(c => new DTOs.Category()
+            {
+                ID = c.ID,
+                Title = c.Title,
+                IconUrl = c.IconUrl
+            }).ToList();
+
+            return Ok(categoryDTOs);
         }
 
         /// <summary>
@@ -43,11 +50,26 @@ namespace Vocalia.Podcast.Controllers
         /// <returns></returns>
         [Route("top")]
         [HttpGet]
-        public async Task<IActionResult> GetTopPodcasts(int? limit)
+        public async Task<IActionResult> GetTopPodcasts(int? limit, int? categoryId, bool? allowExplicit)
         {
-            var podcasts = await Repository.GetTopPodcastsAsync(limit);
+            var expl = allowExplicit.HasValue && allowExplicit.Value == false ? false : true;
+            var podcasts = await Repository.GetTopPodcastsAsync(limit, categoryId, expl);
 
-            return Ok(podcasts);
+            if(podcasts == null)
+                return StatusCode(StatusCodes.Status500InternalServerError);
+
+            if (podcasts.Count() == 0)
+                return NotFound();
+
+            var podcastDTOs = podcasts.Select(p => new DTOs.Podcast()
+            {
+                ID = p.ID,
+                Title = p.Title,
+                ImageUrl = p.ImageUrl,
+                RssUrl = p.RssUrl
+            }).ToList();
+
+            return Ok(podcastDTOs);
         }
     }
 }

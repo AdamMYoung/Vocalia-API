@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Facades.GPodder", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Facades.iTunes", "src\apis\Podcast\Facades\Vocalia.Facades.iTunes\Vocalia.Facades.iTunes.csproj", "{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Facades.ListenNotes", "src\apis\Podcast\Facades\Vocalia.Facades.ListenNotes\Vocalia.Facades.ListenNotes.csproj", "{1E315A31-13B6-4B0B-83B6-003E0D93C81A}"
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{B9E0AAA1-24DE-4F89-A052-89D0776D461D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,10 +95,10 @@ Global
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E315A31-13B6-4B0B-83B6-003E0D93C81A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E315A31-13B6-4B0B-83B6-003E0D93C81A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E315A31-13B6-4B0B-83B6-003E0D93C81A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E315A31-13B6-4B0B-83B6-003E0D93C81A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,7 +121,6 @@ Global
 		{DCA5964A-1CBF-46EB-969A-B6A4CD3A2A3F} = {53F64DEF-086E-4509-B2CC-7C4CA41836A3}
 		{C46CF24D-3663-45B7-809B-C5086C04C387} = {DCA5964A-1CBF-46EB-969A-B6A4CD3A2A3F}
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB} = {DCA5964A-1CBF-46EB-969A-B6A4CD3A2A3F}
-		{1E315A31-13B6-4B0B-83B6-003E0D93C81A} = {DCA5964A-1CBF-46EB-969A-B6A4CD3A2A3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2E66940E-EE88-47BF-A341-FE68D979D8F9}
