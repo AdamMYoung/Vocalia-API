@@ -6,8 +6,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
-    ports:
-      - "63185:80"
 
   vocalia.gateway:
     environment:
