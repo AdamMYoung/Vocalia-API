@@ -14,4 +14,3 @@ services:
       dockerfile: src\services\Vocalia.Gateway\Dockerfile
     depends_on:
       - vocalia.podcast
-
