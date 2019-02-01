@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Ocelot.Middleware;
 using Ocelot.DependencyInjection;
 using System.Net;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Gateway
 {
@@ -30,6 +32,14 @@ namespace Vocalia.Gateway
                     .AddEnvironmentVariables();
             })
             .ConfigureServices(s => {
+                s.AddCors(options =>
+                {
+                    options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+                });
                 s.AddOcelot();
             })
             .ConfigureLogging((hostingContext, logging) =>
@@ -39,6 +49,7 @@ namespace Vocalia.Gateway
             .UseIISIntegration()
             .Configure(app =>
             {
+                app.UseCors("CorsPolicy");
                 app.UseOcelot().Wait();
             })
             .Build()

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { Route } from "react-router";
+import { Route, Switch } from "react-router";
 import Layout from "./components/Layout";
+import BrowsePodcasts from "./components/browse/BrowsePodcasts";
+import CategoryPodcastBrowse from "./components/browse/CategoryBrowsePodcasts";
 
 export default class App extends Component {
   displayName = App.name;
@@ -8,9 +10,9 @@ export default class App extends Component {
   render() {
     return (
       <Layout>
-        <Route exact path="/" />
-        <Route path="/top" />
-        <Route path="/blog" />
+        <Route path="/top" component={BrowsePodcasts} />
+        <Route path="/subscribed" component={BrowsePodcasts} />
+        <Route path="/category/:id" component={CategoryPodcastBrowse} />
       </Layout>
     );
   }

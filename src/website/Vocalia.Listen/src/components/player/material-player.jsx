@@ -92,7 +92,7 @@ export default class MaterialPlayer extends Component {
     this.updatePredicate();
     window.addEventListener("resize", this.updatePredicate);
 
-    if (!this.state.isDesktop) {
+    if (this.state.isMobile) {
       this.setState({ volume: 1 });
     }
   }

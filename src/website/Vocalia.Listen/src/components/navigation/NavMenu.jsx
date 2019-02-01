@@ -35,21 +35,26 @@ const styles = theme => ({
       display: "none"
     }
   },
+  contentPadding: {
+    paddingTop: 8,
+    paddingBottom: 6
+  },
   drawerPaper: {
     width: drawerWidth
-  },
-  content: {
-    flexGrow: 1
   }
 });
 
 class NavMenu extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
   state = {
     mobileOpen: false
   };
 
   handleDrawerToggle = () => {
-    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
+    this.setState({ mobileOpen: !this.state.mobileOpen });
   };
 
   render() {
@@ -102,7 +107,9 @@ class NavMenu extends React.Component {
           </Hidden>
         </nav>
         <main className={classes.content}>
-          <div className={classes.toolbar}>{this.props.children}</div>
+          <Toolbar />
+          <div className={classes.contentPadding}>{this.props.children}</div>
+          <Toolbar />
         </main>
       </div>
     );
