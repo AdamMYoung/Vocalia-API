@@ -12,7 +12,7 @@ namespace Vocalia.Podcast.Repositories
 {
     public class PodcastRepository : IPodcastRepository
     {
-        private readonly int defaultPodcastCount = 100;
+        private readonly int defaultPodcastCount = 200;
 
         private IGPodderFacade GPodderService { get; }
         private IITunesFacade ITunesService { get; }
@@ -51,8 +51,11 @@ namespace Vocalia.Podcast.Repositories
         public async Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int? limit, int? categoryId, bool allowExplicit = true)
         {
             var count = limit ?? defaultPodcastCount;
+            Db.Category category = null;
 
-            var category = await DbContext.Categories.FindAsync(categoryId);
+            if(categoryId.HasValue)
+                category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
+
             var countryCode = category?.Language.ISOCode ?? "gb";
             var podcasts = new List<DomainModels.Podcast>();
 

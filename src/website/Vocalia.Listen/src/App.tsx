@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Route, Switch } from "react-router";
 import Layout from "./components/Layout";
 import BrowsePodcasts from "./components/browse/BrowsePodcasts";
-import CategoryPodcastBrowse from "./components/browse/CategoryBrowsePodcasts";
+import CategoryBrowsePodcasts from "./components/browse/CategoryBrowsePodcasts";
 
 export default class App extends Component {
   displayName = App.name;
@@ -10,9 +10,17 @@ export default class App extends Component {
   render() {
     return (
       <Layout>
-        <Route path="/top" component={BrowsePodcasts} />
-        <Route path="/subscribed" component={BrowsePodcasts} />
-        <Route path="/category/:id" component={CategoryPodcastBrowse} />
+        <Route
+          exact
+          path="/top"
+          render={props => <BrowsePodcasts {...props} />}
+        />
+        <Route exact path="/subscribed" component={BrowsePodcasts} />
+        <Route
+          exact
+          path="/category/:id"
+          render={props => <CategoryBrowsePodcasts {...props} />}
+        />
       </Layout>
     );
   }

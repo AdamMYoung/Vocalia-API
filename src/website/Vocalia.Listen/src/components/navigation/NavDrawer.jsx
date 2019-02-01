@@ -83,8 +83,8 @@ class NavDrawer extends React.Component {
             </ListItem>
           )}
           {categories.map(category => (
-            <LinkContainer to={"/category/" + category.id}>
-              <ListItem button key={category.id}>
+            <LinkContainer to={"/category/" + category.id} key={category.id}>
+              <ListItem button>
                 <ListItemIcon>
                   <img src={category.iconUrl} alt="" />
                 </ListItemIcon>

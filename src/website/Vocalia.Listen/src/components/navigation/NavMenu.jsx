@@ -36,8 +36,8 @@ const styles = theme => ({
     }
   },
   contentPadding: {
-    paddingTop: 8,
-    paddingBottom: 6
+    marginTop: 8,
+    marginBottom: 6
   },
   drawerPaper: {
     width: drawerWidth
@@ -45,10 +45,6 @@ const styles = theme => ({
 });
 
 class NavMenu extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   state = {
     mobileOpen: false
   };

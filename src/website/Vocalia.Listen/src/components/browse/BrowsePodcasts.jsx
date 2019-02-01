@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import PodcastEntry from "./PodcastEntry";
+import Fade from "@material-ui/core/Fade";
 
 const API = "http://localhost:54578/podcast/";
 const TOP = "top";
@@ -18,29 +19,35 @@ class TopPodcastsBrowse extends Component {
     super(props);
 
     this.state = {
-      podcasts: []
+      podcasts: [],
+      loading: false
     };
   }
 
   componentDidMount() {
+    this.setState({ loading: true });
     fetch(API + TOP)
       .then(response => response.json())
-      .then(data => this.setState({ podcasts: data }));
+      .then(data => this.setState({ podcasts: data, loading: false }));
   }
 
   render() {
-    const { classes } = this.props;
+    const { loading } = this.state;
 
     return (
-      <Grid container>
-        <Grid item xs={12}>
-          <Grid container justify="center" spacing={Number(16)}>
-            {this.state.podcasts.map(podcast => (
-              <PodcastEntry data={podcast} />
-            ))}
+      <div>
+        <Fade in={!loading}>
+          <Grid container>
+            <Grid item xs={12}>
+              <Grid container justify="space-evenly">
+                {this.state.podcasts.map(podcast => (
+                  <PodcastEntry data={podcast} key={podcast.title} />
+                ))}
+              </Grid>
+            </Grid>
           </Grid>
-        </Grid>
-      </Grid>
+        </Fade>
+      </div>
     );
   }
 }

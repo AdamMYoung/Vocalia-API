@@ -14,11 +14,6 @@ namespace Vocalia.Podcast.Db
             builder.Property(c => c.GpodderTag).IsRequired();
             builder.Property(c => c.Title).IsRequired();
             builder.Property(c => c.IconUrl).IsRequired();
-
-            builder.HasOne(c => c.Language)
-                .WithMany()
-                .HasForeignKey(c => c.LanguageID)
-                .IsRequired();
         }
     }
 
@@ -37,6 +32,8 @@ namespace Vocalia.Podcast.Db
         public void Configure(EntityTypeBuilder<Language> builder)
         {
             builder.Property(l => l.Name).IsRequired();
+            builder.HasMany(l => l.Categories)
+                .WithOne(e => e.Language);
         }
     }
 

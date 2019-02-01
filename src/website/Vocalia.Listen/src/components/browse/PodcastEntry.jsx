@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
-import { CardMedia, CardContent, Typography } from "@material-ui/core";
 
 const styles = theme => ({
   paper: {
@@ -11,7 +10,7 @@ const styles = theme => ({
       width: 100,
       margin: 4
     },
-    [theme.breakpoints.up("lg")]: {
+    [theme.breakpoints.up("md")]: {
       height: 160,
       width: 160,
       margin: 4
