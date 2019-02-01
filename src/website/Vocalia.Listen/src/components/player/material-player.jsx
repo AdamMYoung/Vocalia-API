@@ -116,7 +116,12 @@ export default class MaterialPlayer extends Component {
    * Called when the resize event is called.
    */
   updatePredicate() {
-    this.setState({ isDesktop: window.innerWidth > 700 });
+    this.setState({
+      isMobile:
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(
+          navigator.userAgent
+        ) || window.innerWidth < 700
+    });
   }
 
   render() {
@@ -128,14 +133,14 @@ export default class MaterialPlayer extends Component {
       icon = <Pause />;
     }
 
-    const isDesktop = this.state.isDesktop;
+    const isMobile = this.state.isMobile;
     const podcastSelected = this.props.src != null;
 
     return (
       <Slide direction="up" in={podcastSelected}>
         <Card className="player" raised={true}>
           <div className="player-left">
-            {isDesktop && this.props.image != null && (
+            {!isMobile && this.props.image != null && (
               <div className="image">
                 {this.props.image != null}
                 <img alt="podcast-logo" src={this.props.image} />
@@ -185,7 +190,7 @@ export default class MaterialPlayer extends Component {
             </div>
           </div>
 
-          {isDesktop && (
+          {!isMobile && (
             <div className="player-right">
               <VolumeUp className="icon" />
               <Slider
