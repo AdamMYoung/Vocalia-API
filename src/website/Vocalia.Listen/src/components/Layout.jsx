@@ -6,21 +6,12 @@ import MaterialPlayer from "./player/material-player";
 class Layout extends Component {
   render() {
     return (
-      <Container className="noPadding noMargin" fluid>
-        <Row className="noPadding noMargin">
-          <Col className="noPadding noMargin">
-            <NavMenu />
-          </Col>
-        </Row>
-        <Row className="noPadding noMargin">
-          <Col className="noPadding noMargin">{this.props.children}</Col>
-        </Row>
-        <Row className="noPadding noMargin">
-          <Col className="noPadding noMargin">
-            <MaterialPlayer />
-          </Col>
-        </Row>
-      </Container>
+      <NavMenu>
+        <div>
+          {this.props.children}
+          <MaterialPlayer src="test" />
+        </div>
+      </NavMenu>
     );
   }
 }

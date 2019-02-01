@@ -2,8 +2,8 @@
   position: fixed;
   bottom: 0;
   height: auto;
-  width: 100%;
   display: flex;
+  width: 100%;
   align-items: center;
 }
 
