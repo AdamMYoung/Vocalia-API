@@ -3,7 +3,7 @@
   bottom: 0;
   height: auto;
   display: flex;
-  width: 100%;
+  width: calc(100% - 240px);
   align-items: center;
 }
 
@@ -82,6 +82,7 @@ img {
     display: inline;
     align-items: center;
     flex-grow: inherit;
+    width: 100%;
     padding-top: 10px;
   }
 

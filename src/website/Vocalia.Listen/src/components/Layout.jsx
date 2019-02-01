@@ -7,10 +7,8 @@ class Layout extends Component {
   render() {
     return (
       <NavMenu>
-        <div>
-          {this.props.children}
-          <MaterialPlayer src="test" />
-        </div>
+        {this.props.children}
+        <MaterialPlayer src="test" />
       </NavMenu>
     );
   }
