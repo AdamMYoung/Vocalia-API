@@ -27,7 +27,7 @@ namespace Vocalia.Podcast.Facades.iTunes
         public ITunesFacade()
         {
             SearchService = RestService.For<iTunesSearchApi>("https://itunes.apple.com");
-            RssService = RestService.For<ITunesRssApi>("https://rss.itunes.apple.com/api/v1");
+            RssService = RestService.For<ITunesRssApi>("https://itunes.apple.com");
         }
 
         /// <summary>
@@ -44,33 +44,38 @@ namespace Vocalia.Podcast.Facades.iTunes
         /// <summary>
         /// Gets the top podcasts in the iTunes podcast database.
         /// </summary>
-        /// <param name="count">Number of items to return.</param>
+        /// <param name="count">Number of items to return. Values over 200 or under 0 will be defaulted to 200.</param>
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
         public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> GetTopPodcastsAsync(int count, string languageISOCode, bool isExplicit, int? genreId = null)
         {
-            var rssResult = isExplicit ? 
-                await RssService.GetTopPodcastsExplicitAsync(count, languageISOCode) : 
-                await RssService.GetTopPodcastsChildFriendlyAsync(count, languageISOCode);
+            if (count > 200 || count < 0)
+                count = 200;
 
-            var filteredPodcasts = genreId.HasValue ? 
-                rssResult.Feed.Results.Where(x => x.Genres.Any(c => c.GenreId == genreId.Value)).ToList() :
-                rssResult.Feed.Results.ToList();
+            var genre = genreId.HasValue ? genreId.Value : -1;
 
+            var rssResult = await RssService.GetTopPodcasts(count, languageISOCode, isExplicit, genre);
             var podcasts = new List<Vocalia.Facades.iTunes.DTOs.Podcast>();
-            for(int i = 0; i < filteredPodcasts.Count(); i++)
+            
+            var rssEntries = rssResult.Feed.Entry;
+
+            for (int i = 0; i < rssEntries.Count(); i++)
             {
-                var feedItem = filteredPodcasts[i];
+                var entry = rssEntries[i];
                 podcasts.Add(new Vocalia.Facades.iTunes.DTOs.Podcast()
                 {
-                    Name = feedItem.Name,
-                    ArtistName = feedItem.ArtistName,
-                    ImageUrl = feedItem.ArtworkUrl,
-                    RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync(feedItem.Id))
+                    Position = i,
+                    PodcastId = (int)entry.Id.Attributes.ImId,
+                    Name = entry.ImName.Label,
+                    ArtistName = entry.ImArtist.Label,
+                    ImageUrl = entry.ImImage.LastOrDefault()?.Label.AbsoluteUri,
+                    RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync((int)entry.Id.Attributes.ImId))
                 });
             }
 
-            return podcasts;
+            Parallel.ForEach(podcasts, async (podcast) => podcast.RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync(podcast.PodcastId)));
+
+            return podcasts.OrderBy(p => p.Position);
         }
 
         /// <summary>

@@ -49,7 +49,7 @@ class NavDrawer extends React.Component {
     return (
       <div>
         <List>
-          <LinkContainer to="/top">
+          <LinkContainer to="/category/top">
             <ListItem button key="top">
               <ListItemIcon>
                 <BarChartIcon />

@@ -12,7 +12,7 @@ namespace Vocalia.Podcast.Repositories
 {
     public class PodcastRepository : IPodcastRepository
     {
-        private readonly int defaultPodcastCount = 200;
+        private readonly int defaultPodcastCount = 100;
 
         private IGPodderFacade GPodderService { get; }
         private IITunesFacade ITunesService { get; }

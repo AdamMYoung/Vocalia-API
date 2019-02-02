@@ -7,6 +7,7 @@ namespace Vocalia.Facades.GPodder.DTOs
 {
     public class Podcast
     {
+
         [JsonProperty(PropertyName = "title")]
         public string Name { get; set; }
 
