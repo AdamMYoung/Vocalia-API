@@ -61,4 +61,4 @@ CategoryBrowsePodcasts.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles()(CategoryBrowsePodcasts);
+export default CategoryBrowsePodcasts;

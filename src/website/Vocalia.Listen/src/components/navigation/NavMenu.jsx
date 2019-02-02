@@ -104,8 +104,7 @@ class NavMenu extends React.Component {
         </nav>
         <main className={classes.content}>
           <Toolbar />
-          <div className={classes.contentPadding}>{this.props.children}</div>
-          <Toolbar />
+          {this.props.children}
         </main>
       </div>
     );
