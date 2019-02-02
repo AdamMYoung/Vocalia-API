@@ -24,14 +24,22 @@ class PodcastEntry extends Component {
     super(props);
 
     this.state = {
-      data: this.props.data
+      data: this.props.data,
+      callback: this.props.clickCallback
     };
+  }
+
+  cardClicked(rss) {
+    this.state.callback(rss);
   }
 
   render() {
     const { classes, data } = this.props;
     return (
-      <Card className={classes.paper + " card"}>
+      <Card
+        className={classes.paper + " card"}
+        onClick={() => this.cardClicked(data.rssUrl)}
+      >
         <img src={data.imageUrl} alt={data.title} />
       </Card>
     );
