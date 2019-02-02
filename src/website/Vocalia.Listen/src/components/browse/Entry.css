@@ -1,0 +1,25 @@
+.loadingCard {
+  animation-name: color;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+}
+
+.card {
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+@keyframes color {
+  0% {
+    background-color: rgb(255, 255, 255);
+  }
+  50% {
+    background-color: rgb(235, 235, 235);
+  }
+  100% {
+    background-color: rgb(255, 255, 255);
+  }
+}

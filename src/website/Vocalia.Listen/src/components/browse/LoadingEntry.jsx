@@ -19,27 +19,15 @@ const styles = theme => ({
   }
 });
 
-class PodcastEntry extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      data: this.props.data
-    };
-  }
-
+class LoadingEntry extends Component {
   render() {
-    const { classes, data } = this.props;
-    return (
-      <Card className={classes.paper + " card"}>
-        <img src={data.imageUrl} alt={data.title} />
-      </Card>
-    );
+    const { classes } = this.props;
+    return <Card className={classes.paper + " loadingCard"} />;
   }
 }
 
-PodcastEntry.propTypes = {
+LoadingEntry.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(PodcastEntry);
+export default withStyles(styles)(LoadingEntry);

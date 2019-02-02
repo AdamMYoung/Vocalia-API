@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Route, Switch } from "react-router";
+import { Route } from "react-router";
 import Layout from "./components/Layout";
 import PodcastBrowse from "./components/browse/PodcastBrowse";
 

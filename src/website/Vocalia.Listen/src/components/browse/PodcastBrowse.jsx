@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import PodcastEntry from "./PodcastEntry";
+import LoadingEntry from "./LoadingEntry";
 import Fade from "@material-ui/core/Fade";
 
 const API = "http://localhost:54578/podcast/";
@@ -54,26 +54,44 @@ class PodcastBrowse extends Component {
   render() {
     const { loading } = this.state;
 
-    return (
-      <div>
-        <Fade in={!loading}>
-          <Grid container>
-            <Grid item xs={12}>
-              <Grid container justify="space-evenly">
-                {this.state.podcasts.map(podcast => (
-                  <PodcastEntry data={podcast} key={podcast.title} />
-                ))}
-              </Grid>
-            </Grid>
+    function renderPlaceholderCards() {
+      return (
+        <Fade in={loading}>
+          <Grid container justify="space-evenly">
+            {Array.apply(null, { length: 100 })
+              .map(Function.call, Number)
+              .map(() => (
+                <LoadingEntry />
+              ))}
           </Grid>
         </Fade>
+      );
+    }
+
+    function renderPodcastCards(podcasts) {
+      return (
+        <Fade in={!loading}>
+          <Grid container justify="space-evenly">
+            {podcasts.map(podcast => (
+              <PodcastEntry data={podcast} key={podcast.title} />
+            ))}
+          </Grid>
+        </Fade>
+      );
+    }
+
+    return (
+      <div>
+        <Grid container>
+          <Grid item xs={12}>
+            {loading && renderPlaceholderCards()}
+
+            {!loading && renderPodcastCards(this.state.podcasts)}
+          </Grid>
+        </Grid>
       </div>
     );
   }
 }
-
-PodcastBrowse.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 
 export default PodcastBrowse;

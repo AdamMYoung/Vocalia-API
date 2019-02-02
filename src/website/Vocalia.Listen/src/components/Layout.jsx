@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import NavMenu from "./navigation/NavMenu";
 import MaterialPlayer from "./player/material-player";
 import Grid from "@material-ui/core/Grid";
-import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 
 const styles = theme => ({
@@ -34,10 +33,5 @@ class Layout extends Component {
     );
   }
 }
-
-NavMenu.propTypes = {
-  container: PropTypes.object,
-  theme: PropTypes.object.isRequired
-};
 
 export default withStyles(styles)(Layout);
