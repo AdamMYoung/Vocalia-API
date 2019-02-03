@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import "./Entry.css";
@@ -19,15 +18,14 @@ const styles = theme => ({
   }
 });
 
+/**
+ * Placeholder entry containing a pulsing card for display when preloading podcast content.
+ */
 class LoadingEntry extends Component {
   render() {
     const { classes } = this.props;
     return <Card className={classes.paper + " loadingCard"} />;
   }
 }
-
-LoadingEntry.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 
 export default withStyles(styles)(LoadingEntry);

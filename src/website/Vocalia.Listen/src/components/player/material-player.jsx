@@ -85,6 +85,13 @@ export default class MaterialPlayer extends Component {
     }
   }
 
+  componentWillReceiveProps(props) {
+    console.log(props.src);
+    this.audio.src = props.src;
+    this.audio.play();
+    this.setState({ paused: false });
+  }
+
   /**
    * Called when the component is loaded, and assigns event listeners to the resize event.
    */
@@ -138,7 +145,7 @@ export default class MaterialPlayer extends Component {
 
     return (
       <Slide direction="up" in={podcastSelected}>
-        <Card className="player" raised={true}>
+        <Card id="material-player" className="player" raised={true}>
           <div className="player-left">
             {!isMobile && this.props.image != null && (
               <div className="image">

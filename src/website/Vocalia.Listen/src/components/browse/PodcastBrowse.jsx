@@ -4,6 +4,7 @@ import Fade from "@material-ui/core/Fade";
 import PodcastEntry from "./PodcastEntry";
 import LoadingEntry from "./LoadingEntry";
 import PodcastDetail from "../detail/PodcastDetail";
+import PubSub from "pubsub-js";
 
 const API = "http://localhost:54578/podcast/";
 const TOP = "top";
@@ -19,28 +20,39 @@ class PodcastBrowse extends Component {
     };
   }
 
+  /**
+   * Loads the podcasts when the component mounts.
+   */
   componentDidMount = () => {
     this.loadPodcasts();
   };
 
+  /**
+   * Called when the category parameters change, updating the state with the new properties.
+   */
   componentWillReceiveProps = newProps => {
     this.setState({ category: newProps.match.params.id });
     this.loadPodcasts();
   };
 
+  /**
+   * Queries the Vocalia API for podcasts.
+   */
   loadPodcasts = () => {
+    const { category } = this.state;
     this.setState({ loading: true });
 
-    fetch(this.buildQueryString())
+    fetch(this.buildQueryString(category))
       .then(response => response.json())
       .then(data => this.setState({ podcasts: data, loading: false }));
   };
 
-  buildQueryString = () => {
-    var cat = this.state.category;
-
-    if (isNaN(cat)) {
-      switch (cat) {
+  /**
+   * Builds a query string from the passed category.
+   */
+  buildQueryString = category => {
+    if (isNaN(category)) {
+      switch (category) {
         case "top":
           return API + TOP;
         default:
@@ -48,15 +60,31 @@ class PodcastBrowse extends Component {
       }
     }
 
-    return API + TOP + "?categoryId=" + this.state.category;
+    return API + TOP + "?categoryId=" + category;
   };
 
-  podcastClickCallback = rss => {
-    this.setState({ rssUrl: rss, dialogOpen: true });
+  /**
+   * Called when a podcast is clicked.
+   */
+  onPodcastClick = (rss, imgUrl) => {
+    console.log(imgUrl);
+    this.setState({ rssUrl: rss, imgUrl: imgUrl, dialogOpen: true });
   };
 
+  /**
+   * Closes the current dialog box.
+   */
   handleClose = () => {
     this.setState({ dialogOpen: false });
+  };
+
+  /**
+   * Called when an episode is selected to play.
+   */
+  onPlay = data => {
+    const { imgUrl } = this.state;
+    data["img"] = imgUrl;
+    PubSub.publish("newAudio", data);
   };
 
   render() {
@@ -68,6 +96,7 @@ class PodcastBrowse extends Component {
           rssUrl={rssUrl}
           open={dialogOpen}
           onClose={this.handleClose}
+          onPlay={this.onPlay}
         />
         <Grid container>
           <Grid item xs={12}>
@@ -85,8 +114,8 @@ class PodcastBrowse extends Component {
           <Grid container justify="space-evenly">
             {Array.apply(null, { length: 100 })
               .map(Function.call, Number)
-              .map(() => (
-                <LoadingEntry key={this} />
+              .map(num => (
+                <LoadingEntry key={num} />
               ))}
           </Grid>
         </Fade>
@@ -101,7 +130,7 @@ class PodcastBrowse extends Component {
               <PodcastEntry
                 data={podcast}
                 key={podcast.title}
-                clickCallback={thisRef.podcastClickCallback}
+                onClick={thisRef.onPodcastClick}
               />
             ))}
           </Grid>

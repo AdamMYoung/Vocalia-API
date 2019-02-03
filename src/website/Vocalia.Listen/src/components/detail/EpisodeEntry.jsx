@@ -13,16 +13,6 @@ const styles = {
     width: 32,
     height: 32,
     padding: 0
-  },
-  icon: {
-    fontSize: 40,
-    color: "#fffff"
-  },
-  tooltip: {
-    marginLeft: 7
-  },
-  content: {
-    lineHeight: 600
   }
 };
 
@@ -32,29 +22,22 @@ const styles = {
  * episode:
  */
 class EpisodeEntry extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      episode: {}
-    };
-  }
-
-  componentWillMount() {
-    this.setState({ episode: this.props.episode });
-  }
-
   render() {
-    const { episode } = this.state;
+    const { episode } = this.props;
+
+    const array = {};
+    array["src"] = episode.enclosure["url"];
+    array["episode"] = episode.title;
 
     return (
       <ExpansionPanel key={episode.guid}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <IconButton
             style={styles.button}
-            iconStyle={styles.icon}
-            tooltipStyles={styles.tooltip}
-            onClick={this.props.onPlay}
+            onClick={e => {
+              this.props.onClick(array);
+              e.stopPropagation();
+            }}
           >
             <PlayArrowIcon />
           </IconButton>

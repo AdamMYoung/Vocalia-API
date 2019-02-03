@@ -74,6 +74,7 @@ class NavMenu extends React.Component {
             </Typography>
           </Toolbar>
         </AppBar>
+
         <nav className={classes.drawer}>
           {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
           <Hidden smUp implementation="css">

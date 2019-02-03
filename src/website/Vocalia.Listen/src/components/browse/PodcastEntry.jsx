@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import "./Entry.css";
@@ -19,18 +18,15 @@ const styles = theme => ({
   }
 });
 
+/**
+ * React object for a podcast entry. Contains an RSS url and image for display within the PodcastBrowse component.
+ */
 class PodcastEntry extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      data: this.props.data,
-      callback: this.props.clickCallback
-    };
-  }
-
-  cardClicked(rss) {
-    this.state.callback(rss);
+  /**
+   * Called when the entry is clicked.
+   */
+  onClick(rss, img) {
+    this.props.onClick(rss, img);
   }
 
   render() {
@@ -38,16 +34,12 @@ class PodcastEntry extends Component {
     return (
       <Card
         className={classes.paper + " card"}
-        onClick={() => this.cardClicked(data.rssUrl)}
+        onClick={() => this.onClick(data.rssUrl, data.imageUrl)}
       >
         <img src={data.imageUrl} alt={data.title} />
       </Card>
     );
   }
 }
-
-PodcastEntry.propTypes = {
-  classes: PropTypes.object.isRequired
-};
 
 export default withStyles(styles)(PodcastEntry);
