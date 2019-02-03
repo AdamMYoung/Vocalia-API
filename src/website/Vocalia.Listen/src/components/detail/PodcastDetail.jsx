@@ -1,10 +1,16 @@
 import React, { Component } from "react";
 import Dialog from "@material-ui/core/Dialog";
-import { withMobileDialog } from "@material-ui/core";
+import { withMobileDialog, Divider } from "@material-ui/core";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Fade from "@material-ui/core/Fade";
 
@@ -33,6 +39,12 @@ class PodcastDetail extends Component {
     }
   }
 
+  handleChange = panel => (event, expanded) => {
+    this.setState({
+      expanded: expanded ? panel : false
+    });
+  };
+
   render() {
     const { feed, loading } = this.state;
 
@@ -56,9 +68,31 @@ class PodcastDetail extends Component {
                 <DialogContentText>
                   <div>{removeTags(feed.description)}</div>
                 </DialogContentText>
+                <Divider style={{ marginTop: "5px", marginBottom: "5px" }} />
+
+                {feed.items != null &&
+                  feed.items.map(item => (
+                    <ExpansionPanel
+                      key={item.guid}
+                      expanded={this.state.expanded === item.title}
+                      onChange={this.handleChange(item.title)}
+                    >
+                      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                        <PlayArrowIcon />
+                        <Typography
+                          style={{ marginTop: "2px", marginLeft: "2px" }}
+                        >
+                          {item.title}
+                        </Typography>
+                      </ExpansionPanelSummary>
+                      <ExpansionPanelDetails>
+                        <Typography>{removeTags(item.content)}</Typography>
+                      </ExpansionPanelDetails>
+                    </ExpansionPanel>
+                  ))}
               </DialogContent>
               <DialogActions>
-                <Button onClick={this.props.onClose} color="primary" autoFocus>
+                <Button onClick={this.props.onClose} color="primary">
                   Close
                 </Button>
               </DialogActions>
