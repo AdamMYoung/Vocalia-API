@@ -9,10 +9,10 @@ const MyContext = React.createContext();
 const styles = theme => ({
   margin: {
     [theme.breakpoints.down("sm")]: {
-      marginBottom: 130
+      marginBottom: 150
     },
     [theme.breakpoints.up("md")]: {
-      paddingBottom: 70
+      paddingBottom: 110
     }
   }
 });
