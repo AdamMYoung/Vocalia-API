@@ -36,6 +36,12 @@ class PodcastDetail extends Component {
   render() {
     const { feed, loading } = this.state;
 
+    function removeTags(text) {
+      if (text != null) {
+        return text.replace(/<\/?[^>]+(>|$)/g, "");
+      }
+    }
+
     return (
       <Dialog
         open={this.props.open}
@@ -47,7 +53,9 @@ class PodcastDetail extends Component {
             <div>
               <DialogTitle>{feed.title}</DialogTitle>
               <DialogContent>
-                <DialogContentText>{feed.description}</DialogContentText>
+                <DialogContentText>
+                  <div>{removeTags(feed.description)}</div>
+                </DialogContentText>
               </DialogContent>
               <DialogActions>
                 <Button onClick={this.props.onClose} color="primary" autoFocus>
