@@ -80,6 +80,35 @@ namespace Vocalia.Podcast.Db
         }
     }
 
+    internal class ListenTypeEntityTypeConfiguration : IEntityTypeConfiguration<Listen>
+    {
+        public void Configure(EntityTypeBuilder<Listen> builder)
+        {
+            builder.Property(i => i.UserUID).IsRequired();
+            builder.Property(i => i.RssUrl).IsRequired();
+            builder.Property(i => i.EpisodeName).IsRequired();
+            builder.Property(i => i.EpisodeGUID).IsRequired();           
+            builder.Property(i => i.Time).IsRequired();
+
+           
+        }
+    }
+
+    internal class SubscriptionTypeEntityTypeConfiguration : IEntityTypeConfiguration<Subscription>
+    {
+        public void Configure(EntityTypeBuilder<Subscription> builder)
+        {
+            builder.Property(i => i.UserUID).IsRequired();
+            builder.Property(i => i.RssUrl).IsRequired();
+            builder.Property(i => i.Name).IsRequired();
+            builder.Property(i => i.Description).IsRequired();
+            builder.Property(i => i.ImageUrl).IsRequired();
+
+            builder.HasMany(l => l.Listens)
+               .WithOne(e => e.Subscription);
+        }
+    }
+
     public class PodcastContext : DbContext
     {
         public PodcastContext(DbContextOptions<PodcastContext> options) : base(options) { }
@@ -89,6 +118,8 @@ namespace Vocalia.Podcast.Db
         public DbSet<Language> Languages { get; set; }
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<PodcastIntegration> PodcastIntegrations { get; set; }
+        public DbSet<Listen> Listens { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,7 +130,8 @@ namespace Vocalia.Podcast.Db
             modelBuilder.ApplyConfiguration(new LanguageEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastIntegrationEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new SubscriptionTypeEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ListenTypeEntityTypeConfiguration());
         }
-
     }
 }

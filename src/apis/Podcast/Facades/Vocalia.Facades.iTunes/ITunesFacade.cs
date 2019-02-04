@@ -3,6 +3,7 @@ using Refit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Vocalia.Facades.iTunes;
 using Vocalia.Facades.iTunes.DTOs;
@@ -73,7 +74,18 @@ namespace Vocalia.Podcast.Facades.iTunes
                 });
             }
 
-            Parallel.ForEach(podcasts, async (podcast) => podcast.RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync(podcast.PodcastId)));
+            Parallel.ForEach(podcasts, async (podcast) => 
+            {
+                try
+                {
+                    podcast.RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync(podcast.PodcastId));
+                }
+                catch(HttpRequestException)
+                {
+                    podcast = null;
+                }
+
+            });
 
             return podcasts.OrderBy(p => p.Position);
         }

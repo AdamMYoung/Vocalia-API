@@ -33,7 +33,7 @@ namespace Vocalia.Facades.GPodder
             {
                 Parallel.ForEach(entries, async (file) => podcasts.Add(await Service.GetPodcastDataAsync(file.URL)));
             }
-            catch(ApiException e)
+            catch(ApiException)
             {
                 return podcasts.OrderByDescending(x => x.Subscribers);
             }

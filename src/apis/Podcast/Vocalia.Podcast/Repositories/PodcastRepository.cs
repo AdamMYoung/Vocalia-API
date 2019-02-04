@@ -7,6 +7,8 @@ using Vocalia.Podcast.Db;
 using Microsoft.EntityFrameworkCore;
 using Vocalia.Podcast.DomainModels;
 using Vocalia.Podcast.Facades.iTunes;
+using Vocalia.Podcast.DTOs;
+using CodeHollow.FeedReader;
 
 namespace Vocalia.Podcast.Repositories
 {
@@ -127,6 +129,37 @@ namespace Vocalia.Podcast.Repositories
                 RssUrl = p.RssUrl,
                 ImageUrl = p.ImageUrl
             });
+        }
+
+        /// <summary>
+        /// Parses an RSS feed into C# DTOs to serialize, allowing additional information to be added such as listen times and listen info.
+        /// </summary>
+        /// <param name="rssUrl">URL to parse.</param>
+        /// <returns></returns>
+        public async Task<DTOs.Feed> GetFeedFromUrl(string rssUrl)
+        {
+            var feed = await FeedReader.ReadAsync(rssUrl);
+            if (feed == null)
+                return null;
+
+            return new DTOs.Feed()
+            {
+                Title = feed.Title,
+                Link = feed.Link,
+                Description = feed.Description,
+                Copyright = feed.Copyright,
+                ImageUrl = feed.ImageUrl,
+                Items = feed.Items.Select(i => new DTOs.FeedItem()
+                {
+                    Title = i.Title,
+                    Link = i.Link,
+                    Description = i.Description,
+                    PublishingDate = i.PublishingDate,
+                    Author = i.Author,
+                    Id = i.Id,
+                    Content = i.Content
+                })
+            };
         }
     }
 

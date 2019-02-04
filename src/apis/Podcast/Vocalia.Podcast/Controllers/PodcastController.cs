@@ -71,5 +71,24 @@ namespace Vocalia.Podcast.Controllers
 
             return Ok(podcastDTOs);
         }
+
+        /// <summary>
+        /// Parses an RSS feed into JSON objects, with current duration and completion status if applicable.
+        /// </summary>
+        /// <param name="rssUrl">URL to parse.</param>
+        /// <returns></returns>
+        [Route("parse")]
+        [HttpGet]
+        public async Task<IActionResult> ParseRssFeed(string rssUrl)
+        {
+            if (rssUrl.Length == 0 || rssUrl == null)
+                return BadRequest();
+
+            var parsedFeed = await Repository.GetFeedFromUrl(rssUrl);
+            if (parsedFeed == null)
+                return NotFound();
+
+            return Ok(parsedFeed);
+        }
     }
 }
