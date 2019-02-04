@@ -8,6 +8,9 @@
     },
     {
       "path": "src\\website\\Vocalia.Listen(Prototype)"
+    },
+    {
+      "path": "src\\website\\Vocalia.Listen"
     }
   ],
   "settings": {}
