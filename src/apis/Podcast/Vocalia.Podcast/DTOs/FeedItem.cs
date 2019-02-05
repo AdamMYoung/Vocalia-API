@@ -7,6 +7,12 @@ namespace Vocalia.Podcast.DTOs
 {
     public class FeedItem
     {
+
+        /// <summary>
+        /// URL of the image.
+        /// </summary>
+        public string ImageUrl { get; internal set; }
+
         /// <summary>
         /// The title of the feed item
         /// </summary>

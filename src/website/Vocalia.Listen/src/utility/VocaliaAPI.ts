@@ -50,9 +50,12 @@ class VocaliaAPI {
    * @param rssUrl URL to parse.
    */
   async parsePodcastFeed(rssUrl: string): Promise<PodcastFeed> {
-    return await fetch(API + PARSE + "?feedUrl=" + rssUrl)
-      .then(response => response.json())
-      .then(data => data as PodcastFeed);
+    if (rssUrl != null && rssUrl != "undefined") {
+      return await fetch(API + PARSE + "?rssUrl=" + rssUrl)
+        .then(response => response.json())
+        .then(data => data as PodcastFeed);
+    }
+    return Promise.reject("Bad Request");
   }
 }
 

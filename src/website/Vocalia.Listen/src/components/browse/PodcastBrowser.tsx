@@ -8,12 +8,21 @@ import {
   WithStyles
 } from "@material-ui/core/styles";
 import { Podcast, PodcastEpisode } from "../../types";
+import PodcastDetail from "./PodcastDetail";
 
-interface IBrowserState {}
+interface IBrowserState {
+  dialogOpen: boolean;
+  selectedPodcast: Podcast;
+}
 
 interface IBrowserProps extends WithStyles<typeof styles> {
   podcasts: Podcast[];
   onEpisodeSelected: (episode: PodcastEpisode) => void;
+}
+
+interface IEntryProps extends WithStyles<typeof styles> {
+  podcast: Podcast;
+  onClick: (podcast: Podcast) => void;
 }
 
 const styles = (theme: Theme) =>
@@ -32,10 +41,10 @@ const styles = (theme: Theme) =>
     }
   });
 
-function Entry(props: any) {
-  const { classes, podcast } = props;
+function Entry(props: IEntryProps) {
+  const { classes, podcast, onClick } = props;
   return (
-    <Card className={classes.paper + " card"}>
+    <Card className={classes.paper + " card"} onClick={() => onClick(podcast)}>
       <img
         src={podcast.imageUrl}
         alt={podcast.title}
@@ -45,16 +54,52 @@ function Entry(props: any) {
   );
 }
 
+function Placeholder(props: any) {
+  const { classes } = props;
+  return <Card className={classes.paper} />;
+}
+
 class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      dialogOpen: false,
+      selectedPodcast: {} as Podcast
+    };
+  }
+
+  /**
+   * Called when a podcast is clicked.
+   */
+  onPodcastClick = (podcast: Podcast) => {
+    this.setState({ selectedPodcast: podcast, dialogOpen: true });
+  };
+
   render() {
-    const { podcasts, classes } = this.props;
+    const { podcasts, classes, onEpisodeSelected } = this.props;
+    const { dialogOpen, selectedPodcast } = this.state;
 
     return (
-      <Grid container justify="space-evenly">
-        {podcasts.map(podcast => (
-          <Entry key={podcast.id} podcast={podcast} classes={classes} />
-        ))}
-      </Grid>
+      <React.Fragment>
+        <PodcastDetail
+          open={dialogOpen}
+          podcast={selectedPodcast}
+          onClose={() => this.setState({ dialogOpen: false })}
+          onEpisodeSelected={episode => onEpisodeSelected(episode)}
+        />
+        <Grid container justify="space-evenly">
+          {podcasts !== null &&
+            podcasts.map(podcast => (
+              <Entry
+                key={podcast.rssUrl}
+                podcast={podcast}
+                classes={classes}
+                onClick={podcast => this.onPodcastClick(podcast)}
+              />
+            ))}
+        </Grid>
+      </React.Fragment>
     );
   }
 }

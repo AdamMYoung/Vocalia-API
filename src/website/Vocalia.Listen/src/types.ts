@@ -23,6 +23,7 @@ export interface PodcastFeed {
 }
 
 export interface PodcastEpisode {
+  imageUrl: string;
   title: string;
   link: string;
   description: string;

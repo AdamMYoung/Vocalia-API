@@ -3,9 +3,10 @@
  */
 export function isMobile(): boolean {
   if (
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(
       navigator.userAgent
-    )
+    ) ||
+    window.innerWidth < 700
   ) {
     return true;
   }

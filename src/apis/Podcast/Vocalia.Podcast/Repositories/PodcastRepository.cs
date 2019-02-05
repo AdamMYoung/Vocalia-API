@@ -9,6 +9,7 @@ using Vocalia.Podcast.DomainModels;
 using Vocalia.Podcast.Facades.iTunes;
 using Vocalia.Podcast.DTOs;
 using CodeHollow.FeedReader;
+using System.Collections.Concurrent;
 
 namespace Vocalia.Podcast.Repositories
 {
@@ -139,6 +140,7 @@ namespace Vocalia.Podcast.Repositories
         public async Task<DTOs.Feed> GetFeedFromUrl(string rssUrl)
         {
             var feed = await FeedReader.ReadAsync(rssUrl);
+            var parsedFeed = feed.SpecificFeed;
             if (feed == null)
                 return null;
 
@@ -151,13 +153,14 @@ namespace Vocalia.Podcast.Repositories
                 ImageUrl = feed.ImageUrl,
                 Items = feed.Items.Select(i => new DTOs.FeedItem()
                 {
-                    Title = i.Title,
+                    Title = feed.Title,
                     Link = i.Link,
+                    ImageUrl = feed.ImageUrl,
                     Description = i.Description,
                     PublishingDate = i.PublishingDate,
-                    Author = i.Author,
+                    Author = feed.Title,
                     Id = i.Id,
-                    Content = i.Content
+                    Content = i.Content.Length != 0 ? i.Content : i.SpecificItem.ToString()
                 })
             };
         }

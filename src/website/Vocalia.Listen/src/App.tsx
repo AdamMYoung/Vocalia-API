@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Category, Podcast, PodcastEpisode } from "./types";
 import Navigation from "./components/navigation/Navigation";
 import MediaPlayer from "./components/player/MediaPlayer";
-import { Grid } from "@material-ui/core";
+import { Slide } from "@material-ui/core";
 import VocaliaAPI from "./utility/VocaliaAPI";
 import PodcastBrowser from "./components/browse/PodcastBrowser";
 import "./App.css";
@@ -11,6 +11,7 @@ import { Route } from "react-router";
 interface IAppState {
   podcastData: { [key: string]: Podcast[] };
   categories: Category[];
+  selectedEpisode: PodcastEpisode;
 }
 
 interface IAppProps {}
@@ -23,7 +24,8 @@ class App extends Component<IAppProps, IAppState> {
 
     this.state = {
       podcastData: { top: [] },
-      categories: []
+      categories: [],
+      selectedEpisode: { time: 0 } as PodcastEpisode
     };
   }
 
@@ -38,15 +40,17 @@ class App extends Component<IAppProps, IAppState> {
     (async () => {
       let loadedPodcasts = this.state.podcastData;
       loadedPodcasts["top"] = await loader.getTopPodcasts();
-      //loadedPodcasts["subscribed"] = await loader.getSubscribedPodcasts();
       this.setState({ podcastData: loadedPodcasts });
     })();
   }
 
-  onEpisodeSelected = (episode: PodcastEpisode) => {};
+  onEpisodeSelected = (episode: PodcastEpisode) => {
+    console.log(episode);
+    this.setState({ selectedEpisode: episode });
+  };
 
   render() {
-    const { podcastData } = this.state;
+    const { podcastData, selectedEpisode } = this.state;
 
     return (
       <Navigation categories={this.state.categories}>
@@ -55,7 +59,9 @@ class App extends Component<IAppProps, IAppState> {
             podcasts={podcastData["top"]}
             onEpisodeSelected={this.onEpisodeSelected}
           />
-          <MediaPlayer />
+          {selectedEpisode.link != null && (
+            <MediaPlayer media={selectedEpisode} />
+          )}
         </React.Fragment>
       </Navigation>
     );
