@@ -13,7 +13,6 @@ import {
 } from "@material-ui/core/styles";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
-import { isMobile } from "../../utility/DeviceUtils";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import NavDrawer from "./NavDrawer";
 import { Category } from "../../types";
@@ -98,6 +97,7 @@ const styles = (theme: Theme) =>
 
 interface IProps extends WithStyles<typeof styles> {
   categories: Category[];
+  isMobile: boolean;
 }
 
 interface IState {
@@ -118,13 +118,13 @@ class Navigation extends Component<IProps, IState> {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, isMobile } = this.props;
 
     return (
       <div className={classes.root}>
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar variant={isMobile() ? "regular" : "dense"}>
+          <Toolbar variant={isMobile ? "regular" : "dense"}>
             <IconButton
               color="inherit"
               aria-label="Open drawer"

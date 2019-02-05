@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import { Divider, Modal, withMobileDialog } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -25,7 +25,7 @@ interface IProps {
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
-class PodcastDetail extends Component<IProps, IState> {
+class PodcastDetail extends PureComponent<IProps, IState> {
   constructor(props: any) {
     super(props);
 
@@ -38,8 +38,12 @@ class PodcastDetail extends Component<IProps, IState> {
 
   componentWillReceiveProps = (props: IProps) => {
     var loader = new VocaliaAPI();
+    const { podcast } = this.props;
 
-    if (props.podcast.rssUrl !== null) {
+    if (
+      props.podcast.rssUrl !== null &&
+      props.podcast.rssUrl !== podcast.rssUrl
+    ) {
       (async () => {
         this.setState({ loading: true });
         let feed = await loader.parsePodcastFeed(props.podcast.rssUrl);

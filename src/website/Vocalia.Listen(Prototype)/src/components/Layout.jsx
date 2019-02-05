@@ -5,7 +5,6 @@ import Grid from "@material-ui/core/Grid";
 import { withStyles } from "@material-ui/core/styles";
 import PubSub from "pubsub-js";
 
-const MyContext = React.createContext();
 const styles = theme => ({
   margin: {
     [theme.breakpoints.down("sm")]: {

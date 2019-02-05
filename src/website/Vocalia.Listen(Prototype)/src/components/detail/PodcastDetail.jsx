@@ -8,11 +8,6 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { removeTags } from "../../utils/TextUtils.js";
 import EpisodeEntry from "./EpisodeEntry";
 import Button from "@material-ui/core/Button";
-import PubSub from "pubsub-js";
-
-let Parser = require("rss-parser");
-
-const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
 
 /**
  * Dialog box to display information about a selected podcast.

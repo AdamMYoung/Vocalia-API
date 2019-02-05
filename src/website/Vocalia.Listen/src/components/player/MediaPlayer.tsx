@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import { IconButton, Fab, Card } from "@material-ui/core";
 import {
   Forward30,
@@ -10,48 +10,66 @@ import {
 import Slider from "@material-ui/lab/Slider";
 import "./MediaPlayer.css";
 import { PodcastEpisode } from "../../types";
-import { isMobile } from "../../utility/DeviceUtils";
 import { formatTime } from "../../utility/FormatUtils";
 
 interface IProps {
   media: PodcastEpisode;
+  isMobile: boolean;
 }
 
 interface IState {
-  audioObject: HTMLAudioElement;
   paused: boolean;
   time: number;
   volume: number;
+  audioObject: HTMLAudioElement;
 }
 
-export default class MediaPlayer extends Component<IProps, IState> {
-  constructor(props: any) {
+export default class MediaPlayer extends PureComponent<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
 
     const { media } = this.props;
-
-    let audio = document.createElement("audio");
-    audio.loop = false;
-    audio.currentTime = media.time;
-    audio.ontimeupdate = () => this.onHandleTimeUpdate();
-    audio.onended = () => this.setState({ paused: true });
+    let audioObject = document.createElement("audio");
+    audioObject.loop = false;
+    audioObject.currentTime = media.time;
+    audioObject.ontimeupdate = () => this.onHandleTimeUpdate();
+    audioObject.onended = () => this.setState({ paused: true });
 
     this.state = {
       paused: true,
-      audioObject: audio,
       time: media.time,
-      volume: 0.7
+      volume: 0.7,
+      audioObject: audioObject
     };
   }
 
-  componentWillMount() {
+  componentWillReceiveProps(props: IProps) {
     const { audioObject } = this.state;
 
-    console.log(this.props.media.content);
-    audioObject.src = this.props.media.content;
+    if (props.media.content !== audioObject.src) {
+      this.initializePodcastFromProps(props);
+    }
+  }
+
+  componentWillMount() {
+    const { isMobile } = this.props;
+    this.initializePodcastFromProps(this.props);
+
+    this.setState({
+      volume: isMobile ? 1 : this.state.volume
+    });
+  }
+
+  /**
+   * Loads a podacst from the props source into the player.
+   */
+  initializePodcastFromProps = (props: IProps) => {
+    const { audioObject } = this.state;
+    audioObject.src = props.media.content;
+    audioObject.load();
     audioObject.play();
     this.setState({ paused: false });
-  }
+  };
 
   /**
    * Called when a fast-forward event has occured.
@@ -76,7 +94,7 @@ export default class MediaPlayer extends Component<IProps, IState> {
   };
 
   /**
-   * Called when the play/pause button has been toggle
+   * Called when the play/pause button has been toggled.
    */
   onTogglePause = () => {
     const { audioObject } = this.state;
@@ -129,8 +147,8 @@ export default class MediaPlayer extends Component<IProps, IState> {
       icon = <Pause />;
     }
 
-    const { media } = this.props;
-    const { audioObject, time, volume } = this.state;
+    const { media, isMobile } = this.props;
+    const { time, volume, audioObject } = this.state;
 
     return (
       <Card
@@ -142,7 +160,7 @@ export default class MediaPlayer extends Component<IProps, IState> {
         }}
       >
         <div className="player-left">
-          {!isMobile() && media.imageUrl != null && (
+          {!isMobile && media.imageUrl != null && (
             <div className="image">
               {media.imageUrl != null}
               <img alt="podcast-logo" src={media.imageUrl} />
@@ -190,7 +208,7 @@ export default class MediaPlayer extends Component<IProps, IState> {
           </div>
         </div>
 
-        {!isMobile() && (
+        {!isMobile && (
           <div className="player-right">
             <VolumeUp className="icon" />
             <Slider

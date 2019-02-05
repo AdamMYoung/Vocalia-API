@@ -6,12 +6,14 @@ import { Slide } from "@material-ui/core";
 import VocaliaAPI from "./utility/VocaliaAPI";
 import PodcastBrowser from "./components/browse/PodcastBrowser";
 import "./App.css";
+import { isMobile } from "./utility/DeviceUtils";
 import { Route } from "react-router";
 
 interface IAppState {
   podcastData: { [key: string]: Podcast[] };
   categories: Category[];
   selectedEpisode: PodcastEpisode;
+  isMobile: boolean;
 }
 
 interface IAppProps {}
@@ -25,10 +27,29 @@ class App extends Component<IAppProps, IAppState> {
     this.state = {
       podcastData: { top: [] },
       categories: [],
-      selectedEpisode: { time: 0 } as PodcastEpisode
+      selectedEpisode: { time: 0 } as PodcastEpisode,
+      isMobile: false
     };
   }
 
+  /**
+   * Called after the component has mounted.
+   */
+  componentDidMount() {
+    this.updatePredicate();
+    window.addEventListener("resize", this.updatePredicate);
+  }
+
+  /**
+   * Called when the component is unloaded.
+   */
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updatePredicate);
+  }
+
+  /**
+   * Called before the component finishes mounting.
+   */
   componentWillMount() {
     var loader = new VocaliaAPI();
 
@@ -44,8 +65,8 @@ class App extends Component<IAppProps, IAppState> {
     })();
   }
 
-  Player = () => {
-    return <MediaPlayer media={this.state.selectedEpisode} />;
+  updatePredicate = () => {
+    this.setState({ isMobile: isMobile() });
   };
 
   onEpisodeSelected = (episode: PodcastEpisode) => {
@@ -53,16 +74,18 @@ class App extends Component<IAppProps, IAppState> {
   };
 
   render() {
-    const { podcastData, selectedEpisode } = this.state;
+    const { podcastData, selectedEpisode, isMobile, categories } = this.state;
 
     return (
-      <Navigation categories={this.state.categories}>
+      <Navigation categories={categories} isMobile={isMobile}>
         <React.Fragment>
           <PodcastBrowser
             podcasts={podcastData["top"]}
             onEpisodeSelected={this.onEpisodeSelected}
           />
-          {selectedEpisode.link != null && <this.Player />}
+          {selectedEpisode.link != null && (
+            <MediaPlayer media={selectedEpisode} isMobile={isMobile} />
+          )}
         </React.Fragment>
       </Navigation>
     );

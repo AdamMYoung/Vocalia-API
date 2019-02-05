@@ -160,7 +160,7 @@ namespace Vocalia.Podcast.Repositories
                     PublishingDate = i.PublishingDate,
                     Author = feed.Title,
                     Id = i.Id,
-                    Content = i.Content ?? i.SpecificItem.Element.Elements("enclosure").FirstOrDefault().Attribute("url").Value
+                    Content = i.SpecificItem.Element.Elements("enclosure").FirstOrDefault().Attribute("url").Value
                 })
             };
         }
