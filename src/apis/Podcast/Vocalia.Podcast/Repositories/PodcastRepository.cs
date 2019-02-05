@@ -153,14 +153,14 @@ namespace Vocalia.Podcast.Repositories
                 ImageUrl = feed.ImageUrl,
                 Items = feed.Items.Select(i => new DTOs.FeedItem()
                 {
-                    Title = feed.Title,
+                    Title = i.Title,
                     Link = i.Link,
                     ImageUrl = feed.ImageUrl,
                     Description = i.Description,
                     PublishingDate = i.PublishingDate,
                     Author = feed.Title,
                     Id = i.Id,
-                    Content = i.Content.Length != 0 ? i.Content : i.SpecificItem.ToString()
+                    Content = i.Content ?? i.SpecificItem.Element.Elements("enclosure").FirstOrDefault().Attribute("url").Value
                 })
             };
         }
