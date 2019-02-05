@@ -44,11 +44,11 @@ export default class MediaPlayer extends Component<IProps, IState> {
     };
   }
 
-  componentWillReceiveProps(props: IProps) {
+  componentWillMount() {
     const { audioObject } = this.state;
 
-    console.log(props.media.content);
-    audioObject.src = props.media.content;
+    console.log(this.props.media.content);
+    audioObject.src = this.props.media.content;
     audioObject.play();
     this.setState({ paused: false });
   }

@@ -44,6 +44,10 @@ class App extends Component<IAppProps, IAppState> {
     })();
   }
 
+  Player = () => {
+    return <MediaPlayer media={this.state.selectedEpisode} />;
+  };
+
   onEpisodeSelected = (episode: PodcastEpisode) => {
     this.setState({ selectedEpisode: episode });
   };
@@ -58,9 +62,7 @@ class App extends Component<IAppProps, IAppState> {
             podcasts={podcastData["top"]}
             onEpisodeSelected={this.onEpisodeSelected}
           />
-          {selectedEpisode.link != null && (
-            <MediaPlayer media={selectedEpisode} />
-          )}
+          {selectedEpisode.link != null && <this.Player />}
         </React.Fragment>
       </Navigation>
     );

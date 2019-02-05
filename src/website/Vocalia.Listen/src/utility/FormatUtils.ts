@@ -3,9 +3,11 @@
  * @param {Number (in seconds) to format.} num
  */
 export function formatTime(timeSeconds: number) {
-  var hours: number | string = Math.floor(timeSeconds / 3600);
-  var minutes: number | string = Math.floor((timeSeconds - hours * 3600) / 60);
-  var seconds: number | string = timeSeconds - hours * 3600 - minutes * 60;
+  var converted = "" + timeSeconds;
+  var sec_num = parseInt(converted, 10);
+  var hours: number | string = Math.floor(sec_num / 3600);
+  var minutes: number | string = Math.floor((sec_num - hours * 3600) / 60);
+  var seconds: number | string = sec_num - hours * 3600 - minutes * 60;
 
   if (hours < 10) {
     hours = "0" + hours;
