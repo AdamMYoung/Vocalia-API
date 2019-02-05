@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from "react";
+import React, { PureComponent } from "react";
 import { IconButton, Fab, Card } from "@material-ui/core";
 import {
   Forward30,

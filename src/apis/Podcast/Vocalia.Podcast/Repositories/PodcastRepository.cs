@@ -5,21 +5,32 @@ using System.Threading.Tasks;
 using Vocalia.Facades.GPodder;
 using Vocalia.Podcast.Db;
 using Microsoft.EntityFrameworkCore;
-using Vocalia.Podcast.DomainModels;
 using Vocalia.Podcast.Facades.iTunes;
-using Vocalia.Podcast.DTOs;
 using CodeHollow.FeedReader;
-using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Vocalia.Podcast.Repositories
 {
     public class PodcastRepository : IPodcastRepository
     {
+        /// <summary>
+        /// Default number of podcasts to return.
+        /// </summary>
         private readonly int defaultPodcastCount = 100;
 
+        /// <summary>
+        /// Service for fetching GPodder podcast data.
+        /// </summary>
         private IGPodderFacade GPodderService { get; }
+
+        /// <summary>
+        /// Service for fetching iTunes podcast data.
+        /// </summary>
         private IITunesFacade ITunesService { get; }
+
+        /// <summary>
+        /// DB context for podcast data.
+        /// </summary>
         private PodcastContext DbContext { get; }
 
         /// <summary>
@@ -27,6 +38,13 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         private IMemoryCache Cache { get; }
 
+        /// <summary>
+        /// Initializes a new PodcastRepository.
+        /// </summary>
+        /// <param name="context">Vocalia database reference.</param>
+        /// <param name="gpodderFacade">GPodder API service.</param>
+        /// <param name="iTunesFacade">iTunes API service.</param>
+        /// <param name="cache">Cache object for storing pre-fetched data.</param>
         public PodcastRepository(PodcastContext context, IGPodderFacade gpodderFacade, IITunesFacade iTunesFacade, IMemoryCache cache)
         {
             DbContext = context;
@@ -54,7 +72,6 @@ namespace Vocalia.Podcast.Repositories
                 }).ToListAsync();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
-
                 Cache.Set(CacheKeys.Categories, categories, cacheEntryOptions);
             }
 
@@ -74,10 +91,8 @@ namespace Vocalia.Podcast.Repositories
 
             if(categoryId.HasValue)
                 category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
-
             var countryCode = category?.Language.ISOCode ?? "gb";
 
-            //Term for the cache reference.
             var cacheTerm = categoryId.HasValue ? CacheKeys.Podcasts + categoryId.Value : CacheKeys.Podcasts;
 
             //Cache the podcast results for less impact on APIs.
@@ -196,7 +211,6 @@ namespace Vocalia.Podcast.Repositories
                 };
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(2));
-
                 Cache.Set(cacheTerm, feedEntry, cacheEntryOptions);
             }
 
