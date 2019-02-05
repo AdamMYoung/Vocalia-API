@@ -45,7 +45,6 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   onEpisodeSelected = (episode: PodcastEpisode) => {
-    console.log(episode);
     this.setState({ selectedEpisode: episode });
   };
 

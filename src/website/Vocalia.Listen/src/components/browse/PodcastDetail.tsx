@@ -87,7 +87,7 @@ class PodcastDetail extends Component<IProps, IState> {
                   .slice(0, visibleEpisodes)
                   .map(item => (
                     <EpisodeEntry
-                      key={item.link}
+                      key={item.content}
                       episode={item}
                       onEpisodeSelected={(episode: PodcastEpisode) =>
                         onEpisodeSelected(episode)
