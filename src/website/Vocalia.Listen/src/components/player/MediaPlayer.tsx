@@ -183,6 +183,7 @@ export default class MediaPlayer extends PureComponent<
           bottom: 0
         }}
       >
+        {/* Image & Playback */}
         <div className="player-left">
           {!isMobile && media.imageUrl != null && (
             <div className="image">
@@ -204,6 +205,7 @@ export default class MediaPlayer extends PureComponent<
           </IconButton>
         </div>
 
+        {/* Seek & Naming */}
         <div className="player-center">
           <div className="no-wrap">
             <div className="episode">
@@ -232,6 +234,7 @@ export default class MediaPlayer extends PureComponent<
           </div>
         </div>
 
+        {/* Volume Control */}
         {!isMobile && (
           <div className="player-right">
             <VolumeUp className="icon" />
