@@ -1,5 +1,4 @@
 import React, { Component, PureComponent } from "react";
-import { Divider, Modal, withMobileDialog } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -9,7 +8,6 @@ import Button from "@material-ui/core/Button";
 import { Podcast, PodcastFeed, PodcastEpisode } from "../../types";
 import EpisodeEntry from "./EpisodeEntry";
 import VocaliaAPI from "../../utility/VocaliaAPI";
-import { isMobile } from "../../utility/DeviceUtils";
 import { removeTags } from "../../utility/FormatUtils";
 
 /**

@@ -146,7 +146,9 @@ class App extends Component<IAppProps, IAppState> {
         <React.Fragment>
           {RoutingContents}
           {selectedEpisode.link != null && (
-            <MediaPlayer media={selectedEpisode} isMobile={isMobile} />
+            <Slide direction={"up"} in={selectedEpisode.link != null}>
+              <MediaPlayer media={selectedEpisode} isMobile={isMobile} />
+            </Slide>
           )}
         </React.Fragment>
       </Navigation>
