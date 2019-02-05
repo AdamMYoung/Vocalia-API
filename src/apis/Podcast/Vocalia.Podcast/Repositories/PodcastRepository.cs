@@ -10,6 +10,7 @@ using Vocalia.Podcast.Facades.iTunes;
 using Vocalia.Podcast.DTOs;
 using CodeHollow.FeedReader;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Vocalia.Podcast.Repositories
 {
@@ -21,11 +22,17 @@ namespace Vocalia.Podcast.Repositories
         private IITunesFacade ITunesService { get; }
         private PodcastContext DbContext { get; }
 
-        public PodcastRepository(PodcastContext context, IGPodderFacade gpodderFacade, IITunesFacade iTunesFacade)
+        /// <summary>
+        /// In-memory cache for faster data access.
+        /// </summary>
+        private IMemoryCache Cache { get; }
+
+        public PodcastRepository(PodcastContext context, IGPodderFacade gpodderFacade, IITunesFacade iTunesFacade, IMemoryCache cache)
         {
             DbContext = context;
             GPodderService = gpodderFacade;
             ITunesService = iTunesFacade;
+            Cache = cache;
         }
        
         /// <summary>
@@ -34,15 +41,24 @@ namespace Vocalia.Podcast.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.Category>> GetCategoriesAsync()
         {
-            return await DbContext.Categories.Select(c => new DomainModels.Category()
+            if(!Cache.TryGetValue(CacheKeys.Categories, out IEnumerable<DomainModels.Category> categories))
             {
-                ID = c.ID,
-                LanguageID = c.LanguageID,
-                ITunesID = c.ITunesID,
-                GPodderTag = c.GpodderTag,
-                Title = c.Title,
-                IconUrl = c.IconUrl
-            }).ToListAsync();
+                categories = await DbContext.Categories.Select(c => new DomainModels.Category()
+                {
+                    ID = c.ID,
+                    LanguageID = c.LanguageID,
+                    ITunesID = c.ITunesID,
+                    GPodderTag = c.GpodderTag,
+                    Title = c.Title,
+                    IconUrl = c.IconUrl
+                }).ToListAsync();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
+
+                Cache.Set(CacheKeys.Categories, categories, cacheEntryOptions);
+            }
+
+            return categories;
         }
 
         /// <summary>
@@ -60,16 +76,29 @@ namespace Vocalia.Podcast.Repositories
                 category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
 
             var countryCode = category?.Language.ISOCode ?? "gb";
-            var podcasts = new List<DomainModels.Podcast>();
 
-            podcasts.AddRange(await GetVocaliaPodcastsAsync(count, category?.ID, countryCode, allowExplicit));
-            podcasts.AddRange(await GetiTunesPodcastsAsync(count, category?.ITunesID, countryCode, allowExplicit));         
-            
-            //GPodder can't filter explicit data so only queries if allowExplicit is true.
-            if (allowExplicit && podcasts.Count < count)
-                podcasts.AddRange(await GetGPodderPodcastsAsync(count, category?.GpodderTag));
+            //Term for the cache reference.
+            var cacheTerm = categoryId.HasValue ? CacheKeys.Podcasts + categoryId.Value : CacheKeys.Podcasts;
 
-            return podcasts.Distinct(new PodcastEqualityComparator()).Take(count);
+            //Cache the podcast results for less impact on APIs.
+            if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
+            {
+                var fetchedPodcasts = new List<DomainModels.Podcast>();
+
+                fetchedPodcasts.AddRange(await GetVocaliaPodcastsAsync(count, category?.ID, countryCode, allowExplicit));
+                fetchedPodcasts.AddRange(await GetiTunesPodcastsAsync(count, category?.ITunesID, countryCode, allowExplicit));
+
+                //GPodder can't filter explicit data so only queries if allowExplicit is true.
+                if (allowExplicit && fetchedPodcasts.Count < count)
+                    fetchedPodcasts.AddRange(await GetGPodderPodcastsAsync(count, category?.GpodderTag));
+
+                podcasts = fetchedPodcasts.Where(p => p.RssUrl != null).Distinct(new PodcastEqualityComparator()).Take(count);
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
+                Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
+            }
+
+            return podcasts;
         }
 
         /// <summary>
@@ -139,30 +168,39 @@ namespace Vocalia.Podcast.Repositories
         /// <returns></returns>
         public async Task<DTOs.Feed> GetFeedFromUrl(string rssUrl)
         {
-            var feed = await FeedReader.ReadAsync(rssUrl);
-            var parsedFeed = feed.SpecificFeed;
-            if (feed == null)
-                return null;
-
-            return new DTOs.Feed()
+            var cacheTerm = CacheKeys.Feed + rssUrl;
+            if (!Cache.TryGetValue(cacheTerm, out DTOs.Feed feedEntry))
             {
-                Title = feed.Title,
-                Link = feed.Link,
-                Description = feed.Description,
-                Copyright = feed.Copyright,
-                ImageUrl = feed.ImageUrl,
-                Items = feed.Items.Select(i => new DTOs.FeedItem()
+                var feed = await FeedReader.ReadAsync(rssUrl);
+                if (feed == null)
+                    return null;
+
+                feedEntry = new DTOs.Feed()
                 {
-                    Title = i.Title,
-                    Link = i.Link,
+                    Title = feed.Title,
+                    Link = feed.Link,
+                    Description = feed.Description,
+                    Copyright = feed.Copyright,
                     ImageUrl = feed.ImageUrl,
-                    Description = i.Description,
-                    PublishingDate = i.PublishingDate,
-                    Author = feed.Title,
-                    Id = i.Id,
-                    Content = i.SpecificItem.Element.Elements("enclosure").FirstOrDefault().Attribute("url").Value
-                })
-            };
+                    Items = feed.Items.Select(i => new DTOs.FeedItem()
+                    {
+                        Title = i.Title,
+                        Link = i.Link,
+                        ImageUrl = feed.ImageUrl,
+                        Description = i.Description,
+                        PublishingDate = i.PublishingDate,
+                        Author = feed.Title,
+                        Id = i.Id,
+                        Content = i.SpecificItem.Element.Elements("enclosure").FirstOrDefault().Attribute("url").Value
+                    })
+                };
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddMinutes(10));
+
+                Cache.Set(cacheTerm, feedEntry, cacheEntryOptions);
+            }
+
+            return feedEntry;
         }
     }
 

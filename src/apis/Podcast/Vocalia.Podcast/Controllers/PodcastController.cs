@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Vocalia.Facades.GPodder;
 using Vocalia.Podcast.DomainModels;
 using Vocalia.Podcast.Facades.iTunes;
@@ -15,9 +16,16 @@ namespace Vocalia.Podcast.Controllers
     [ApiController]
     public class PodcastController : ControllerBase
     {
-        public IPodcastRepository Repository { get; }
+        /// <summary>
+        /// Repository for API data.
+        /// </summary>
+        private IPodcastRepository Repository { get; }
 
-        public PodcastController(IPodcastRepository repository) => Repository = repository;
+        public PodcastController(IPodcastRepository repository)
+        {
+            Repository = repository;
+
+        }
 
         /// <summary>
         /// Returns all podcast categories.

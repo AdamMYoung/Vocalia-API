@@ -87,7 +87,7 @@ namespace Vocalia.Podcast.Facades.iTunes
 
             });
 
-            return podcasts.OrderBy(p => p.Position);
+            return podcasts.Where(p => p != null).OrderBy(p => p.Position);
         }
 
         /// <summary>

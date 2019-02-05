@@ -88,7 +88,7 @@ class NavDrawer extends Component<IProps, IState> {
         </div>
         <Divider />
         <List>
-          <LinkContainer to="/browse/top">
+          <LinkContainer to="/top">
             <ListItem button>
               <ListItemIcon>
                 <BarChartIcon />

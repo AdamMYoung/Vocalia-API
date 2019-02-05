@@ -56,11 +56,23 @@ class App extends Component<IAppProps, IAppState> {
     (async () => {
       let categories = await loader.getCategories();
       this.setState({ categories: categories });
+
+      categories.forEach(async category => {
+        let id = category.id;
+        console.log(category);
+        let podcasts = await loader.getPodcastByCategory(id);
+
+        let loadedPodcast = this.state.podcastData;
+        loadedPodcast[id] = podcasts;
+        this.setState({ podcastData: loadedPodcast });
+      });
     })();
 
     (async () => {
+      let podcasts = await loader.getTopPodcasts();
+
       let loadedPodcasts = this.state.podcastData;
-      loadedPodcasts["top"] = await loader.getTopPodcasts();
+      loadedPodcasts["top"] = podcasts;
       this.setState({ podcastData: loadedPodcasts });
     })();
   }
@@ -76,14 +88,42 @@ class App extends Component<IAppProps, IAppState> {
   render() {
     const { podcastData, selectedEpisode, isMobile, categories } = this.state;
 
+    const RoutingContents = (
+      <React.Fragment>
+        <Route
+          exact
+          path="/top"
+          render={() => (
+            <PodcastBrowser
+              isMobile={isMobile}
+              selectedEpisode={selectedEpisode}
+              podcasts={podcastData["top"]}
+              onEpisodeSelected={this.onEpisodeSelected}
+            />
+          )}
+        />
+
+        <Route
+          exact
+          path="/browse/:id"
+          render={props => (
+            <div>
+              <PodcastBrowser
+                isMobile={isMobile}
+                selectedEpisode={selectedEpisode}
+                podcasts={podcastData[props.match.params.id]}
+                onEpisodeSelected={this.onEpisodeSelected}
+              />
+            </div>
+          )}
+        />
+      </React.Fragment>
+    );
+
     return (
       <Navigation categories={categories} isMobile={isMobile}>
         <React.Fragment>
-          <PodcastBrowser
-            selectedEpisode={selectedEpisode}
-            podcasts={podcastData["top"]}
-            onEpisodeSelected={this.onEpisodeSelected}
-          />
+          {RoutingContents}
           {selectedEpisode.link != null && (
             <MediaPlayer media={selectedEpisode} isMobile={isMobile} />
           )}

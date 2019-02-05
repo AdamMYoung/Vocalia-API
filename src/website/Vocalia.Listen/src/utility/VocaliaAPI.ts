@@ -13,7 +13,8 @@ class VocaliaAPI {
   async getCategories(): Promise<Category[]> {
     return await fetch(API + CATEGORIES)
       .then(response => response.json())
-      .then(data => data as Category[]);
+      .then(data => data as Category[])
+      .catch(() => Promise.reject("Failed fetching categories."));
   }
 
   /**
@@ -22,7 +23,8 @@ class VocaliaAPI {
   async getTopPodcasts(): Promise<Podcast[]> {
     return await fetch(API + TOP)
       .then(response => response.json())
-      .then(data => data as Podcast[]);
+      .then(data => data as Podcast[])
+      .catch(() => Promise.reject("Failed fetching top podcasts."));
   }
 
   /**
@@ -31,7 +33,8 @@ class VocaliaAPI {
   async getSubscribedPodcasts(): Promise<Podcast[]> {
     return await fetch(API + SUBSCRIBED)
       .then(response => response.json())
-      .then(data => data as Podcast[]);
+      .then(data => data as Podcast[])
+      .catch(() => Promise.reject("Failed fetching subscribed podcasts"));
   }
 
   /**
@@ -39,9 +42,12 @@ class VocaliaAPI {
    * @param categoryId ID of the category to filter by.
    */
   async getPodcastByCategory(categoryId: number): Promise<Podcast[]> {
-    return await fetch(API + TOP + "?categoryId" + categoryId)
+    return await fetch(API + TOP + "?categoryId=" + categoryId)
       .then(response => response.json())
-      .then(data => data as Podcast[]);
+      .then(data => data as Podcast[])
+      .catch(() =>
+        Promise.reject("Failed fetching category. ID: " + categoryId)
+      );
   }
 
   /**
@@ -53,7 +59,10 @@ class VocaliaAPI {
     if (rssUrl != null && rssUrl != "undefined") {
       return await fetch(API + PARSE + "?rssUrl=" + rssUrl)
         .then(response => response.json())
-        .then(data => data as PodcastFeed);
+        .then(data => data as PodcastFeed)
+        .catch(() =>
+          Promise.reject("Failed parsing RSS feed. Feed: " + rssUrl)
+        );
     }
     return Promise.reject("Bad Request");
   }

@@ -18,6 +18,7 @@ interface IBrowserState {
 interface IBrowserProps extends WithStyles<typeof styles> {
   podcasts: Podcast[];
   selectedEpisode: PodcastEpisode;
+  isMobile: boolean;
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
@@ -70,6 +71,10 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
     };
   }
 
+  shouldComponentUpdate(props: IBrowserProps, stat: IBrowserState) {
+    return true;
+  }
+
   /**
    * Called when a podcast is clicked.
    */
@@ -82,7 +87,8 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
       podcasts,
       classes,
       onEpisodeSelected,
-      selectedEpisode
+      selectedEpisode,
+      isMobile
     } = this.props;
     const { dialogOpen, selectedPodcast } = this.state;
 
@@ -92,11 +98,12 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
           open={dialogOpen}
           podcast={selectedPodcast}
           selectedEpisode={selectedEpisode}
+          isMobile={isMobile}
           onClose={() => this.setState({ dialogOpen: false })}
           onEpisodeSelected={episode => onEpisodeSelected(episode)}
         />
         <Grid container justify="space-evenly">
-          {podcasts !== null &&
+          {podcasts != null &&
             podcasts.map(podcast => (
               <Entry
                 key={podcast.rssUrl}

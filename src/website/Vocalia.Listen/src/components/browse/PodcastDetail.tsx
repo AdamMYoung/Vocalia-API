@@ -21,6 +21,7 @@ interface IState {
 interface IProps {
   podcast: Podcast;
   open: boolean;
+  isMobile: boolean;
   selectedEpisode: PodcastEpisode;
   onClose: () => void;
   onEpisodeSelected: (episode: PodcastEpisode) => void;
@@ -63,20 +64,21 @@ class PodcastDetail extends PureComponent<IProps, IState> {
 
   render() {
     const { feed, visibleEpisodes, loading } = this.state;
-    const { open, onClose, onEpisodeSelected, selectedEpisode } = this.props;
+    const {
+      open,
+      onClose,
+      onEpisodeSelected,
+      selectedEpisode,
+      isMobile
+    } = this.props;
 
     return (
-      <Dialog
-        open={open}
-        onClose={onClose}
-        fullScreen={isMobile()}
-        maxWidth="md"
-      >
+      <Dialog open={open} onClose={onClose} fullScreen={isMobile} maxWidth="md">
         {/* Requires a nested dialog to have the two stage screen fade and fade on content load */}
         <Dialog
           open={!loading && this.props.open}
           onClose={onClose}
-          fullScreen={isMobile()}
+          fullScreen={isMobile}
           maxWidth="md"
         >
           {!loading && <DialogTitle>{feed.title}</DialogTitle>}

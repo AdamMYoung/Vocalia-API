@@ -4,7 +4,7 @@ import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import PauseIcon from "@material-ui/icons/Pause";
+import StopIcon from "@material-ui/icons/Stop";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import { removeTags } from "../../utility/FormatUtils";
@@ -41,7 +41,7 @@ class EpisodeEntry extends Component<IProps, IState> {
 
     let icon =
       episode.content == selectedEpisode.content ? (
-        <PauseIcon />
+        <StopIcon />
       ) : (
         <PlayArrowIcon />
       );
