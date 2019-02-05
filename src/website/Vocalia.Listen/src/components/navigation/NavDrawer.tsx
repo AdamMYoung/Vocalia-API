@@ -19,6 +19,10 @@ import { LinkContainer } from "react-router-bootstrap";
 import { drawerWidth } from "../../constants";
 import { Category } from "../../types";
 
+/**
+ * CSS styles for the navigation drawer.
+ * @param theme Theme of the navigation drawer.
+ */
 const styles = (theme: Theme) =>
   createStyles({
     root: {
@@ -52,16 +56,26 @@ const styles = (theme: Theme) =>
     }
   });
 
-interface IProps extends WithStyles<typeof styles> {
+/**
+ * Required properties for the navigation drawer, also bundling the current styles.
+ */
+interface INavDrawerProps extends WithStyles<typeof styles> {
   theme: Theme;
   mobileOpen: boolean;
   categories: Category[];
   handleDrawerToggle: () => void;
 }
 
-interface IState {}
+/**
+ * State variables of the navigation drawer.
+ */
 
-class NavDrawer extends Component<IProps, IState> {
+interface INavDrawerState {}
+
+/**
+ * Navigation drawer for selecting various routes of the application.
+ */
+class NavDrawer extends Component<INavDrawerProps, INavDrawerState> {
   /**
    * Closes the drawer if the mobile varient has been opened.
    */
@@ -74,6 +88,7 @@ class NavDrawer extends Component<IProps, IState> {
 
     const drawer = (
       <div>
+        {/* Login */}
         <div className={classes.toolbar}>
           <List>
             <LinkContainer to="/login">
@@ -86,8 +101,10 @@ class NavDrawer extends Component<IProps, IState> {
             </LinkContainer>
           </List>
         </div>
+
         <Divider />
         <List>
+          {/* Top */}
           <LinkContainer to="/top">
             <ListItem button>
               <ListItemIcon>
@@ -96,6 +113,8 @@ class NavDrawer extends Component<IProps, IState> {
               <ListItemText primary="Top" onClick={this.closeDrawer} />
             </ListItem>
           </LinkContainer>
+
+          {/* Subscribed */}
           <LinkContainer to="/subscribed">
             <ListItem button>
               <ListItemIcon>
@@ -107,6 +126,7 @@ class NavDrawer extends Component<IProps, IState> {
         </List>
         <Divider />
         <List>
+          {/* Categories */}
           {this.props.categories.map(category => (
             <LinkContainer key={category.id} to={"/browse/" + category.id}>
               <ListItem button>
@@ -124,7 +144,7 @@ class NavDrawer extends Component<IProps, IState> {
     return (
       <div className={classes.root}>
         <nav className={classes.drawer}>
-          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+          {/* Mobile varient of the navigation drawer */}
           <Hidden smUp implementation="css">
             <Drawer
               variant="temporary"
@@ -138,6 +158,8 @@ class NavDrawer extends Component<IProps, IState> {
               {drawer}
             </Drawer>
           </Hidden>
+
+          {/* Desktop varient of the navigation drawer */}
           <Hidden xsDown implementation="css">
             <Drawer
               classes={{

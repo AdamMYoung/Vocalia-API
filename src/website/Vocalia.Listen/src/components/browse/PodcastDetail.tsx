@@ -12,13 +12,10 @@ import VocaliaAPI from "../../utility/VocaliaAPI";
 import { isMobile } from "../../utility/DeviceUtils";
 import { removeTags } from "../../utility/FormatUtils";
 
-interface IState {
-  feed: PodcastFeed;
-  visibleEpisodes: number;
-  loading: boolean;
-}
-
-interface IProps {
+/**
+ * Properties required for the detail modal window.
+ */
+interface IDetailProps {
   podcast: Podcast;
   open: boolean;
   isMobile: boolean;
@@ -27,8 +24,20 @@ interface IProps {
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
-class PodcastDetail extends PureComponent<IProps, IState> {
-  constructor(props: IProps) {
+/**
+ * State information for the detail modal window.
+ */
+interface IDetailState {
+  feed: PodcastFeed;
+  visibleEpisodes: number;
+  loading: boolean;
+}
+
+/**
+ * Modal window displaying title, description and episode information for a specific podcast.
+ */
+class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
+  constructor(props: IDetailProps) {
     super(props);
 
     this.state = {
@@ -38,7 +47,10 @@ class PodcastDetail extends PureComponent<IProps, IState> {
     };
   }
 
-  componentWillReceiveProps = (props: IProps) => {
+  /**
+   * Updates the detail dialog. Only refreshes if the RSS URL has changed to prevent unnecessary re-renders.
+   */
+  componentWillReceiveProps = (props: IDetailProps) => {
     var loader = new VocaliaAPI();
     const { podcast } = this.props;
 
@@ -55,7 +67,7 @@ class PodcastDetail extends PureComponent<IProps, IState> {
   };
 
   /**
-   * Increases the number of visible episodes.
+   * Increases the number of visible episodes by 20.
    */
   increaseVisibleEpisodes = () => {
     let oldCount = this.state.visibleEpisodes;
@@ -126,5 +138,4 @@ class PodcastDetail extends PureComponent<IProps, IState> {
   }
 }
 
-//Currently no other way to export, so a cast to any is requried.
 export default PodcastDetail;

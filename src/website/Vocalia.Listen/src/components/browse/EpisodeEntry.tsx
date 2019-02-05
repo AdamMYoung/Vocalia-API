@@ -10,14 +10,9 @@ import IconButton from "@material-ui/core/IconButton";
 import { removeTags } from "../../utility/FormatUtils";
 import { PodcastEpisode } from "../../types";
 
-interface IState {}
-
-interface IProps {
-  episode: PodcastEpisode;
-  selectedEpisode: PodcastEpisode;
-  onEpisodeSelected: (episode: PodcastEpisode) => void;
-}
-
+/**
+ * CSS styles for the entry.
+ */
 const styles = {
   button: {
     width: 32,
@@ -26,7 +21,28 @@ const styles = {
   }
 };
 
-class EpisodeEntry extends Component<IProps, IState> {
+/**
+ * Required properties for the episode entry.
+ */
+interface IEpisodeProps {
+  episode: PodcastEpisode;
+  selectedEpisode: PodcastEpisode;
+  onEpisodeSelected: (episode: PodcastEpisode) => void;
+}
+
+/**
+ * State information for the episode entry.
+ */
+interface IEpisodeState {}
+
+/**
+ * Contains title, description and details for a specific episode item.
+ */
+class EpisodeEntry extends Component<IEpisodeProps, IEpisodeState> {
+  /**
+   * Called when an episode is selected, either setting the episode to null
+   *  or the selected episode depending on what is currently playing.
+   */
   onEpisodeSelect = () => {
     const { episode, onEpisodeSelected, selectedEpisode } = this.props;
 
@@ -36,9 +52,12 @@ class EpisodeEntry extends Component<IProps, IState> {
         : episode;
     onEpisodeSelected(selectedItem);
   };
+
   render() {
     const { episode, selectedEpisode } = this.props;
 
+    //Toggles between a stop button or play button depending if the
+    // current episode matches the object being represented.
     let icon =
       episode.content == selectedEpisode.content ? (
         <StopIcon />

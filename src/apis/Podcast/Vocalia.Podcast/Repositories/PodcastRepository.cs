@@ -94,7 +94,7 @@ namespace Vocalia.Podcast.Repositories
 
                 podcasts = fetchedPodcasts.Where(p => p.RssUrl != null).Distinct(new PodcastEqualityComparator()).Take(count);
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }
 
@@ -195,7 +195,7 @@ namespace Vocalia.Podcast.Repositories
                     })
                 };
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddMinutes(10));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(2));
 
                 Cache.Set(cacheTerm, feedEntry, cacheEntryOptions);
             }

@@ -9,6 +9,9 @@ import "./App.css";
 import { isMobile } from "./utility/DeviceUtils";
 import { Route } from "react-router";
 
+/**
+ * State information for the application.
+ */
 interface IAppState {
   podcastData: { [key: string]: Podcast[] };
   categories: Category[];
@@ -16,8 +19,14 @@ interface IAppState {
   isMobile: boolean;
 }
 
+/**
+ * Required properties for the application.
+ */
 interface IAppProps {}
 
+/**
+ * UI entry point into the application, handles routing and player interaction.
+ */
 class App extends Component<IAppProps, IAppState> {
   displayName = App.name;
 
@@ -33,7 +42,7 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   /**
-   * Called after the component has mounted.
+   * Called after the component has mounted, and sets a resize event listener for state updates.
    */
   componentDidMount() {
     this.updatePredicate();
@@ -41,18 +50,20 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   /**
-   * Called when the component is unloaded.
+   * Called when the component is unloaded, and removes a resize event listener for state updates.
    */
   componentWillUnmount() {
     window.removeEventListener("resize", this.updatePredicate);
   }
 
   /**
-   * Called before the component finishes mounting.
+   * Called before the component finishes mounting,
+   * and loads all categories and podcasts into memory.
    */
   componentWillMount() {
     var loader = new VocaliaAPI();
 
+    //Load category list and category data asynchronously.
     (async () => {
       let categories = await loader.getCategories();
       this.setState({ categories: categories });
@@ -68,6 +79,7 @@ class App extends Component<IAppProps, IAppState> {
       });
     })();
 
+    //Load top podcast data asynchronously.
     (async () => {
       let podcasts = await loader.getTopPodcasts();
 
@@ -77,10 +89,16 @@ class App extends Component<IAppProps, IAppState> {
     })();
   }
 
+  /**
+   * Checks the screen state of the current device for UI management.
+   */
   updatePredicate = () => {
     this.setState({ isMobile: isMobile() });
   };
 
+  /**
+   * Called when an episode has been selected for playback.
+   */
   onEpisodeSelected = (episode: PodcastEpisode) => {
     this.setState({ selectedEpisode: episode });
   };
@@ -88,6 +106,9 @@ class App extends Component<IAppProps, IAppState> {
   render() {
     const { podcastData, selectedEpisode, isMobile, categories } = this.state;
 
+    /**
+     * Elements that can be routed to.
+     */
     const RoutingContents = (
       <React.Fragment>
         <Route

@@ -12,20 +12,36 @@ import "./MediaPlayer.css";
 import { PodcastEpisode } from "../../types";
 import { formatTime } from "../../utility/FormatUtils";
 
-interface IProps {
+/**
+ * Required properties for the player.
+ */
+interface IPlayerProps {
   media: PodcastEpisode;
   isMobile: boolean;
 }
 
-interface IState {
+/**
+ * State information belonging to the player.
+ */
+interface IPlayerState {
   paused: boolean;
   time: number;
   volume: number;
   audioObject: HTMLAudioElement;
 }
 
-export default class MediaPlayer extends PureComponent<IProps, IState> {
-  constructor(props: IProps) {
+/**
+ * Material-themed player for podcast episode objects.
+ */
+export default class MediaPlayer extends PureComponent<
+  IPlayerProps,
+  IPlayerState
+> {
+  /**
+   * Initializes the audio object for playback.
+   * @param props Required propeties.
+   */
+  constructor(props: IPlayerProps) {
     super(props);
 
     const { media } = this.props;
@@ -43,7 +59,11 @@ export default class MediaPlayer extends PureComponent<IProps, IState> {
     };
   }
 
-  componentWillReceiveProps(props: IProps) {
+  /**
+   * Called when a new episode has been selected.
+   * @param props Passed properties.
+   */
+  componentWillReceiveProps(props: IPlayerProps) {
     const { audioObject } = this.state;
 
     if (props.media.content !== audioObject.src) {
@@ -51,6 +71,9 @@ export default class MediaPlayer extends PureComponent<IProps, IState> {
     }
   }
 
+  /**
+   * Called before initial mounting, sets initial mobile volume state, and sets the media source.
+   */
   componentWillMount() {
     const { isMobile } = this.props;
     this.initializePodcastFromProps(this.props);
@@ -60,6 +83,9 @@ export default class MediaPlayer extends PureComponent<IProps, IState> {
     });
   }
 
+  /**
+   * Called before unmounting, and stops the audio source from playing.
+   */
   componentWillUnmount() {
     this.state.audioObject.pause();
   }
@@ -67,7 +93,7 @@ export default class MediaPlayer extends PureComponent<IProps, IState> {
   /**
    * Loads a podacst from the props source into the player.
    */
-  initializePodcastFromProps = (props: IProps) => {
+  initializePodcastFromProps = (props: IPlayerProps) => {
     const { audioObject } = this.state;
     audioObject.src = props.media.content;
     audioObject.load();

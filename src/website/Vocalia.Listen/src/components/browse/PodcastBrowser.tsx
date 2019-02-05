@@ -9,12 +9,11 @@ import {
 } from "@material-ui/core/styles";
 import { Podcast, PodcastEpisode } from "../../types";
 import PodcastDetail from "./PodcastDetail";
+import "./PodcastEntry.css";
 
-interface IBrowserState {
-  dialogOpen: boolean;
-  selectedPodcast: Podcast;
-}
-
+/**
+ * Properties passed into the browser.
+ */
 interface IBrowserProps extends WithStyles<typeof styles> {
   podcasts: Podcast[];
   selectedEpisode: PodcastEpisode;
@@ -22,11 +21,25 @@ interface IBrowserProps extends WithStyles<typeof styles> {
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
+/**
+ * State of the browser.
+ */
+interface IBrowserState {
+  dialogOpen: boolean;
+  selectedPodcast: Podcast;
+}
+
+/**
+ * Properties for a podcast entry.
+ */
 interface IEntryProps extends WithStyles<typeof styles> {
   podcast: Podcast;
   onClick: (podcast: Podcast) => void;
 }
 
+/**
+ * CSS Styles of the browser
+ */
 const styles = (theme: Theme) =>
   createStyles({
     paper: {
@@ -43,6 +56,10 @@ const styles = (theme: Theme) =>
     }
   });
 
+/**
+ * Single podcast entry for display in the browser.
+ * @param props Properties belonging to the podcast entry.
+ */
 function Entry(props: IEntryProps) {
   const { classes, podcast, onClick } = props;
   return (
@@ -56,11 +73,9 @@ function Entry(props: IEntryProps) {
   );
 }
 
-function Placeholder(props: any) {
-  const { classes } = props;
-  return <Card className={classes.paper} />;
-}
-
+/**
+ * Component to display and interact with podcasts passed into it.
+ */
 class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
   constructor(props: IBrowserProps) {
     super(props);
@@ -69,10 +84,6 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
       dialogOpen: false,
       selectedPodcast: {} as Podcast
     };
-  }
-
-  shouldComponentUpdate(props: IBrowserProps, stat: IBrowserState) {
-    return true;
   }
 
   /**

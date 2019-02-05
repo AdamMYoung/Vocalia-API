@@ -18,6 +18,9 @@ import NavDrawer from "./NavDrawer";
 import { Category } from "../../types";
 import { drawerWidth } from "../../constants";
 
+/**
+ * CSS styles of the top AppBar.
+ */
 const styles = (theme: Theme) =>
   createStyles({
     root: {
@@ -95,17 +98,27 @@ const styles = (theme: Theme) =>
     }
   });
 
-interface IProps extends WithStyles<typeof styles> {
+/**
+ * Required properties of the top AppBar.
+ */
+interface INavigationProps extends WithStyles<typeof styles> {
   categories: Category[];
   isMobile: boolean;
 }
 
-interface IState {
+/**
+ * State information of the top AppBar.
+ */
+interface INavigationState {
   mobileOpen: boolean;
 }
 
-class Navigation extends Component<IProps, IState> {
-  constructor(props: IProps) {
+/**
+ * Provides a top AppBar component as well as drawer integration for search.
+ * Child properties are displayed within the content area.
+ */
+class Navigation extends Component<INavigationProps, INavigationState> {
+  constructor(props: INavigationProps) {
     super(props);
 
     this.state = {
@@ -113,7 +126,10 @@ class Navigation extends Component<IProps, IState> {
     };
   }
 
-  handleDrawerToggle = () => {
+  /**
+   * Opens/closes the navigation drawer depending on it's current state.
+   */
+  onDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
 
@@ -123,13 +139,15 @@ class Navigation extends Component<IProps, IState> {
     return (
       <div className={classes.root}>
         <CssBaseline />
+
+        {/* Top AppBar */}
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar variant={isMobile ? "regular" : "dense"}>
             <IconButton
               color="inherit"
               aria-label="Open drawer"
               className={classes.menuButton}
-              onClick={this.handleDrawerToggle}
+              onClick={this.onDrawerToggle}
             >
               <MenuIcon />
             </IconButton>
@@ -156,11 +174,15 @@ class Navigation extends Component<IProps, IState> {
             </div>
           </Toolbar>
         </AppBar>
+
+        {/* Navigation drawer. */}
         <NavDrawer
-          handleDrawerToggle={this.handleDrawerToggle}
+          handleDrawerToggle={this.onDrawerToggle}
           mobileOpen={this.state.mobileOpen}
           categories={this.props.categories}
         />
+
+        {/* Content to display. */}
         <main className={classes.content}>
           <Toolbar />
           {this.props.children}
