@@ -17,6 +17,7 @@ interface IBrowserState {
 
 interface IBrowserProps extends WithStyles<typeof styles> {
   podcasts: Podcast[];
+  selectedEpisode: PodcastEpisode;
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
@@ -60,7 +61,7 @@ function Placeholder(props: any) {
 }
 
 class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
-  constructor(props: any) {
+  constructor(props: IBrowserProps) {
     super(props);
 
     this.state = {
@@ -77,7 +78,12 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
   };
 
   render() {
-    const { podcasts, classes, onEpisodeSelected } = this.props;
+    const {
+      podcasts,
+      classes,
+      onEpisodeSelected,
+      selectedEpisode
+    } = this.props;
     const { dialogOpen, selectedPodcast } = this.state;
 
     return (
@@ -85,6 +91,7 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
         <PodcastDetail
           open={dialogOpen}
           podcast={selectedPodcast}
+          selectedEpisode={selectedEpisode}
           onClose={() => this.setState({ dialogOpen: false })}
           onEpisodeSelected={episode => onEpisodeSelected(episode)}
         />

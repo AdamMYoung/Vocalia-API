@@ -21,7 +21,7 @@ interface IAppProps {}
 class App extends Component<IAppProps, IAppState> {
   displayName = App.name;
 
-  constructor(props: any) {
+  constructor(props: IAppProps) {
     super(props);
 
     this.state = {
@@ -80,6 +80,7 @@ class App extends Component<IAppProps, IAppState> {
       <Navigation categories={categories} isMobile={isMobile}>
         <React.Fragment>
           <PodcastBrowser
+            selectedEpisode={selectedEpisode}
             podcasts={podcastData["top"]}
             onEpisodeSelected={this.onEpisodeSelected}
           />

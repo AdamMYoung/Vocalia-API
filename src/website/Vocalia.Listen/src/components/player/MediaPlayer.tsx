@@ -60,6 +60,10 @@ export default class MediaPlayer extends PureComponent<IProps, IState> {
     });
   }
 
+  componentWillUnmount() {
+    this.state.audioObject.pause();
+  }
+
   /**
    * Loads a podacst from the props source into the player.
    */
@@ -139,13 +143,7 @@ export default class MediaPlayer extends PureComponent<IProps, IState> {
   };
 
   render() {
-    let icon;
-
-    if (this.state.paused) {
-      icon = <PlayArrow />;
-    } else {
-      icon = <Pause />;
-    }
+    let icon = this.state.paused ? <PlayArrow /> : <Pause />;
 
     const { media, isMobile } = this.props;
     const { time, volume, audioObject } = this.state;

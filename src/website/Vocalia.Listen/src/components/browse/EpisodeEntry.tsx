@@ -4,6 +4,7 @@ import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+import PauseIcon from "@material-ui/icons/Pause";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import { removeTags } from "../../utility/FormatUtils";
@@ -13,6 +14,7 @@ interface IState {}
 
 interface IProps {
   episode: PodcastEpisode;
+  selectedEpisode: PodcastEpisode;
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
@@ -25,8 +27,24 @@ const styles = {
 };
 
 class EpisodeEntry extends Component<IProps, IState> {
+  onEpisodeSelect = () => {
+    const { episode, onEpisodeSelected, selectedEpisode } = this.props;
+
+    let selectedItem =
+      episode.content == selectedEpisode.content
+        ? ({ time: 0 } as PodcastEpisode)
+        : episode;
+    onEpisodeSelected(selectedItem);
+  };
   render() {
-    const { episode, onEpisodeSelected } = this.props;
+    const { episode, selectedEpisode } = this.props;
+
+    let icon =
+      episode.content == selectedEpisode.content ? (
+        <PauseIcon />
+      ) : (
+        <PlayArrowIcon />
+      );
 
     return (
       <ExpansionPanel>
@@ -34,11 +52,11 @@ class EpisodeEntry extends Component<IProps, IState> {
           <IconButton
             style={styles.button}
             onClick={e => {
-              onEpisodeSelected(episode);
+              this.onEpisodeSelect();
               e.stopPropagation();
             }}
           >
-            <PlayArrowIcon />
+            {icon}
           </IconButton>
           <Typography style={{ marginTop: "7px", marginLeft: "3px" }}>
             {episode.title}

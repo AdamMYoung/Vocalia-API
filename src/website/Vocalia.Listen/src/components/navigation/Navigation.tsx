@@ -105,7 +105,7 @@ interface IState {
 }
 
 class Navigation extends Component<IProps, IState> {
-  constructor(props: any) {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {

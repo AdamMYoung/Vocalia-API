@@ -21,12 +21,13 @@ interface IState {
 interface IProps {
   podcast: Podcast;
   open: boolean;
+  selectedEpisode: PodcastEpisode;
   onClose: () => void;
   onEpisodeSelected: (episode: PodcastEpisode) => void;
 }
 
 class PodcastDetail extends PureComponent<IProps, IState> {
-  constructor(props: any) {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
@@ -62,7 +63,7 @@ class PodcastDetail extends PureComponent<IProps, IState> {
 
   render() {
     const { feed, visibleEpisodes, loading } = this.state;
-    const { open, onClose, onEpisodeSelected } = this.props;
+    const { open, onClose, onEpisodeSelected, selectedEpisode } = this.props;
 
     return (
       <Dialog
@@ -93,6 +94,7 @@ class PodcastDetail extends PureComponent<IProps, IState> {
                     <EpisodeEntry
                       key={item.content}
                       episode={item}
+                      selectedEpisode={selectedEpisode}
                       onEpisodeSelected={(episode: PodcastEpisode) =>
                         onEpisodeSelected(episode)
                       }
