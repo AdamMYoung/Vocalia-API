@@ -19,9 +19,9 @@ namespace Vocalia.Podcast.DTOs
         public string Title { get; internal set; }
 
         /// <summary>
-        /// The link (url) to the feed item
+        /// RSS url of the episode.
         /// </summary>
-        public string Link { get; internal set; }
+        public string RssUrl { get; internal set; }
 
         /// <summary>
         /// The description of the feed item

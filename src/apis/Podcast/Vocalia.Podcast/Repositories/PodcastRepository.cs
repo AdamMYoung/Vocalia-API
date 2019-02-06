@@ -246,7 +246,7 @@ namespace Vocalia.Podcast.Repositories
                     Items = feed.Items.Select(i => new DTOs.FeedItem()
                     {
                         Title = i.Title,
-                        Link = i.Link,
+                        RssUrl = rssUrl,
                         ImageUrl = feed.ImageUrl,
                         Description = i.Description,
                         PublishingDate = i.PublishingDate,

@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { IconButton, Fab, Card } from "@material-ui/core";
+import { IconButton, Fab, Card, Typography, Fade } from "@material-ui/core";
 import {
   Forward30,
   Replay10,
@@ -11,6 +11,7 @@ import Slider from "@material-ui/lab/Slider";
 import "./MediaPlayer.css";
 import { PodcastEpisode } from "../../types";
 import { formatTime } from "../../utility/FormatUtils";
+import { Link } from "react-router-dom";
 
 /**
  * Required properties for the player.
@@ -28,6 +29,7 @@ interface IPlayerState {
   time: number; //The current progress of playback.
   volume: number; //Volume of playback.
   audioObject: HTMLAudioElement; //HTML Audio element for audio control.
+  imageLoaded: boolean; //Indicates if the image has loaded in.
 }
 
 /**
@@ -54,8 +56,9 @@ export default class MediaPlayer extends PureComponent<
     this.state = {
       paused: true,
       time: media.time,
-      volume: 0.7,
-      audioObject: audioObject
+      volume: 0.5,
+      audioObject: audioObject,
+      imageLoaded: false
     };
   }
 
@@ -76,6 +79,7 @@ export default class MediaPlayer extends PureComponent<
    */
   componentWillMount() {
     const { isMobile } = this.props;
+    this.setState({ imageLoaded: false });
     this.initializePodcastFromProps(this.props);
 
     this.setState({
@@ -172,7 +176,7 @@ export default class MediaPlayer extends PureComponent<
     let icon = this.state.paused ? <PlayArrow /> : <Pause />;
 
     const { media, isMobile } = this.props;
-    const { time, volume, audioObject } = this.state;
+    const { time, volume, audioObject, imageLoaded } = this.state;
 
     return (
       <Card
@@ -188,7 +192,13 @@ export default class MediaPlayer extends PureComponent<
           {!isMobile && media.imageUrl != null && (
             <div className="image">
               {media.imageUrl != null}
-              <img alt="podcast-logo" src={media.imageUrl} />
+              <Fade in={imageLoaded}>
+                <img
+                  alt="podcast-logo"
+                  src={media.imageUrl}
+                  onLoad={() => this.setState({ imageLoaded: true })}
+                />
+              </Fade>
             </div>
           )}
 
@@ -209,11 +219,24 @@ export default class MediaPlayer extends PureComponent<
         <div className="player-center">
           <div className="no-wrap">
             <div className="episode">
-              <span className="episode-title">{media.title}</span>
+              <span className="episode-title">
+                <Typography component="h6" variant="h6">
+                  {media.title}
+                </Typography>
+              </span>
             </div>
 
             <div className="title">
-              <span className="podcast-title">{media.author}</span>
+              <span className="podcast-title">
+                <Link
+                  to={"/detail/" + encodeURIComponent(media.rssUrl)}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Typography component="p" color="textSecondary">
+                    {media.author}
+                  </Typography>
+                </Link>
+              </span>
             </div>
           </div>
 

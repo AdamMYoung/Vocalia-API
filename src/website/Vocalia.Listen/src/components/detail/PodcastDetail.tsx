@@ -4,6 +4,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import { PodcastFeed, PodcastEpisode } from "../../types";
 import EpisodeEntry from "./EpisodeEntry";
@@ -72,62 +73,75 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
     } = this.props;
 
     return (
-      <Dialog open={open} onClose={onClose} fullScreen={isMobile} maxWidth="md">
-        {/* Requires a nested dialog to have the two stage screen dim and fade in on content load */}
+      <Card
+        style={{
+          height: window.outerHeight,
+          width: window.outerWidth,
+          margin: -100
+        }}
+      >
         <Dialog
-          open={!loading && this.props.open}
+          open={open}
           onClose={onClose}
           fullScreen={isMobile}
           maxWidth="md"
         >
-          {!loading && <DialogTitle>{feed.title}</DialogTitle>}
-          {!loading && (
-            <DialogContent>
-              <DialogContentText>
-                {removeTags(feed.description)}
-              </DialogContentText>
+          {/* Requires a nested dialog to have the two stage screen dim and fade in on content load */}
+          <Dialog
+            open={!loading && this.props.open}
+            onClose={onClose}
+            fullScreen={isMobile}
+            maxWidth="md"
+          >
+            {!loading && <DialogTitle>{feed.title}</DialogTitle>}
+            {!loading && (
+              <DialogContent>
+                <DialogContentText>
+                  {removeTags(feed.description)}
+                </DialogContentText>
 
-              {/* Episodes */}
-              {feed.items != null &&
-                feed.items
-                  .slice(0, visibleEpisodes)
-                  .map(item => (
-                    <EpisodeEntry
-                      key={item.content}
-                      episode={item}
-                      selectedEpisode={selectedEpisode}
-                      onEpisodeSelected={(episode: PodcastEpisode) =>
-                        onEpisodeSelected(episode)
-                      }
-                    />
-                  ))}
+                {/* Episodes */}
+                {feed.items != null &&
+                  feed.items
+                    .slice(0, visibleEpisodes)
+                    .map(item => (
+                      <EpisodeEntry
+                        key={item.content}
+                        episode={item}
+                        selectedEpisode={selectedEpisode}
+                        onEpisodeSelected={(episode: PodcastEpisode) =>
+                          onEpisodeSelected(episode)
+                        }
+                      />
+                    ))}
 
-              {/* Load more button */}
-              {visibleEpisodes < feed.items.length && (
-                <Button
-                  onClick={() =>
-                    this.setState(oldState => ({
-                      visibleEpisodes: oldState.visibleEpisodes + 20
-                    }))
-                  }
-                  color="primary"
-                >
-                  Load More...
+                {/* Load more button */}
+                {visibleEpisodes < feed.items.length && (
+                  <Button
+                    onClick={() =>
+                      this.setState(oldState => ({
+                        visibleEpisodes: oldState.visibleEpisodes + 20
+                      }))
+                    }
+                    color="primary"
+                  >
+                    Load More...
+                  </Button>
+                )}
+              </DialogContent>
+            )}
+
+            {/* Close button */}
+            {!loading && (
+              <DialogActions>
+                <Button onClick={this.props.onClose} color="primary">
+                  Close
                 </Button>
-              )}
-            </DialogContent>
-          )}
-
-          {/* Close button */}
-          {!loading && (
-            <DialogActions>
-              <Button onClick={this.props.onClose} color="primary">
-                Close
-              </Button>
-            </DialogActions>
-          )}
+              </DialogActions>
+            )}
+          </Dialog>
         </Dialog>
-      </Dialog>
+      </Card>
     );
   }
 }

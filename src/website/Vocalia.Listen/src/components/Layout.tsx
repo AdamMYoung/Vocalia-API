@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Category, Podcast, PodcastEpisode } from "../types";
 import Navigation from "./navigation/Navigation";
 import MediaPlayer from "./player/MediaPlayer";
-import { Slide } from "@material-ui/core";
+import { Slide, Fade } from "@material-ui/core";
 import VocaliaAPI from "../utility/VocaliaAPI";
 import PodcastBrowser from "./browse/PodcastBrowser";
 import { Route, RouteComponentProps, withRouter } from "react-router";
@@ -23,6 +23,13 @@ interface ILayoutState {
  */
 interface ILayoutProps extends RouteComponentProps {
   isMobile: boolean;
+}
+
+/**
+ * Required properties for a detail view.
+ */
+interface IDetailProps extends ILayoutProps {
+  rssUrl: string;
 }
 
 /**
@@ -83,7 +90,8 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
 
   onDialogClose = () => {
     let history = this.props.history;
-    history.goBack();
+    if (history.length > 1) history.goBack();
+    else history.push("/top");
   };
 
   render() {
@@ -96,13 +104,11 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
     const RoutingContents = (
       <React.Fragment>
         <Route
-          exact
-          path="/top"
+          path="/top/"
           render={() => <PodcastBrowser podcasts={podcastData["top"]} />}
         />
 
         <Route
-          exact
           path="/browse/:id/"
           render={props => (
             <PodcastBrowser podcasts={podcastData[props.match.params.id]} />
@@ -110,7 +116,8 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
         />
 
         <Route
-          path="/detail/:rss"
+          exact
+          path="/detail/:rss/"
           render={props => (
             <PodcastDetail
               open={true}
@@ -131,8 +138,8 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
       <Navigation categories={categories} isMobile={isMobile}>
         <React.Fragment>
           {RoutingContents}
-          {selectedEpisode.link != null && (
-            <Slide direction={"up"} in={selectedEpisode.link != null}>
+          {selectedEpisode.content != null && (
+            <Slide direction={"up"} in={selectedEpisode.content != null}>
               <MediaPlayer media={selectedEpisode} isMobile={isMobile} />
             </Slide>
           )}

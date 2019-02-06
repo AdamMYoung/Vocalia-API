@@ -25,7 +25,7 @@ export interface PodcastFeed {
 export interface PodcastEpisode {
   imageUrl: string;
   title: string;
-  link: string;
+  rssUrl: string;
   description: string;
   publishingDate: Date;
   author: string;
