@@ -26,6 +26,6 @@ namespace Vocalia.Podcast.Facades.iTunes
         /// <param name="languageISOCode">Language that should be fetched back.</param>
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
-        Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, string languageISOCode, bool isExplicit, int? genreCode = null);
+        Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, string languageISOCode, bool isExplicit);
     }
 }

@@ -98,10 +98,17 @@ namespace Vocalia.Podcast.Facades.iTunes
         /// <param name="genreCode">Optional genre to sort by.</param>
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, string languageISOCode, bool isExplicit, int? genreCode = null)
+        public async Task<IEnumerable<Vocalia.Facades.iTunes.DTOs.Podcast>> SearchPodcastsAsync(string query, int count, string languageISOCode, bool isExplicit)
         {
-            var podcasts = await SearchService.SearchPodcastsAsync(query, count, languageISOCode, genreCode, isExplicit);
-            return podcasts;
+            var podcasts = await SearchService.SearchPodcastsAsync(query, count, languageISOCode, isExplicit);
+
+            return podcasts.Results.Select(p => new Vocalia.Facades.iTunes.DTOs.Podcast()
+            {
+                Name = p.Name,
+                ArtistName = p.Author,
+                RssUrl = p.RssUrl,
+                ImageUrl = p.ImageUrl
+            });
         }
     }
 }

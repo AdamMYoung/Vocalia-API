@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Vocalia.Facades.iTunes.DTOs;
 
 namespace Vocalia.Facades.iTunes
 {
@@ -15,9 +16,8 @@ namespace Vocalia.Facades.iTunes
         /// <param name="count">Number of items to return.</param>
         /// <param name="isExplicit">Toggles filtering of explicit content.</param>
         /// <returns></returns>
-        [Get("/search")]
-        Task<IEnumerable<DTOs.Podcast>> SearchPodcastsAsync([AliasAs("term")] string query, [AliasAs("limit")] int count, [AliasAs("country")] string isoCountryCode,
-            [AliasAs("genreIndex")] int? genreId = null, [AliasAs("explicit")] bool isExplicit = true);
+        [Get("/search?term={query}&limit={count}&country={isoCountryCode}&explicit={isExplicit}&entity=podcast")]
+        Task<ITunesSearch> SearchPodcastsAsync(string query, int count, string isoCountryCode, bool isExplicit = true);
 
         /// <summary>
         /// Searches the iTunes podcast database for the specified ID, and returns a link to the podcast's RSS feed.
