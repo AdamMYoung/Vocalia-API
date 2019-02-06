@@ -1,22 +1,92 @@
-import React, { Component } from "react";
+import React, { Component, ChangeEvent } from "react";
 import {
   Card,
   List,
   ListItem,
   ListItemText,
-  ListItemAvatar,
-  Avatar
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+  Divider,
+  Fade
 } from "@material-ui/core";
-import { LinkContainer } from "react-router-bootstrap";
+import { fade } from "@material-ui/core/styles/colorManipulator";
+import SearchIcon from "@material-ui/icons/Search";
+import InputBase from "@material-ui/core/InputBase";
+
 import { Podcast } from "../../types";
 import VocaliaAPI from "../../utility/VocaliaAPI";
+import { LinkContainer } from "react-router-bootstrap";
 
-interface ISearchProps {
-  term: string;
-}
+/**
+ * CSS styles of the top AppBar.
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      width: "100%",
+      maxWidth: 360,
+      backgroundColor: theme.palette.background.paper,
+      position: "relative",
+      overflow: "auto",
+      maxHeight: 300
+    },
+    image: {
+      borderRadius: "3px",
+      height: "50px",
+      width: "50px"
+    },
+    search: {
+      position: "relative",
+      borderRadius: theme.shape.borderRadius,
+      backgroundColor: fade(theme.palette.common.white, 0.15),
+      "&:hover": {
+        backgroundColor: fade(theme.palette.common.white, 0.25)
+      },
+      marginRight: theme.spacing.unit * 2,
+      marginLeft: 0,
+      width: "100%",
+      [theme.breakpoints.up("sm")]: {
+        marginLeft: theme.spacing.unit * 3,
+        width: "auto"
+      }
+    },
+    searchIcon: {
+      width: theme.spacing.unit * 9,
+      height: "100%",
+      position: "absolute",
+      pointerEvents: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    },
+    inputRoot: {
+      color: "inherit",
+      width: "100%"
+    },
+    inputInput: {
+      paddingTop: theme.spacing.unit,
+      paddingRight: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit * 10,
+      transition: theme.transitions.create("width"),
+      width: "100%",
+      [theme.breakpoints.up("sm")]: {
+        width: 120,
+        "&:focus": {
+          width: 200
+        }
+      }
+    }
+  });
+
+interface ISearchProps extends WithStyles<typeof styles> {}
 
 interface ISearchState {
   podcasts: Podcast[];
+  term: string;
+  isOpen: boolean;
 }
 
 interface IEntryProps {
@@ -24,49 +94,85 @@ interface IEntryProps {
 }
 
 class Search extends Component<ISearchProps, ISearchState> {
-  componentWillMount() {
-    this.querySearch(this.props.term);
-  }
+  constructor(props: ISearchProps) {
+    super(props);
 
-  componentWillReceiveProps(props: ISearchProps) {
-    this.querySearch(props.term);
+    this.state = {
+      podcasts: [],
+      term: "",
+      isOpen: false
+    };
   }
 
   querySearch = (term: string) => {
     let loader = new VocaliaAPI();
 
-    //Load top podcast data asynchronously.
-    (async () => {
-      this.setState({ podcasts: await loader.searchPodcasts(term) });
-    })();
+    if (term.length >= 3) {
+      (async () => {
+        var podcasts = await loader.searchPodcasts(term);
+        this.setState({ podcasts: podcasts });
+      })();
+    }
   };
 
   render() {
-    const { podcasts } = this.state;
+    const { podcasts, isOpen } = this.state;
+    const { classes } = this.props;
 
     function Entry(props: IEntryProps) {
       const { podcast } = props;
 
       return (
-        <LinkContainer to={"/detail/" + podcast.rssUrl}>
-          <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar alt={podcast.title} src={podcast.imageUrl} />
-            </ListItemAvatar>
-            <ListItemText primary={podcast.title} />
-          </ListItem>
+        <LinkContainer to={"/detail/" + encodeURIComponent(podcast.rssUrl)}>
+          <div className="item">
+            <ListItem alignItems="flex-start" button={true}>
+              <div className={classes.image}>
+                <img
+                  className={classes.image}
+                  src={podcast.imageUrl}
+                  alt={podcast.title}
+                />
+              </div>
+              <ListItemText primary={podcast.title} />
+            </ListItem>
+            <Divider />
+          </div>
         </LinkContainer>
       );
     }
 
     return (
-      <Card>
-        <List>
-          {podcasts.map(podcast => (
-            <Entry podcast={podcast} />
-          ))}
-        </List>
-      </Card>
+      <div className={classes.search}>
+        <div className={classes.searchIcon}>
+          <SearchIcon />
+        </div>
+        <InputBase
+          placeholder="Search…"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput
+          }}
+          onChange={event => this.querySearch(event.target.value)}
+          onFocus={() => this.setState({ isOpen: true })}
+          onBlur={() => setTimeout(() => this.setState({ isOpen: false }), 500)}
+        />
+        {isOpen && (
+          <Fade in={isOpen}>
+            <Card style={{ position: "absolute" }}>
+              <List className={classes.root}>
+                {podcasts.map(podcast => (
+                  <Entry
+                    podcast={podcast}
+                    key={podcast.rssUrl + podcast.title}
+                  />
+                ))}
+              </List>
+            </Card>
+          </Fade>
+        )}
+      </div>
     );
   }
 }
+
+export default withStyles(styles)(Search);
