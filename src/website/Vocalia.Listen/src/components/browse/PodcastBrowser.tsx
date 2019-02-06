@@ -8,8 +8,8 @@ import {
   WithStyles
 } from "@material-ui/core/styles";
 import { Podcast, PodcastEpisode } from "../../types";
-import PodcastDetail from "./PodcastDetail";
-import "./PodcastEntry.css";
+import PodcastDetail from "../detail/PodcastDetail";
+import "../detail/PodcastEntry.css";
 
 /**
  * Properties passed into the browser.

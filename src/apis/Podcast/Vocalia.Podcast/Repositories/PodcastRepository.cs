@@ -52,14 +52,14 @@ namespace Vocalia.Podcast.Repositories
             ITunesService = iTunesFacade;
             Cache = cache;
         }
-       
+
         /// <summary>
         /// Returns all categories from the Voalica service.
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.Category>> GetCategoriesAsync()
         {
-            if(!Cache.TryGetValue(CacheKeys.Categories, out IEnumerable<DomainModels.Category> categories))
+            if (!Cache.TryGetValue(CacheKeys.Categories, out IEnumerable<DomainModels.Category> categories))
             {
                 categories = await DbContext.Categories.Select(c => new DomainModels.Category()
                 {
@@ -78,42 +78,84 @@ namespace Vocalia.Podcast.Repositories
             return categories;
         }
 
+        #region Podcasts
+
         /// <summary>
-        /// Gets the top podcasts from the stored sources available.
+        /// Queries sources for the specified search term.
+        /// </summary>
+        /// <param name="query">Value to search for.</param>
+        /// <param name="limit">Number of items to return.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Podcast>> SearchPodcastsAsync(string query, int limit, bool alowExplicit)
+        {
+            if (!Cache.TryGetValue(query, out IEnumerable<DomainModels.Podcast> podcasts))
+            {
+                var fetchedPodcasts = new List<DomainModels.Podcast>();
+                var iTunes = await ITunesService.SearchPodcastsAsync(query, limit, "gb", alowExplicit);
+
+                podcasts =  iTunes.Select(p => new DomainModels.Podcast
+                {
+                    Title = p.Name,
+                    RssUrl = p.RssUrl,
+                    ImageUrl = p.ImageUrl
+                });
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(new TimeSpan(3,0,0,0));
+                Cache.Set(query, podcasts, cacheEntryOptions);
+            }
+
+            return podcasts;
+        }
+
+        /// <summary>
+        /// Gets the top podcasts from the cache, or queries data sources if not present.
         /// </summary>
         /// <param name="limit">Number of entries to return.</param>
+        /// <param name="categoryId">ID of the category to filter.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int? limit, int? categoryId, bool allowExplicit = true)
+        public async Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit)
         {
-            var count = limit ?? defaultPodcastCount;
-            Db.Category category = null;
-
-            if(categoryId.HasValue)
-                category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
-            var countryCode = category?.Language.ISOCode ?? "gb";
-
             var cacheTerm = categoryId.HasValue ? CacheKeys.Podcasts + categoryId.Value : CacheKeys.Podcasts;
 
             //Cache the podcast results for less impact on APIs.
             if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
             {
-                var fetchedPodcasts = new List<DomainModels.Podcast>();
-
-                fetchedPodcasts.AddRange(await GetVocaliaPodcastsAsync(count, category?.ID, countryCode, allowExplicit));
-                fetchedPodcasts.AddRange(await GetiTunesPodcastsAsync(count, category?.ITunesID, countryCode, allowExplicit));
-
-                //GPodder can't filter explicit data so only queries if allowExplicit is true.
-                if (allowExplicit && fetchedPodcasts.Count < count)
-                    fetchedPodcasts.AddRange(await GetGPodderPodcastsAsync(count, category?.GpodderTag));
-
-                podcasts = fetchedPodcasts.Where(p => p.RssUrl != null).Distinct(new PodcastEqualityComparator()).Take(count);
+                podcasts = await QueryTopPodcastsAsync(limit, categoryId, allowExplicit);
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }
 
             return podcasts;
+        }
+
+        /// <summary>
+        /// Queries data sources for the top podacsts based on filter options.
+        /// </summary>
+        /// <param name="limit">Number of entries to return.</param>
+        /// <param name="categoryId">ID of the category to filter.</param>
+        /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Podcast>> QueryTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit)
+        {
+            Db.Category category = null;
+
+            if (categoryId.HasValue)
+                category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
+            var countryCode = category?.Language.ISOCode ?? "gb";
+
+
+            var fetchedPodcasts = new List<DomainModels.Podcast>();
+
+            fetchedPodcasts.AddRange(await GetVocaliaPodcastsAsync(limit, category?.ID, countryCode, allowExplicit));
+            fetchedPodcasts.AddRange(await GetiTunesPodcastsAsync(limit, category?.ITunesID, countryCode, allowExplicit));
+
+            //GPodder can't filter explicit data so only queries if allowExplicit is true.
+            if (allowExplicit && fetchedPodcasts.Count < limit)
+                fetchedPodcasts.AddRange(await GetGPodderPodcastsAsync(limit, category?.GpodderTag));
+
+           return fetchedPodcasts.Where(p => p.RssUrl != null).Distinct(new PodcastEqualityComparator()).Take(limit);
         }
 
         /// <summary>
@@ -165,7 +207,7 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="count">Number of podcasts to fetch.</param>
         /// <param name="gpodderTag">Optional tag for category filtering.</param>
         /// <returns></returns>
-        private async Task<IEnumerable<DomainModels.Podcast>> GetGPodderPodcastsAsync(int count, string gpodderTag = null)
+        private async Task<IEnumerable<DomainModels.Podcast>> GetGPodderPodcastsAsync(int count, string gpodderTag)
         {
             var gpodderPodcasts = await GPodderService.GetTopPodcastsAsync(count, gpodderTag);
             return gpodderPodcasts.Select(p => new DomainModels.Podcast()
@@ -175,6 +217,10 @@ namespace Vocalia.Podcast.Repositories
                 ImageUrl = p.ImageUrl
             });
         }
+
+        #endregion
+
+        #region RSS Feed
 
         /// <summary>
         /// Parses an RSS feed into C# DTOs to serialize, allowing additional information to be added such as listen times and listen info.
@@ -216,6 +262,8 @@ namespace Vocalia.Podcast.Repositories
 
             return feedEntry;
         }
+
+        #endregion
     }
 
     /// <summary>

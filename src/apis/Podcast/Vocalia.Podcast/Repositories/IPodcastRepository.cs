@@ -9,18 +9,28 @@ namespace Vocalia.Podcast.Repositories
     public interface IPodcastRepository
     {
         /// <summary>
-        /// Gets the top podcasts from the stored sources available.
+        /// Gets the top podcasts from the cache, or queries data sources if not present.
         /// </summary>
         /// <param name="limit">Number of entries to return.</param>
+        /// <param name="categoryId">ID of the category to filter.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int? limit, int? categoryId, bool allowExplicit = true);
+        Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit);
 
         /// <summary>
         /// Returns all categories from the Voalica service.
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<DomainModels.Category>> GetCategoriesAsync();
+
+        /// <summary>
+        /// Queries sources for the specified search term.
+        /// </summary>
+        /// <param name="query">Value to search for.</param>
+        /// <param name="limit">Number of items to return.</param>
+        /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <returns></returns>
+        Task<IEnumerable<DomainModels.Podcast>> SearchPodcastsAsync(string query, int limit, bool alowExplicit);
 
         /// <summary>
         /// Parses an RSS feed into C# DTOs to serialize, allowing additional information to be added such as listen times and listen info.

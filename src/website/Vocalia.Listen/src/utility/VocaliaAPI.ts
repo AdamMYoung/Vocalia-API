@@ -5,6 +5,7 @@ const CATEGORIES = "categories";
 const SUBSCRIBED = "subscribed";
 const TOP = "top";
 const PARSE = "parse";
+const SEARCH = "search";
 
 class VocaliaAPI {
   /**
@@ -35,6 +36,16 @@ class VocaliaAPI {
       .then(response => response.json())
       .then(data => data as Podcast[])
       .catch(() => Promise.reject("Failed fetching subscribed podcasts"));
+  }
+
+  /**
+   * Gets the subscribed podcasts from the Vocalia API.
+   */
+  async searchPodcasts(query: string): Promise<Podcast[]> {
+    return await fetch(API + SEARCH + "?term=" + query)
+      .then(response => response.json())
+      .then(data => data as Podcast[])
+      .catch(() => Promise.reject("Failed searching for term: " + query));
   }
 
   /**

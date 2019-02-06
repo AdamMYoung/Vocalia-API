@@ -58,10 +58,9 @@ namespace Vocalia.Podcast.Controllers
         /// <returns></returns>
         [Route("top")]
         [HttpGet]
-        public async Task<IActionResult> GetTopPodcasts(int? limit, int? categoryId, bool? allowExplicit)
+        public async Task<IActionResult> GetTopPodcasts(int? categoryId, bool allowExplicit = true, int limit = 100)
         {
-            var expl = allowExplicit.HasValue && allowExplicit.Value == false ? false : true;
-            var podcasts = await Repository.GetTopPodcastsAsync(limit, categoryId, expl);
+            var podcasts = await Repository.GetTopPodcastsAsync(limit, categoryId, allowExplicit);
 
             if(podcasts == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -78,6 +77,27 @@ namespace Vocalia.Podcast.Controllers
             }).ToList();
 
             return Ok(podcastDTOs);
+        }
+
+        /// <summary>
+        /// Queries all sources for the specified query.
+        /// </summary>
+        /// <param name="term">Query to search for.</param>
+        /// <param name="limit">Number of items to return.</param>
+        /// <returns></returns>
+        [Route("search")]
+        [HttpGet]
+        public async Task<IActionResult> SearchPodcasts(string term, int limit = 10, bool allowExplicit = true)
+        {
+            if (term == null || term.Length == 0)
+                return BadRequest();
+
+            var query = await Repository.SearchPodcastsAsync(term, limit, allowExplicit);
+
+            if (query == null)
+                return BadRequest();
+
+            return Ok(query);
         }
 
         /// <summary>
