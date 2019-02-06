@@ -60,10 +60,10 @@ const styles = (theme: Theme) =>
  * Required properties for the navigation drawer, also bundling the current styles.
  */
 interface INavDrawerProps extends WithStyles<typeof styles> {
-  theme: Theme;
-  mobileOpen: boolean;
-  categories: Category[];
-  handleDrawerToggle: () => void;
+  theme: Theme; //Theme of the drawer.
+  mobileOpen: boolean; //Indicates if the mobile drawer should be opened.
+  categories: Category[]; //Categories to display.
+  handleDrawerToggle: () => void; //Called when the drawer requests to be toggled.
 }
 
 /**

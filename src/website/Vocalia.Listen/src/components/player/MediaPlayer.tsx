@@ -16,18 +16,18 @@ import { formatTime } from "../../utility/FormatUtils";
  * Required properties for the player.
  */
 interface IPlayerProps {
-  media: PodcastEpisode;
-  isMobile: boolean;
+  media: PodcastEpisode; //The media to be played.
+  isMobile: boolean; //Indicates if the current device is a mobile device.
 }
 
 /**
  * State information belonging to the player.
  */
 interface IPlayerState {
-  paused: boolean;
-  time: number;
-  volume: number;
-  audioObject: HTMLAudioElement;
+  paused: boolean; //Indicates if playback has been paused.
+  time: number; //The current progress of playback.
+  volume: number; //Volume of playback.
+  audioObject: HTMLAudioElement; //HTML Audio element for audio control.
 }
 
 /**

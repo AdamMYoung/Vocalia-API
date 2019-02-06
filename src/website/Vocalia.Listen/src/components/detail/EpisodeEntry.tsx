@@ -25,9 +25,9 @@ const styles = {
  * Required properties for the episode entry.
  */
 interface IEpisodeProps {
-  episode: PodcastEpisode;
-  selectedEpisode: PodcastEpisode;
-  onEpisodeSelected: (episode: PodcastEpisode) => void;
+  episode: PodcastEpisode; //Episode the component represents.
+  selectedEpisode: PodcastEpisode; //The currently playing episode.
+  onEpisodeSelected: (episode: PodcastEpisode) => void; //Called when the entry has been selected.
 }
 
 /**

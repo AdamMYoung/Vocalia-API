@@ -7,12 +7,12 @@ import {
   ListItemAvatar,
   Avatar
 } from "@material-ui/core";
+import { LinkContainer } from "react-router-bootstrap";
 import { Podcast } from "../../types";
 import VocaliaAPI from "../../utility/VocaliaAPI";
 
 interface ISearchProps {
   term: string;
-  podcastSelected;
 }
 
 interface ISearchState {
@@ -48,12 +48,14 @@ class Search extends Component<ISearchProps, ISearchState> {
       const { podcast } = props;
 
       return (
-        <ListItem alignItems="flex-start">
-          <ListItemAvatar>
-            <Avatar alt={podcast.title} src={podcast.imageUrl} />
-          </ListItemAvatar>
-          <ListItemText primary={podcast.title} />
-        </ListItem>
+        <LinkContainer to={"/detail/" + podcast.rssUrl}>
+          <ListItem alignItems="flex-start">
+            <ListItemAvatar>
+              <Avatar alt={podcast.title} src={podcast.imageUrl} />
+            </ListItemAvatar>
+            <ListItemText primary={podcast.title} />
+          </ListItem>
+        </LinkContainer>
       );
     }
 

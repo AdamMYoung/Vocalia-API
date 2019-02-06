@@ -7,34 +7,28 @@ import {
   withStyles,
   WithStyles
 } from "@material-ui/core/styles";
-import { Podcast, PodcastEpisode } from "../../types";
-import PodcastDetail from "../detail/PodcastDetail";
+import { Podcast } from "../../types";
+import { LinkContainer } from "react-router-bootstrap";
 import "../detail/PodcastEntry.css";
+import { Link } from "@material-ui/core";
 
 /**
  * Properties passed into the browser.
  */
 interface IBrowserProps extends WithStyles<typeof styles> {
-  podcasts: Podcast[];
-  selectedEpisode: PodcastEpisode;
-  isMobile: boolean;
-  onEpisodeSelected: (episode: PodcastEpisode) => void;
+  podcasts: Podcast[]; //Podcast entries to display.
 }
 
 /**
  * State of the browser.
  */
-interface IBrowserState {
-  dialogOpen: boolean;
-  selectedPodcast: Podcast;
-}
+interface IBrowserState {}
 
 /**
  * Properties for a podcast entry.
  */
 interface IEntryProps extends WithStyles<typeof styles> {
   podcast: Podcast;
-  onClick: (podcast: Podcast) => void;
 }
 
 /**
@@ -61,15 +55,18 @@ const styles = (theme: Theme) =>
  * @param props Properties belonging to the podcast entry.
  */
 function Entry(props: IEntryProps) {
-  const { classes, podcast, onClick } = props;
+  const { classes, podcast } = props;
+
   return (
-    <Card className={classes.paper + " card"} onClick={() => onClick(podcast)}>
-      <img
-        src={podcast.imageUrl}
-        alt={podcast.title}
-        style={{ width: "100%", height: "100%" }}
-      />
-    </Card>
+    <LinkContainer to={"detail/" + encodeURIComponent(podcast.rssUrl)}>
+      <Card className={classes.paper + " card"}>
+        <img
+          src={podcast.imageUrl}
+          alt={podcast.title}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </Card>
+    </LinkContainer>
   );
 }
 
@@ -94,34 +91,14 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
   };
 
   render() {
-    const {
-      podcasts,
-      classes,
-      onEpisodeSelected,
-      selectedEpisode,
-      isMobile
-    } = this.props;
-    const { dialogOpen, selectedPodcast } = this.state;
+    const { podcasts, classes } = this.props;
 
     return (
       <React.Fragment>
-        <PodcastDetail
-          open={dialogOpen}
-          podcast={selectedPodcast}
-          selectedEpisode={selectedEpisode}
-          isMobile={isMobile}
-          onClose={() => this.setState({ dialogOpen: false })}
-          onEpisodeSelected={episode => onEpisodeSelected(episode)}
-        />
         <Grid container justify="space-evenly">
           {podcasts != null &&
             podcasts.map(podcast => (
-              <Entry
-                key={podcast.rssUrl}
-                podcast={podcast}
-                classes={classes}
-                onClick={podcast => this.onPodcastClick(podcast)}
-              />
+              <Entry key={podcast.rssUrl} podcast={podcast} classes={classes} />
             ))}
         </Grid>
       </React.Fragment>

@@ -5,8 +5,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
-import { Podcast, PodcastFeed, PodcastEpisode } from "../../types";
-import EpisodeEntry from "../browse/EpisodeEntry";
+import { PodcastFeed, PodcastEpisode } from "../../types";
+import EpisodeEntry from "./EpisodeEntry";
 import VocaliaAPI from "../../utility/VocaliaAPI";
 import { removeTags } from "../../utility/FormatUtils";
 
@@ -14,21 +14,21 @@ import { removeTags } from "../../utility/FormatUtils";
  * Properties required for the detail modal window.
  */
 interface IDetailProps {
-  podcast: Podcast;
-  open: boolean;
-  isMobile: boolean;
-  selectedEpisode: PodcastEpisode;
-  onClose: () => void;
-  onEpisodeSelected: (episode: PodcastEpisode) => void;
+  rssFeed: string; //Feed to load.
+  open: boolean; //External control for dialog visibility.
+  isMobile: boolean; //Indicates if the device is a mobile device.
+  selectedEpisode: PodcastEpisode; //The currently playing episode.
+  onClose: () => void; //Called when the dialog requests to be closed.
+  onEpisodeSelected: (episode: PodcastEpisode) => void; //Called when an episode isselected.
 }
 
 /**
  * State information for the detail modal window.
  */
 interface IDetailState {
-  feed: PodcastFeed;
-  visibleEpisodes: number;
-  loading: boolean;
+  feed: PodcastFeed; //Currently loaded feed.
+  visibleEpisodes: number; //Number of visible episodes.
+  loading: boolean; //Indicates the feed is loading.
 }
 
 /**
@@ -48,28 +48,17 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
   /**
    * Updates the detail dialog. Only refreshes if the RSS URL has changed to prevent unnecessary re-renders.
    */
-  componentWillReceiveProps = (props: IDetailProps) => {
+  componentWillMount = () => {
     var loader = new VocaliaAPI();
-    const { podcast } = this.props;
+    const { rssFeed } = this.props;
 
-    if (
-      props.podcast.rssUrl !== null &&
-      props.podcast.rssUrl !== podcast.rssUrl
-    ) {
+    if (rssFeed !== null) {
       (async () => {
         this.setState({ loading: true });
-        let feed = await loader.parsePodcastFeed(props.podcast.rssUrl);
+        let feed = await loader.parsePodcastFeed(rssFeed);
         this.setState({ feed: feed, loading: false });
       })();
     }
-  };
-
-  /**
-   * Increases the number of visible episodes by 20.
-   */
-  increaseVisibleEpisodes = () => {
-    let oldCount = this.state.visibleEpisodes;
-    this.setState({ visibleEpisodes: oldCount + 20 });
   };
 
   render() {
@@ -84,7 +73,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
 
     return (
       <Dialog open={open} onClose={onClose} fullScreen={isMobile} maxWidth="md">
-        {/* Requires a nested dialog to have the two stage screen fade and fade on content load */}
+        {/* Requires a nested dialog to have the two stage screen dim and fade in on content load */}
         <Dialog
           open={!loading && this.props.open}
           onClose={onClose}
@@ -115,7 +104,14 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
 
               {/* Load more button */}
               {visibleEpisodes < feed.items.length && (
-                <Button onClick={this.increaseVisibleEpisodes} color="primary">
+                <Button
+                  onClick={() =>
+                    this.setState(oldState => ({
+                      visibleEpisodes: oldState.visibleEpisodes + 20
+                    }))
+                  }
+                  color="primary"
+                >
                   Load More...
                 </Button>
               )}
