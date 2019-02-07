@@ -29,18 +29,8 @@ namespace Vocalia.Facades.GPodder
             var entries = tag == null ? await Service.GetTopPodcastsAsync(limit) : await Service.GetPodcastsByTagAsync(tag, limit);
 
             IList<Podcast> podcasts = new List<Podcast>();
-            Parallel.ForEach(entries, async (file) =>
-            {
-                try
-                {
-                    podcasts.Add(await Service.GetPodcastDataAsync(file.URL));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("GPodder Query Error: " + e);
-                    //Do Nothing.
-                }
-            });
+            foreach(var entry in entries)
+                podcasts.Add(await Service.GetPodcastDataAsync(entry.URL));   
 
             return podcasts.OrderByDescending(x => x.Subscribers);
         }

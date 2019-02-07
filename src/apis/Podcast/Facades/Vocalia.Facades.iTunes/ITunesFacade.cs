@@ -53,7 +53,7 @@ namespace Vocalia.Podcast.Facades.iTunes
             if (count > 200 || count < 0)
                 count = 200;
 
-            var genre = genreId.HasValue ? genreId.Value : -1;
+            var genre = genreId ?? -1;
 
             var rssResult = await RssService.GetTopPodcasts(count, languageISOCode, isExplicit, genre);
             var podcasts = new List<Vocalia.Facades.iTunes.DTOs.Podcast>();
@@ -69,23 +69,10 @@ namespace Vocalia.Podcast.Facades.iTunes
                     PodcastId = (int)entry.Id.Attributes.ImId,
                     Name = entry.ImName.Label,
                     ArtistName = entry.ImArtist.Label,
-                    ImageUrl = entry.ImImage.LastOrDefault()?.Label.AbsoluteUri
+                    ImageUrl = entry.ImImage.LastOrDefault()?.Label.AbsoluteUri,
+                    RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync((int)entry.Id.Attributes.ImId))
                 });
             }
-
-            Parallel.ForEach(podcasts, async (podcast) => 
-            {
-                try
-                {
-                    podcast.RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync(podcast.PodcastId));
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine("ITunes Query Error: " + e);
-                    podcasts.Remove(podcast);
-                }
-
-            });
 
             return podcasts.Where(p => p != null).OrderBy(p => p.Position);
         }
