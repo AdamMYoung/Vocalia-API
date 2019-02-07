@@ -1,12 +1,20 @@
 import React, { Component } from "react";
 import { Slide } from "@material-ui/core";
-import { Route, RouteComponentProps, withRouter } from "react-router";
+import {
+  Route,
+  RouteComponentProps,
+  withRouter,
+  Redirect,
+  Switch
+} from "react-router";
 import { Category, Podcast, PodcastEpisode } from "../utility/types";
 import Navigation from "./navigation/Navigation";
 import MediaPlayer from "./player/MediaPlayer";
 import VocaliaAPI from "../utility/VocaliaAPI";
 import PodcastBrowser from "./browse/PodcastBrowser";
 import PodcastDetail from "./detail/PodcastDetail";
+import Callback from "../auth/Callback";
+import Auth from "../auth/Auth";
 
 /**
  * State information for the application.
@@ -16,6 +24,7 @@ interface ILayoutState {
   categories: Category[];
   dialogOpen: boolean;
   selectedEpisode: PodcastEpisode;
+  auth: Auth;
 }
 
 /**
@@ -23,13 +32,6 @@ interface ILayoutState {
  */
 interface ILayoutProps extends RouteComponentProps {
   isMobile: boolean;
-}
-
-/**
- * Required properties for a detail view.
- */
-interface IDetailProps extends ILayoutProps {
-  rssUrl: string;
 }
 
 /**
@@ -42,6 +44,7 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
     super(props);
 
     this.state = {
+      auth: new Auth(props),
       podcastData: { top: [] },
       categories: [],
       dialogOpen: false,
@@ -52,32 +55,28 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
    * Called before the component finishes mounting,
    * and loads all categories and podcasts into memory.
    */
-  componentWillMount() {
+  async componentWillMount() {
     var loader = new VocaliaAPI();
 
     //Load category list and category data asynchronously.
-    (async () => {
-      let categories = await loader.getCategories();
-      this.setState({ categories: categories });
+    let categories = await loader.getCategories();
+    this.setState({ categories: categories });
 
-      categories.forEach(async category => {
-        let id = category.id;
-        let podcasts = await loader.getPodcastByCategory(id);
+    categories.forEach(async category => {
+      let id = category.id;
+      let podcasts = await loader.getPodcastByCategory(id);
 
-        let loadedPodcast = this.state.podcastData;
-        loadedPodcast[id] = podcasts;
-        this.setState({ podcastData: loadedPodcast });
-      });
-    })();
+      let loadedPodcast = this.state.podcastData;
+      loadedPodcast[id] = podcasts;
+      this.setState({ podcastData: loadedPodcast });
+    });
 
     //Load top podcast data asynchronously.
-    (async () => {
-      let podcasts = await loader.getTopPodcasts();
+    let podcasts = await loader.getTopPodcasts();
 
-      let loadedPodcasts = this.state.podcastData;
-      loadedPodcasts["top"] = podcasts;
-      this.setState({ podcastData: loadedPodcasts });
-    })();
+    let loadedPodcasts = this.state.podcastData;
+    loadedPodcasts["top"] = podcasts;
+    this.setState({ podcastData: loadedPodcasts });
   }
 
   /**
@@ -93,15 +92,21 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
     else history.push("/top");
   };
 
+  handleAuthentication = (nextState: any, replace: any) => {
+    if (/access_token|id_token|error/.test(nextState.location.hash)) {
+      this.state.auth.handleAuthentication();
+    }
+  };
+
   render() {
-    const { podcastData, selectedEpisode, categories, dialogOpen } = this.state;
+    const { podcastData, selectedEpisode, categories, auth } = this.state;
     const { isMobile } = this.props;
 
     /**
      * Elements that can be routed to.
      */
     const RoutingContents = (
-      <React.Fragment>
+      <Switch>
         <Route
           path="/top/"
           render={() => <PodcastBrowser podcasts={podcastData["top"]} />}
@@ -130,11 +135,21 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
             />
           )}
         />
-      </React.Fragment>
+
+        <Route
+          path="/callback"
+          render={props => {
+            this.handleAuthentication(props, null);
+            return <Callback {...props} />;
+          }}
+        />
+
+        <Redirect exact from="/" to={"/top"} />
+      </Switch>
     );
 
     return (
-      <Navigation categories={categories} isMobile={isMobile}>
+      <Navigation categories={categories} isMobile={isMobile} auth={auth}>
         <React.Fragment>
           {RoutingContents}
           {selectedEpisode.content != null && (

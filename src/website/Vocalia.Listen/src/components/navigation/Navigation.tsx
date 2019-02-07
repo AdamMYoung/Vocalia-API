@@ -15,6 +15,7 @@ import NavDrawer from "./NavDrawer";
 import { Category } from "../../utility/types";
 import { drawerWidth } from "../../utility/constants";
 import Search from "../search/Search";
+import Auth from "../../auth/Auth";
 
 /**
  * CSS styles of the top AppBar.
@@ -60,6 +61,7 @@ const styles = (theme: Theme) =>
 interface INavigationProps extends WithStyles<typeof styles> {
   categories: Category[];
   isMobile: boolean;
+  auth: Auth;
 }
 
 /**
@@ -125,6 +127,7 @@ class Navigation extends Component<INavigationProps, INavigationState> {
           handleDrawerToggle={this.onDrawerToggle}
           mobileOpen={this.state.mobileOpen}
           categories={this.props.categories}
+          auth={this.props.auth}
         />
 
         {/* Content to display. */}

@@ -102,9 +102,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
                   <Typography component={"span"}>
                     <div style={{ display: "flex" }}>
                       <Fade in={imageLoaded}>
-                        <div
-                          style={{ height: 80, width: 80, alignSelf: "center" }}
-                        >
+                        <div style={{ height: 80, width: 80, paddingTop: 16 }}>
                           <img
                             src={feed.imageUrl}
                             onLoad={() => this.setState({ imageLoaded: true })}
