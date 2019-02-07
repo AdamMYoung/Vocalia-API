@@ -23,6 +23,7 @@ namespace Vocalia.Facades.GPodder
         /// Gets the top podcasts in the GPodder database.
         /// </summary>
         /// <param name="limit">Number of podcasts to return.</param>
+        /// <param name="tag">GPodder category tag to filter by.</param>
         /// <returns></returns>
         public async Task<IEnumerable<Podcast>> GetTopPodcastsAsync(int limit, string tag = null)
         {

@@ -89,7 +89,7 @@ namespace Vocalia.Podcast.Repositories
             if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
             {
                 var fetchedPodcasts = new List<DomainModels.Podcast>();
-                var iTunes = await ITunesService.SearchPodcastsAsync(cacheTerm, limit, countryCode, alowExplicit);
+                var iTunes = await ITunesService.SearchPodcastsAsync(query, limit, countryCode, alowExplicit);
 
                 podcasts =  iTunes.Select(p => new DomainModels.Podcast
                 {
