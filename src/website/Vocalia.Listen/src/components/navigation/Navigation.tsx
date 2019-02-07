@@ -1,20 +1,19 @@
 import React, { Component } from "react";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-
 import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
   createStyles,
   Theme,
   withStyles,
-  WithStyles
-} from "@material-ui/core/styles";
+  WithStyles,
+  CssBaseline
+} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import NavDrawer from "./NavDrawer";
-import { Category } from "../../types";
-import { drawerWidth } from "../../constants";
+import { Category } from "../../utility/types";
+import { drawerWidth } from "../../utility/constants";
 import Search from "../search/Search";
 
 /**

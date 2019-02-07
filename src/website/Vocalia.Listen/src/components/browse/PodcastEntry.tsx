@@ -1,15 +1,15 @@
 import React, { Component } from "react";
-import { Podcast } from "../../types";
+import { Podcast } from "../../utility/types";
 import { LinkContainer } from "react-router-bootstrap";
-import Card from "@material-ui/core/Card";
-import "./PodcastEntry.css";
 import {
+  Card,
   createStyles,
   Theme,
   withStyles,
   WithStyles,
   Fade
 } from "@material-ui/core";
+import "./PodcastEntry.css";
 
 /**
  * CSS Styles of the browser

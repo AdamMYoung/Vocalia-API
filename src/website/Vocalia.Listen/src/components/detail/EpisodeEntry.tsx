@@ -1,14 +1,14 @@
 import React, { Component } from "react";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import StopIcon from "@material-ui/icons/Stop";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
+import {
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  Typography,
+  IconButton
+} from "@material-ui/core";
+import { ExpandMore, PlayArrow, Stop } from "@material-ui/icons";
 import { removeTags } from "../../utility/FormatUtils";
-import { PodcastEpisode } from "../../types";
+import { PodcastEpisode } from "../../utility/types";
 
 /**
  * CSS styles for the entry.
@@ -59,15 +59,11 @@ class EpisodeEntry extends Component<IEpisodeProps, IEpisodeState> {
     //Toggles between a stop button or play button depending if the
     // current episode matches the object being represented.
     let icon =
-      episode.content == selectedEpisode.content ? (
-        <StopIcon />
-      ) : (
-        <PlayArrowIcon />
-      );
+      episode.content == selectedEpisode.content ? <Stop /> : <PlayArrow />;
 
     return (
       <ExpansionPanel>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <ExpansionPanelSummary expandIcon={<ExpandMore />}>
           <IconButton
             style={styles.button}
             onClick={e => {

@@ -1,4 +1,4 @@
-import { Category, Podcast, PodcastFeed } from "../types";
+import { Category, Podcast, PodcastFeed } from "../utility/types";
 
 const API = "http://localhost:54578/podcast/";
 const CATEGORIES = "categories";

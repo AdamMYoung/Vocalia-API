@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Grid from "@material-ui/core/Grid";
-import Card from "@material-ui/core/Card";
-import { Podcast } from "../../types";
+import { Podcast } from "../../utility/types";
 import PodcastEntry from "./PodcastEntry";
 
 /**

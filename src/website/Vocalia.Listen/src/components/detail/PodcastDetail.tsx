@@ -1,16 +1,18 @@
 import React, { PureComponent } from "react";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Card from "@material-ui/core/Card";
-import Button from "@material-ui/core/Button";
-import { PodcastFeed, PodcastEpisode } from "../../types";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Card,
+  Button,
+  Typography,
+  Fade
+} from "@material-ui/core";
+import { PodcastFeed, PodcastEpisode } from "../../utility/types";
 import EpisodeEntry from "./EpisodeEntry";
 import VocaliaAPI from "../../utility/VocaliaAPI";
 import { removeTags } from "../../utility/FormatUtils";
-import { Typography, Fade } from "@material-ui/core";
 
 /**
  * Properties required for the detail modal window.
@@ -52,16 +54,14 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
   /**
    * Updates the detail dialog. Only refreshes if the RSS URL has changed to prevent unnecessary re-renders.
    */
-  componentWillMount = () => {
+  componentWillMount = async () => {
     var loader = new VocaliaAPI();
     const { rssFeed } = this.props;
 
     if (rssFeed !== null) {
-      (async () => {
-        this.setState({ loading: true });
-        let feed = await loader.parsePodcastFeed(rssFeed);
-        this.setState({ feed: feed, loading: false });
-      })();
+      this.setState({ loading: true });
+      let feed = await loader.parsePodcastFeed(rssFeed);
+      this.setState({ feed: feed, loading: false });
     }
   };
 

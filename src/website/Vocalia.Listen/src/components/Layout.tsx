@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { Category, Podcast, PodcastEpisode } from "../types";
+import { Slide } from "@material-ui/core";
+import { Route, RouteComponentProps, withRouter } from "react-router";
+import { Category, Podcast, PodcastEpisode } from "../utility/types";
 import Navigation from "./navigation/Navigation";
 import MediaPlayer from "./player/MediaPlayer";
-import { Slide, Fade } from "@material-ui/core";
 import VocaliaAPI from "../utility/VocaliaAPI";
 import PodcastBrowser from "./browse/PodcastBrowser";
-import { Route, RouteComponentProps, withRouter } from "react-router";
 import PodcastDetail from "./detail/PodcastDetail";
 
 /**

@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import Divider from "@material-ui/core/Divider";
-import Drawer from "@material-ui/core/Drawer";
-import Hidden from "@material-ui/core/Hidden";
-import List from "@material-ui/core/List";
 import {
+  Divider,
+  Drawer,
+  Hidden,
+  List,
   ListItem,
   ListItemText,
   ListItemIcon,
@@ -12,12 +12,10 @@ import {
   withStyles,
   WithStyles
 } from "@material-ui/core";
-import PersonIcon from "@material-ui/icons/Person";
-import BarChartIcon from "@material-ui/icons/BarChart";
-import StarIcon from "@material-ui/icons/Star";
+import { Person, BarChart, Star } from "@material-ui/icons";
 import { LinkContainer } from "react-router-bootstrap";
-import { drawerWidth } from "../../constants";
-import { Category } from "../../types";
+import { drawerWidth } from "../../utility/constants";
+import { Category } from "../../utility/types";
 
 /**
  * CSS styles for the navigation drawer.
@@ -94,7 +92,7 @@ class NavDrawer extends Component<INavDrawerProps, INavDrawerState> {
             <LinkContainer to="/login">
               <ListItem button>
                 <ListItemIcon>
-                  <PersonIcon />
+                  <Person />
                 </ListItemIcon>
                 <ListItemText primary="Sign-in" onClick={this.closeDrawer} />
               </ListItem>
@@ -108,7 +106,7 @@ class NavDrawer extends Component<INavDrawerProps, INavDrawerState> {
           <LinkContainer to="/top">
             <ListItem button>
               <ListItemIcon>
-                <BarChartIcon />
+                <BarChart />
               </ListItemIcon>
               <ListItemText primary="Top" onClick={this.closeDrawer} />
             </ListItem>
@@ -118,7 +116,7 @@ class NavDrawer extends Component<INavDrawerProps, INavDrawerState> {
           <LinkContainer to="/subscribed">
             <ListItem button>
               <ListItemIcon>
-                <StarIcon />
+                <Star />
               </ListItemIcon>
               <ListItemText primary="Subscribed" onClick={this.closeDrawer} />
             </ListItem>
