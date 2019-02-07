@@ -58,19 +58,25 @@ class PodcastEntry extends Component<IEntryProps, IEntryState> {
     const { classes, podcast } = this.props;
     const { isLoaded } = this.state;
 
-    return (
+    const Entry = (
+      <Card className={classes.paper + " card"}>
+        <Fade in={isLoaded} timeout={300}>
+          <img
+            src={podcast.imageUrl}
+            alt={podcast.title}
+            onLoad={() => this.setState({ isLoaded: true })}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </Fade>
+      </Card>
+    );
+
+    return podcast.rssUrl != null ? (
       <LinkContainer to={"/detail/" + encodeURIComponent(podcast.rssUrl)}>
-        <Card className={classes.paper + " card"}>
-          <Fade in={isLoaded} timeout={300}>
-            <img
-              src={podcast.imageUrl}
-              alt={podcast.title}
-              onLoad={() => this.setState({ isLoaded: true })}
-              style={{ width: "100%", height: "100%" }}
-            />
-          </Fade>
-        </Card>
+        {Entry}
       </LinkContainer>
+    ) : (
+      Entry
     );
   }
 }

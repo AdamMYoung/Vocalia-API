@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Grid from "@material-ui/core/Grid";
+import Card from "@material-ui/core/Card";
 import { Podcast } from "../../types";
 import PodcastEntry from "./PodcastEntry";
 
@@ -39,14 +40,16 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
     const { podcasts } = this.props;
 
     return (
-      <React.Fragment>
-        <Grid container justify="space-evenly">
-          {podcasts != null &&
-            podcasts.map(podcast => (
+      <Grid container justify="space-evenly">
+        {/* If podcasts are available, display them. Otherwise, display empty entries to fill the UI */}
+        {podcasts != null && podcasts.length > 0
+          ? podcasts.map(podcast => (
               <PodcastEntry key={podcast.rssUrl} podcast={podcast} />
+            ))
+          : Array.from(Array(100).keys()).map(num => (
+              <PodcastEntry key={num} podcast={{} as Podcast} />
             ))}
-        </Grid>
-      </React.Fragment>
+      </Grid>
     );
   }
 }
