@@ -35,8 +35,9 @@ namespace Vocalia.Facades.GPodder
                 {
                     podcasts.Add(await Service.GetPodcastDataAsync(file.URL));
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine("GPodder Query Error: " + e);
                     //Do Nothing.
                 }
             });

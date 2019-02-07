@@ -14,11 +14,6 @@ namespace Vocalia.Podcast.Repositories
     public class PodcastRepository : IPodcastRepository
     {
         /// <summary>
-        /// Default number of podcasts to return.
-        /// </summary>
-        private readonly int defaultPodcastCount = 100;
-
-        /// <summary>
         /// Service for fetching GPodder podcast data.
         /// </summary>
         private IGPodderFacade GPodderService { get; }
@@ -85,13 +80,16 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="query">Value to search for.</param>
         /// <param name="limit">Number of items to return.</param>
+        /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <param name="countryCode">Country to fetch data for.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Podcast>> SearchPodcastsAsync(string query, int limit, bool alowExplicit)
+        public async Task<IEnumerable<DomainModels.Podcast>> SearchPodcastsAsync(string query, int limit, bool alowExplicit, string countryCode)
         {
-            if (!Cache.TryGetValue(query, out IEnumerable<DomainModels.Podcast> podcasts))
+            var cacheTerm = query + alowExplicit;
+            if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
             {
                 var fetchedPodcasts = new List<DomainModels.Podcast>();
-                var iTunes = await ITunesService.SearchPodcastsAsync(query, limit, "gb", alowExplicit);
+                var iTunes = await ITunesService.SearchPodcastsAsync(cacheTerm, limit, countryCode, alowExplicit);
 
                 podcasts =  iTunes.Select(p => new DomainModels.Podcast
                 {
@@ -100,8 +98,8 @@ namespace Vocalia.Podcast.Repositories
                     ImageUrl = p.ImageUrl
                 });
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(new TimeSpan(3,0,0,0));
-                Cache.Set(query, podcasts, cacheEntryOptions);
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
+                Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }
 
             return podcasts;
@@ -113,15 +111,16 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="limit">Number of entries to return.</param>
         /// <param name="categoryId">ID of the category to filter.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <param name="countryCode">Country to fetch data for.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit)
+        public async Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit, string countryCode)
         {
-            var cacheTerm = categoryId.HasValue ? CacheKeys.Podcasts + categoryId.Value : CacheKeys.Podcasts;
+            var cacheTerm = (categoryId.HasValue ? CacheKeys.Podcasts + categoryId.Value : CacheKeys.Podcasts) + allowExplicit;
 
             //Cache the podcast results for less impact on APIs.
             if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
             {
-                podcasts = await QueryTopPodcastsAsync(limit, categoryId, allowExplicit);
+                podcasts = await QueryTopPodcastsAsync(limit, categoryId, allowExplicit, countryCode);
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
@@ -136,15 +135,14 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="limit">Number of entries to return.</param>
         /// <param name="categoryId">ID of the category to filter.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <param name="countryCode">Country to fetch data for.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Podcast>> QueryTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit)
+        public async Task<IEnumerable<DomainModels.Podcast>> QueryTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit, string countryCode)
         {
             Db.Category category = null;
 
             if (categoryId.HasValue)
                 category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
-            var countryCode = category?.Language.ISOCode ?? "gb";
-
 
             var fetchedPodcasts = new List<DomainModels.Podcast>();
 

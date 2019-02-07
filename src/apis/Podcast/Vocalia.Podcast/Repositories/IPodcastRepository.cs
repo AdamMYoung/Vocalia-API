@@ -14,8 +14,9 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="limit">Number of entries to return.</param>
         /// <param name="categoryId">ID of the category to filter.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <param name="countryCode">Country to fetch data for.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit);
+        Task<IEnumerable<DomainModels.Podcast>> GetTopPodcastsAsync(int limit, int? categoryId, bool allowExplicit, string countryCode);
 
         /// <summary>
         /// Returns all categories from the Voalica service.
@@ -29,8 +30,9 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="query">Value to search for.</param>
         /// <param name="limit">Number of items to return.</param>
         /// <param name="allowExplicit">Filters child-friendly content.</param>
+        /// <param name="countryCode">Country to fetch data for.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Podcast>> SearchPodcastsAsync(string query, int limit, bool alowExplicit);
+        Task<IEnumerable<DomainModels.Podcast>> SearchPodcastsAsync(string query, int limit, bool alowExplicit, string countryCode);
 
         /// <summary>
         /// Parses an RSS feed into C# DTOs to serialize, allowing additional information to be added such as listen times and listen info.

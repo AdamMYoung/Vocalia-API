@@ -21,11 +21,11 @@ namespace Vocalia.Podcast.Controllers
         /// </summary>
         private IPodcastRepository Repository { get; }
 
-        public PodcastController(IPodcastRepository repository)
-        {
-            Repository = repository;
-
-        }
+        /// <summary>
+        /// Instantiates a new PodcastController.
+        /// </summary>
+        /// <param name="repository">Podcast repository to query.</param>
+        public PodcastController(IPodcastRepository repository) => Repository = repository;      
 
         /// <summary>
         /// Returns all podcast categories.
@@ -53,14 +53,16 @@ namespace Vocalia.Podcast.Controllers
         /// <summary>
         /// Gets the top podcasts from all supported services.
         /// </summary>
+        /// <param name="categoryId">Optional category to filter by..</param>
+        /// <param name="allowExplicit">Filters out explicit content.</param>
         /// <param name="limit">Number of entries to return.</param>
-        /// <param name="category">Category to filter by.</param>
+        /// <param name="countryCode">Category to filter by.</param>
         /// <returns></returns>
         [Route("top")]
         [HttpGet]
-        public async Task<IActionResult> GetTopPodcasts(int? categoryId, bool allowExplicit = true, int limit = 100)
+        public async Task<IActionResult> GetTopPodcasts(int? categoryId, bool allowExplicit = true, int limit = 100, string countryCode = "gb")
         {
-            var podcasts = await Repository.GetTopPodcastsAsync(limit, categoryId, allowExplicit);
+            var podcasts = await Repository.GetTopPodcastsAsync(limit, categoryId, allowExplicit, countryCode);
 
             if(podcasts == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -82,17 +84,19 @@ namespace Vocalia.Podcast.Controllers
         /// <summary>
         /// Queries all sources for the specified query.
         /// </summary>
-        /// <param name="term">Query to search for.</param>
-        /// <param name="limit">Number of items to return.</param>
+        /// <param name="term">Query term to search by.</param>
+        /// <param name="limit">Number of entries to return.</param>
+        /// <param name="allowExplicit">Filters out explicit content.</param>
+        /// <param name="countryCode">Category to filter by.</param>
         /// <returns></returns>
         [Route("search")]
         [HttpGet]
-        public async Task<IActionResult> SearchPodcasts(string term, int limit = 10, bool allowExplicit = true)
+        public async Task<IActionResult> SearchPodcasts(string term, int limit = 10, bool allowExplicit = true, string countryCode = "gb")
         {
             if (term == null || term.Length == 0)
                 return BadRequest();
 
-            var query = await Repository.SearchPodcastsAsync(term, limit, allowExplicit);
+            var query = await Repository.SearchPodcastsAsync(term, limit, allowExplicit, countryCode);
 
             if (query == null)
                 return BadRequest();
