@@ -79,9 +79,9 @@ namespace Vocalia.Podcast.Facades.iTunes
                 {
                     podcast.RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync(podcast.PodcastId));
                 }
-                catch(HttpRequestException)
+                catch(Exception)
                 {
-                    podcast = null;
+                    podcasts.Remove(podcast);
                 }
 
             });

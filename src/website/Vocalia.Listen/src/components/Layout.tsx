@@ -62,7 +62,6 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
 
       categories.forEach(async category => {
         let id = category.id;
-        console.log(category);
         let podcasts = await loader.getPodcastByCategory(id);
 
         let loadedPodcast = this.state.podcastData;

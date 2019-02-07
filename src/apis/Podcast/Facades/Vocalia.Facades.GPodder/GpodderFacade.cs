@@ -29,14 +29,17 @@ namespace Vocalia.Facades.GPodder
             var entries = tag == null ? await Service.GetTopPodcastsAsync(limit) : await Service.GetPodcastsByTagAsync(tag, limit);
 
             IList<Podcast> podcasts = new List<Podcast>();
-            try
+            Parallel.ForEach(entries, async (file) =>
             {
-                Parallel.ForEach(entries, async (file) => podcasts.Add(await Service.GetPodcastDataAsync(file.URL)));
-            }
-            catch(ApiException)
-            {
-                return podcasts.OrderByDescending(x => x.Subscribers);
-            }
+                try
+                {
+                    podcasts.Add(await Service.GetPodcastDataAsync(file.URL));
+                }
+                catch (Exception)
+                {
+                    //Do Nothing.
+                }
+            });
 
             return podcasts.OrderByDescending(x => x.Subscribers);
         }

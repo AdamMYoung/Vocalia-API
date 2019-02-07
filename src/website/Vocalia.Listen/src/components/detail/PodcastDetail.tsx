@@ -10,7 +10,7 @@ import { PodcastFeed, PodcastEpisode } from "../../types";
 import EpisodeEntry from "./EpisodeEntry";
 import VocaliaAPI from "../../utility/VocaliaAPI";
 import { removeTags } from "../../utility/FormatUtils";
-import { Typography } from "@material-ui/core";
+import { Typography, Fade } from "@material-ui/core";
 
 /**
  * Properties required for the detail modal window.
@@ -31,6 +31,7 @@ interface IDetailState {
   feed: PodcastFeed; //Currently loaded feed.
   visibleEpisodes: number; //Number of visible episodes.
   loading: boolean; //Indicates the feed is loading.
+  imageLoaded: boolean; //Indicates if the image has loaded.
 }
 
 /**
@@ -43,7 +44,8 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
     this.state = {
       feed: {} as PodcastFeed,
       visibleEpisodes: 20,
-      loading: true
+      loading: true,
+      imageLoaded: false
     };
   }
 
@@ -64,7 +66,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
   };
 
   render() {
-    const { feed, visibleEpisodes, loading } = this.state;
+    const { feed, visibleEpisodes, loading, imageLoaded } = this.state;
     const {
       open,
       onClose,
@@ -97,13 +99,18 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
             {!loading && (
               <React.Fragment>
                 <DialogTitle disableTypography={true}>
-                  <Typography>
+                  <Typography component={"span"}>
                     <div style={{ display: "flex" }}>
-                      <div
-                        style={{ height: 80, width: 80, alignSelf: "center" }}
-                      >
-                        <img src={feed.imageUrl} />
-                      </div>
+                      <Fade in={imageLoaded}>
+                        <div
+                          style={{ height: 80, width: 80, alignSelf: "center" }}
+                        >
+                          <img
+                            src={feed.imageUrl}
+                            onLoad={() => this.setState({ imageLoaded: true })}
+                          />
+                        </div>
+                      </Fade>
 
                       <div style={{ display: "inline", paddingLeft: 15 }}>
                         <h2>{feed.title}</h2>
