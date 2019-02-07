@@ -10,6 +10,7 @@ import { PodcastFeed, PodcastEpisode } from "../../types";
 import EpisodeEntry from "./EpisodeEntry";
 import VocaliaAPI from "../../utility/VocaliaAPI";
 import { removeTags } from "../../utility/FormatUtils";
+import { Typography } from "@material-ui/core";
 
 /**
  * Properties required for the detail modal window.
@@ -93,51 +94,64 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
             fullScreen={isMobile}
             maxWidth="md"
           >
-            {!loading && <DialogTitle>{feed.title}</DialogTitle>}
             {!loading && (
-              <DialogContent>
-                <DialogContentText>
-                  {removeTags(feed.description)}
-                </DialogContentText>
+              <React.Fragment>
+                <DialogTitle disableTypography={true}>
+                  <Typography>
+                    <div style={{ display: "flex" }}>
+                      <div
+                        style={{ height: 80, width: 80, alignSelf: "center" }}
+                      >
+                        <img src={feed.imageUrl} />
+                      </div>
 
-                {/* Episodes */}
-                {feed.items != null &&
-                  feed.items
-                    .slice(0, visibleEpisodes)
-                    .map(item => (
-                      <EpisodeEntry
-                        key={item.content}
-                        episode={item}
-                        selectedEpisode={selectedEpisode}
-                        onEpisodeSelected={(episode: PodcastEpisode) =>
-                          onEpisodeSelected(episode)
-                        }
-                      />
-                    ))}
+                      <div style={{ display: "inline", paddingLeft: 15 }}>
+                        <h2>{feed.title}</h2>
+                        <p>{removeTags(feed.description)}</p>
+                      </div>
+                    </div>
+                  </Typography>
+                </DialogTitle>
+                <DialogContent style={{ paddingTop: 5 }}>
+                  {/* Episodes */}
+                  {feed.items != null &&
+                    feed.items
+                      .slice(0, visibleEpisodes)
+                      .map(item => (
+                        <EpisodeEntry
+                          key={item.content}
+                          episode={item}
+                          selectedEpisode={selectedEpisode}
+                          onEpisodeSelected={(episode: PodcastEpisode) =>
+                            onEpisodeSelected(episode)
+                          }
+                        />
+                      ))}
 
-                {/* Load more button */}
-                {visibleEpisodes < feed.items.length && (
-                  <Button
-                    onClick={() =>
-                      this.setState(oldState => ({
-                        visibleEpisodes: oldState.visibleEpisodes + 20
-                      }))
-                    }
-                    color="primary"
-                  >
-                    Load More...
-                  </Button>
+                  {/* Load more button */}
+                  {visibleEpisodes < feed.items.length && (
+                    <Button
+                      onClick={() =>
+                        this.setState(oldState => ({
+                          visibleEpisodes: oldState.visibleEpisodes + 20
+                        }))
+                      }
+                      color="primary"
+                    >
+                      Load More...
+                    </Button>
+                  )}
+                </DialogContent>
+
+                {/* Close button */}
+                {!loading && (
+                  <DialogActions>
+                    <Button onClick={this.props.onClose} color="primary">
+                      Close
+                    </Button>
+                  </DialogActions>
                 )}
-              </DialogContent>
-            )}
-
-            {/* Close button */}
-            {!loading && (
-              <DialogActions>
-                <Button onClick={this.props.onClose} color="primary">
-                  Close
-                </Button>
-              </DialogActions>
+              </React.Fragment>
             )}
           </Dialog>
         </Dialog>

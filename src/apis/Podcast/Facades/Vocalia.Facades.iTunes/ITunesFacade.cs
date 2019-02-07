@@ -69,8 +69,7 @@ namespace Vocalia.Podcast.Facades.iTunes
                     PodcastId = (int)entry.Id.Attributes.ImId,
                     Name = entry.ImName.Label,
                     ArtistName = entry.ImArtist.Label,
-                    ImageUrl = entry.ImImage.LastOrDefault()?.Label.AbsoluteUri,
-                    RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync((int)entry.Id.Attributes.ImId))
+                    ImageUrl = entry.ImImage.LastOrDefault()?.Label.AbsoluteUri
                 });
             }
 
