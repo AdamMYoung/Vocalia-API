@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Subscription } from "../../utility/types";
 import Auth from "../../auth/Auth";
 import VocaliaAPI from "../../utility/VocaliaAPI";
+import PodcastBrowser from "../browse/PodcastBrowser";
 
 interface ISubscriptionsState {
   subscriptions: Subscription[];
@@ -35,6 +36,6 @@ export default class Subscriptions extends Component<
   }
 
   render() {
-    return <div />;
+    return <PodcastBrowser podcasts={[]} />;
   }
 }
