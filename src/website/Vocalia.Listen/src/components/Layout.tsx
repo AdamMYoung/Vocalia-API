@@ -148,9 +148,8 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
 
         <Route
           path="/callback"
-          render={props => {
-            this.handleAuthentication(props, null);
-            return <Callback {...props} />;
+          render={() => {
+            return <Callback auth={this.state.auth} />;
           }}
         />
 

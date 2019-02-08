@@ -1,7 +1,18 @@
 import React, { Component } from "react";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Auth from "./Auth";
 
-export default class Callback extends Component {
+interface ICallbackProps {
+  auth: Auth;
+}
+
+export default class Callback extends Component<ICallbackProps> {
+  constructor(props: ICallbackProps) {
+    super(props);
+
+    props.auth.handleAuthentication();
+  }
+
   render() {
     return <CircularProgress />;
   }
