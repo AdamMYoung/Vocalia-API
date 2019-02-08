@@ -167,7 +167,7 @@ namespace Vocalia.Podcast.Controllers
         [Route("subscriptions")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetSubscriptions()
+        public async Task<IActionResult> GetSubscribedPodcasts()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
@@ -175,11 +175,9 @@ namespace Vocalia.Podcast.Controllers
             if (subs == null)
                 return NotFound();
 
-            var subDTOs = subs.Select(s => new DTOs.Subscription
+            var subDTOs = subs.Select(s => new DTOs.Podcast
             {
-                Name = s.Name,
-                Description = s.Description,
-                GUID = s.GUID,
+                Title = s.Name,
                 ImageUrl = s.ImageUrl,
                 RssUrl = s.RssUrl
             });
@@ -195,16 +193,15 @@ namespace Vocalia.Podcast.Controllers
         [Route("subscriptions")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddSubscription(DTOs.Subscription subscription)
+        public async Task<IActionResult> AddPodcastToSubscriptions(DTOs.Podcast podcast)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             var sub = new DomainModels.Subscription()
             {
-                Name = subscription.Name,
-                Description = subscription.Description,
-                ImageUrl = subscription.ImageUrl,
-                RssUrl = subscription.RssUrl,
+                Name = podcast.Title,
+                ImageUrl = podcast.ImageUrl,
+                RssUrl = podcast.RssUrl,
                 UserUID = userId
             };
             await Repository.AddSubscription(sub);
@@ -219,11 +216,11 @@ namespace Vocalia.Podcast.Controllers
         [Route("subscriptions")]
         [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> RemoveSubscription(string guid)
+        public async Task<IActionResult> RemoveSubscription(string rssUrl)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            await Repository.DeleteSubscription(guid, userId);
+            await Repository.DeleteSubscription(rssUrl, userId);
             return Ok();
         }
 

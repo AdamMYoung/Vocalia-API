@@ -30,7 +30,6 @@ export default class Subscriptions extends Component<
 
     if (accessToken != null) {
       let subscriptions = await loader.getSubscriptions(accessToken);
-      console.log("got stuff lol");
       this.setState({ subscriptions: subscriptions });
     }
   }

@@ -50,10 +50,10 @@ namespace Vocalia.Podcast.Repositories
         /// <summary>
         /// Deletes the subscription with the specified ID in the database.
         /// </summary>
-        /// <param name="GUID">GUID of the subscription.</param>
+        /// <param name="rssUrl">RSS url of the entry.</param>
         /// <param name="userUID">userUID to remove the item from.</param>
         /// <returns></returns>
-        Task DeleteSubscription(string GUID, string userUID);
+        Task DeleteSubscription(string rssUrl, string userUID);
 
         /// <summary>
         /// Adds a subscription to the current user.

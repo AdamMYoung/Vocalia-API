@@ -24,7 +24,6 @@ export default class Auth {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
-        console.log(authResult);
       } else if (err) {
         console.log(err);
         this.routeProps.history.replace("/top");
