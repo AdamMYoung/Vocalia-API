@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -165,8 +166,11 @@ namespace Vocalia.Podcast.Controllers
         /// <returns></returns>
         [Route("subscriptions")]
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetSubscriptions()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
             var subs = await Repository.GetSubscriptions("userUID");
             if (subs == null)
                 return NotFound();
@@ -190,15 +194,18 @@ namespace Vocalia.Podcast.Controllers
         /// <returns></returns>
         [Route("subscriptions")]
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddSubscription(DTOs.Subscription subscription)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
             var sub = new DomainModels.Subscription()
             {
                 Name = subscription.Name,
                 Description = subscription.Description,
                 ImageUrl = subscription.ImageUrl,
                 RssUrl = subscription.RssUrl,
-                UserUID = "userUID"
+                UserUID = userId
             };
             await Repository.AddSubscription(sub);
             return Ok();
@@ -211,9 +218,12 @@ namespace Vocalia.Podcast.Controllers
         /// <returns></returns>
         [Route("subscriptions")]
         [HttpDelete]
+        [Authorize]
         public async Task<IActionResult> RemoveSubscription(string guid)
         {
-            await Repository.DeleteSubscription(guid);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            await Repository.DeleteSubscription(guid, userId);
             return Ok();
         }
 

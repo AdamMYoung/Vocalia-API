@@ -35,6 +35,14 @@ export interface PodcastEpisode {
   storeLocally: boolean;
 }
 
+export interface Subscription {
+  guid: string;
+  rssUrl: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+}
+
 export interface MediaState {
   episode: PodcastEpisode;
   autoplay: boolean;

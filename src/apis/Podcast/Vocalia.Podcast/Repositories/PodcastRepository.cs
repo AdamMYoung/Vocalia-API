@@ -288,12 +288,16 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="id">ID of the subscription.</param>
         /// <returns></returns>
-        public async Task DeleteSubscription(string GUID)
+        public async Task DeleteSubscription(string GUID, string userUID)
         {
-            var subscription = await DbContext.Subscriptions.FirstOrDefaultAsync(s => s.GUID.ToString() == GUID);
-            DbContext.Subscriptions.Remove(subscription);
+            var subscription = await DbContext.Subscriptions
+                .FirstOrDefaultAsync(s => s.GUID.ToString() == GUID && s.UserUID == userUID);
 
-            await DbContext.SaveChangesAsync();
+            if (subscription != null)
+            {
+                DbContext.Subscriptions.Remove(subscription);
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         /// <summary>

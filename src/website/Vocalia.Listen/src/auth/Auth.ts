@@ -13,6 +13,7 @@ export default class Auth {
 
   auth0 = new auth0.WebAuth({
     domain: "vocalia.eu.auth0.com",
+    audience: "https://api.vocalia.co.uk/podcast",
     clientID: "uHe5eYe5imVEsBTnzcJciIHtj45N2px1",
     redirectUri: "http://localhost:3000/callback",
     responseType: "token id_token",
@@ -23,6 +24,7 @@ export default class Auth {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
+        console.log(authResult);
       } else if (err) {
         console.log(err);
         this.routeProps.history.replace("/top");

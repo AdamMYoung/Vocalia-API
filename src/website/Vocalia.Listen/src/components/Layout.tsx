@@ -18,6 +18,7 @@ import MediaPlayer from "./player/MediaPlayer";
 import VocaliaAPI from "../utility/VocaliaAPI";
 import PodcastBrowser from "./browse/PodcastBrowser";
 import PodcastDetail from "./detail/PodcastDetail";
+import Subscriptions from "./subscriptions/Subscriptions";
 import Callback from "../auth/Callback";
 import Auth from "../auth/Auth";
 import { SetCurrentPodcast, GetCurrentPodcast } from "../utility/PlaybackUtils";
@@ -122,6 +123,11 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
         <Route
           path="/top/"
           render={() => <PodcastBrowser podcasts={podcastData["top"]} />}
+        />
+
+        <Route
+          path="/subscribed/"
+          render={() => <Subscriptions auth={auth} />}
         />
 
         <Route
