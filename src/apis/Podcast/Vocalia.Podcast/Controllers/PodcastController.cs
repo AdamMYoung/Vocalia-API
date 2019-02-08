@@ -159,6 +159,10 @@ namespace Vocalia.Podcast.Controllers
 
         #region Subscription API
 
+        /// <summary>
+        /// Returns all subscriptions belonging to the user.
+        /// </summary>
+        /// <returns></returns>
         [Route("subscriptions")]
         [HttpGet]
         public async Task<IActionResult> GetSubscriptions()
@@ -179,6 +183,11 @@ namespace Vocalia.Podcast.Controllers
             return Ok(subDTOs);
         }
 
+        /// <summary>
+        /// Adds the specified subscription to the authenticated user.
+        /// </summary>
+        /// <param name="subscription">Subscription object to add.</param>
+        /// <returns></returns>
         [Route("subscriptions")]
         [HttpPost]
         public async Task<IActionResult> AddSubscription(DTOs.Subscription subscription)
@@ -195,6 +204,11 @@ namespace Vocalia.Podcast.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Removes the specified subscription from the authenticated user.
+        /// </summary>
+        /// <param name="guid">GUID of the subscription to renew.</param>
+        /// <returns></returns>
         [Route("subscriptions")]
         [HttpDelete]
         public async Task<IActionResult> RemoveSubscription(string guid)
