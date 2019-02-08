@@ -19,6 +19,8 @@ namespace Vocalia.Gateway
     {
         public static void Main(string[] args)
         {
+            var authenticationProviderKey = "";
+
             new WebHostBuilder()
             .UseKestrel()
             .UseContentRoot(Directory.GetCurrentDirectory())
@@ -32,6 +34,11 @@ namespace Vocalia.Gateway
                     .AddEnvironmentVariables();
             })
             .ConfigureServices(s => {
+                s.AddAuthentication()
+                    .AddJwtBearer(authenticationProviderKey, x =>
+                    {
+
+                    });
                 s.AddCors(options =>
                 {
                     options.AddPolicy("CorsPolicy",

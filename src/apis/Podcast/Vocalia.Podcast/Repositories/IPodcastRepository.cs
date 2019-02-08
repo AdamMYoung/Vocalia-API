@@ -39,6 +39,26 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="rssUrl">URL to parse.</param>
         /// <returns></returns>
-        Task<Feed> GetFeedFromUrl(string rssUrl);
+        Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl);
+
+        /// <summary>
+        /// Gets all subscriptions for the user.
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<DomainModels.Subscription>> GetSubscriptions(string userUID);
+
+        /// <summary>
+        /// Deletes the subscription with the specified ID in the database.
+        /// </summary>
+        /// <param name="id">ID of the subscription.</param>
+        /// <returns></returns>
+        Task DeleteSubscription(string GUID);
+
+        /// <summary>
+        /// Adds a subscription to the current user.
+        /// </summary>
+        /// <param name="subscription">Subscription to add</param>
+        /// <returns></returns>
+        Task AddSubscription(DomainModels.Subscription subscription);
     }
 }

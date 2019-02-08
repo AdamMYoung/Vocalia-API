@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -25,7 +26,9 @@ namespace Vocalia.Podcast.Controllers
         /// Instantiates a new PodcastController.
         /// </summary>
         /// <param name="repository">Podcast repository to query.</param>
-        public PodcastController(IPodcastRepository repository) => Repository = repository;      
+        public PodcastController(IPodcastRepository repository) => Repository = repository;
+
+        #region Search API
 
         /// <summary>
         /// Returns all podcast categories.
@@ -99,9 +102,17 @@ namespace Vocalia.Podcast.Controllers
             var query = await Repository.SearchPodcastsAsync(term, limit, allowExplicit, countryCode);
 
             if (query == null)
-                return BadRequest();
+                return NotFound();
 
-            return Ok(query);
+            var podcastDTOs = query.Select(p => new DTOs.Podcast()
+            {
+                ID = p.ID,
+                Title = p.Title,
+                ImageUrl = p.ImageUrl,
+                RssUrl = p.RssUrl
+            }).ToList();
+
+            return Ok(podcastDTOs);
         }
 
         /// <summary>
@@ -117,10 +128,81 @@ namespace Vocalia.Podcast.Controllers
                 return BadRequest();
 
             var parsedFeed = await Repository.GetFeedFromUrl(rssUrl);
+
             if (parsedFeed == null)
                 return NotFound();
 
-            return Ok(parsedFeed);
+            var feed = new DTOs.Feed()
+            {
+                Title = parsedFeed.Title,
+                Link = parsedFeed.Link,
+                Description = parsedFeed.Description,
+                Copyright = parsedFeed.Copyright,
+                ImageUrl = parsedFeed.ImageUrl,
+                Items = parsedFeed.Items.Select(i => new DTOs.FeedItem
+                {
+                    Title = i.Title,
+                    RssUrl = rssUrl,
+                    ImageUrl = i.ImageUrl,
+                    Description = i.Description,
+                    PublishingDate = i.PublishingDate,
+                    Author = i.Title,
+                    Id = i.Id,
+                    Content = i.Content
+                })
+            };
+
+            return Ok(feed);
         }
+
+        #endregion
+
+        #region Subscription API
+
+        [Route("subscriptions")]
+        [HttpGet]
+        public async Task<IActionResult> GetSubscriptions()
+        {
+            var subs = await Repository.GetSubscriptions("userUID");
+            if (subs == null)
+                return NotFound();
+
+            var subDTOs = subs.Select(s => new DTOs.Subscription
+            {
+                Name = s.Name,
+                Description = s.Description,
+                GUID = s.GUID,
+                ImageUrl = s.ImageUrl,
+                RssUrl = s.RssUrl
+            });
+
+            return Ok(subDTOs);
+        }
+
+        [Route("subscriptions")]
+        [HttpPost]
+        public async Task<IActionResult> AddSubscription(DTOs.Subscription subscription)
+        {
+            var sub = new DomainModels.Subscription()
+            {
+                Name = subscription.Name,
+                Description = subscription.Description,
+                ImageUrl = subscription.ImageUrl,
+                RssUrl = subscription.RssUrl,
+                UserUID = "userUID"
+            };
+            await Repository.AddSubscription(sub);
+            return Ok();
+        }
+
+        [Route("subscriptions")]
+        [HttpDelete]
+        public async Task<IActionResult> RemoveSubscription(string guid)
+        {
+            await Repository.DeleteSubscription(guid);
+            return Ok();
+        }
+
+        #endregion
     }
 }

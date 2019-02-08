@@ -205,7 +205,7 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="count">Number of podcasts to fetch.</param>
         /// <param name="gpodderTag">Optional tag for category filtering.</param>
         /// <returns></returns>
-        private async Task<IEnumerable<DomainModels.Podcast>> GetGPodderPodcastsAsync(int count, string gpodderTag)
+        public async Task<IEnumerable<DomainModels.Podcast>> GetGPodderPodcastsAsync(int count, string gpodderTag)
         {
             var gpodderPodcasts = await GPodderService.GetTopPodcastsAsync(count, gpodderTag);
             return gpodderPodcasts.Select(p => new DomainModels.Podcast()
@@ -225,23 +225,23 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="rssUrl">URL to parse.</param>
         /// <returns></returns>
-        public async Task<DTOs.Feed> GetFeedFromUrl(string rssUrl)
+        public async Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl)
         {
             var cacheTerm = CacheKeys.Feed + rssUrl;
-            if (!Cache.TryGetValue(cacheTerm, out DTOs.Feed feedEntry))
+            if (!Cache.TryGetValue(cacheTerm, out DomainModels.Feed feedEntry))
             {
                 var feed = await FeedReader.ReadAsync(rssUrl);
                 if (feed == null)
                     return null;
 
-                feedEntry = new DTOs.Feed()
+                feedEntry = new DomainModels.Feed()
                 {
                     Title = feed.Title,
                     Link = feed.Link,
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     ImageUrl = feed.ImageUrl,
-                    Items = feed.Items.Select(i => new DTOs.FeedItem()
+                    Items = feed.Items.Select(i => new DomainModels.FeedItem()
                     {
                         Title = i.Title,
                         RssUrl = rssUrl,
@@ -261,6 +261,58 @@ namespace Vocalia.Podcast.Repositories
             return feedEntry;
         }
 
+        #endregion
+
+        #region Subscriptions
+
+        /// <summary>
+        /// Gets all subscriptions for the user.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Subscription>> GetSubscriptions(string userUID)
+        {
+            return await DbContext.Subscriptions.Where(x => x.UserUID == userUID).Select(s => new DomainModels.Subscription()
+            {
+                ID = s.ID,
+                GUID = s.GUID.ToString(),
+                UserUID = s.UserUID,
+                RssUrl = s.RssUrl,
+                Name = s.Name,
+                Description = s.Description,
+                ImageUrl = s.ImageUrl
+            }).ToListAsync();
+        }
+
+        /// <summary>
+        /// Deletes the subscription with the specified ID in the database.
+        /// </summary>
+        /// <param name="id">ID of the subscription.</param>
+        /// <returns></returns>
+        public async Task DeleteSubscription(string GUID)
+        {
+            var subscription = await DbContext.Subscriptions.FirstOrDefaultAsync(s => s.GUID.ToString() == GUID);
+            DbContext.Subscriptions.Remove(subscription);
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Adds a subscription to the current user.
+        /// </summary>
+        /// <param name="subscription">Subscription to add</param>
+        /// <returns></returns>
+        public async Task AddSubscription(DomainModels.Subscription subscription) {
+            await DbContext.Subscriptions.AddAsync(new Subscription
+            {
+                Name = subscription.Name,
+                Description = subscription.Description,
+                RssUrl = subscription.RssUrl,
+                UserUID = subscription.UserUID,
+                ImageUrl = subscription.ImageUrl
+            });
+
+            await DbContext.SaveChangesAsync();
+        }
         #endregion
     }
 
