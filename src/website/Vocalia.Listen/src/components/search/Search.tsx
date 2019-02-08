@@ -103,14 +103,12 @@ class Search extends Component<ISearchProps, ISearchState> {
     };
   }
 
-  querySearch = (term: string) => {
+  querySearch = async (term: string) => {
     let loader = new VocaliaAPI();
 
     if (term.length >= 3) {
-      (async () => {
-        var podcasts = await loader.searchPodcasts(term);
-        this.setState({ podcasts: podcasts });
-      })();
+      var podcasts = await loader.searchPodcasts(term);
+      this.setState({ podcasts: podcasts });
     }
   };
 
