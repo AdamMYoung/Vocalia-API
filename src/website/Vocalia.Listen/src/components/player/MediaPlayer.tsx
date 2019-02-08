@@ -9,15 +9,20 @@ import {
 } from "@material-ui/icons";
 import Slider from "@material-ui/lab/Slider";
 import "./MediaPlayer.css";
-import { PodcastEpisode } from "../../utility/types";
+import { PodcastEpisode, MediaState } from "../../utility/types";
 import { formatTime } from "../../utility/FormatUtils";
+import {
+  GetPlaybackTime,
+  SetPlaybackTime,
+  SetCurrentPodcast
+} from "../../utility/PlaybackUtils";
 import { Link } from "react-router-dom";
 
 /**
  * Required properties for the player.
  */
 interface IPlayerProps {
-  media: PodcastEpisode; //The media to be played.
+  media: MediaState; //The media to be played.
   isMobile: boolean; //Indicates if the current device is a mobile device.
 }
 
@@ -49,13 +54,15 @@ export default class MediaPlayer extends PureComponent<
     const { media } = this.props;
     let audioObject = document.createElement("audio");
     audioObject.loop = false;
-    audioObject.currentTime = media.time;
     audioObject.ontimeupdate = () => this.onHandleTimeUpdate();
-    audioObject.onended = () => this.setState({ paused: true });
+    audioObject.onended = () => {
+      SetCurrentPodcast({ time: 0 } as PodcastEpisode);
+      this.setState({ paused: true });
+    };
 
     this.state = {
       paused: true,
-      time: media.time,
+      time: 0,
       volume: 0.5,
       audioObject: audioObject,
       imageLoaded: false
@@ -63,13 +70,34 @@ export default class MediaPlayer extends PureComponent<
   }
 
   /**
+   * Saves the current playback position to memory.
+   */
+  savePlaybackPosition = () => {
+    const { audioObject } = this.state;
+    const { episode } = this.props.media;
+
+    SetPlaybackTime(episode.rssUrl, audioObject.currentTime);
+  };
+
+  /**
+   * Loads the saved playback position from memory.
+   */
+  loadPlaybackPosition = () => {
+    const { audioObject } = this.state;
+    const { episode } = this.props.media;
+
+    audioObject.currentTime = GetPlaybackTime(episode.rssUrl);
+  };
+
+  /**
    * Called when a new episode has been selected.
    * @param props Passed properties.
    */
   componentWillReceiveProps(props: IPlayerProps) {
     const { audioObject } = this.state;
+    const { episode } = this.props.media;
 
-    if (props.media.content !== audioObject.src) {
+    if (episode.content !== audioObject.src) {
       this.initializePodcastFromProps(props);
     }
   }
@@ -99,10 +127,15 @@ export default class MediaPlayer extends PureComponent<
    */
   initializePodcastFromProps = (props: IPlayerProps) => {
     const { audioObject } = this.state;
-    audioObject.src = props.media.content;
+    const { episode, autoplay } = this.props.media;
+
+    audioObject.src = episode.content;
     audioObject.load();
-    audioObject.play();
-    this.setState({ paused: false });
+
+    this.loadPlaybackPosition();
+    if (autoplay) audioObject.play();
+
+    this.setState({ paused: !autoplay });
   };
 
   /**
@@ -170,12 +203,14 @@ export default class MediaPlayer extends PureComponent<
   onHandleTimeUpdate = () => {
     const { audioObject } = this.state;
     this.setState({ time: audioObject.currentTime });
+    this.savePlaybackPosition();
   };
 
   render() {
     let icon = this.state.paused ? <PlayArrow /> : <Pause />;
 
-    const { media, isMobile } = this.props;
+    const { isMobile } = this.props;
+    const { episode } = this.props.media;
     const { time, volume, audioObject, imageLoaded } = this.state;
 
     return (
@@ -189,13 +224,13 @@ export default class MediaPlayer extends PureComponent<
       >
         {/* Image & Playback */}
         <div className="player-left">
-          {!isMobile && media.imageUrl != null && (
+          {!isMobile && episode.imageUrl != null && (
             <div className="image">
-              {media.imageUrl != null}
+              {episode.imageUrl != null}
               <Fade in={imageLoaded}>
                 <img
                   alt="podcast-logo"
-                  src={media.imageUrl}
+                  src={episode.imageUrl}
                   onLoad={() => this.setState({ imageLoaded: true })}
                 />
               </Fade>
@@ -221,7 +256,7 @@ export default class MediaPlayer extends PureComponent<
             <div className="episode">
               <span className="episode-title">
                 <Typography component="h6" variant="h6">
-                  {media.title}
+                  {episode.title}
                 </Typography>
               </span>
             </div>
@@ -229,11 +264,11 @@ export default class MediaPlayer extends PureComponent<
             <div className="title">
               <span className="podcast-title">
                 <Link
-                  to={"/detail/" + encodeURIComponent(media.rssUrl)}
+                  to={"/detail/" + encodeURIComponent(episode.rssUrl)}
                   style={{ textDecoration: "none" }}
                 >
                   <Typography component="p" color="textSecondary">
-                    {media.author}
+                    {episode.author}
                   </Typography>
                 </Link>
               </span>

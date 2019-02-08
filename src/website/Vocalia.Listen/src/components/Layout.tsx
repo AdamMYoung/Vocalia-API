@@ -7,7 +7,12 @@ import {
   Redirect,
   Switch
 } from "react-router";
-import { Category, Podcast, PodcastEpisode } from "../utility/types";
+import {
+  Category,
+  Podcast,
+  PodcastEpisode,
+  MediaState
+} from "../utility/types";
 import Navigation from "./navigation/Navigation";
 import MediaPlayer from "./player/MediaPlayer";
 import VocaliaAPI from "../utility/VocaliaAPI";
@@ -15,6 +20,7 @@ import PodcastBrowser from "./browse/PodcastBrowser";
 import PodcastDetail from "./detail/PodcastDetail";
 import Callback from "../auth/Callback";
 import Auth from "../auth/Auth";
+import { SetCurrentPodcast, GetCurrentPodcast } from "../utility/PlaybackUtils";
 
 /**
  * State information for the application.
@@ -23,7 +29,7 @@ interface ILayoutState {
   podcastData: { [key: string]: Podcast[] };
   categories: Category[];
   dialogOpen: boolean;
-  selectedEpisode: PodcastEpisode;
+  media: MediaState;
   auth: Auth;
 }
 
@@ -48,9 +54,10 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
       podcastData: { top: [] },
       categories: [],
       dialogOpen: false,
-      selectedEpisode: { time: 0 } as PodcastEpisode
+      media: { episode: GetCurrentPodcast(), autoplay: false }
     };
   }
+
   /**
    * Called before the component finishes mounting,
    * and loads all categories and podcasts into memory.
@@ -83,7 +90,12 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
    * Called when an episode has been selected for playback.
    */
   onEpisodeSelected = (episode: PodcastEpisode) => {
-    this.setState({ selectedEpisode: episode });
+    SetCurrentPodcast(episode);
+
+    let media = this.state.media;
+    media.autoplay = true;
+    media.episode = episode;
+    this.setState({ media: media });
   };
 
   onDialogClose = () => {
@@ -99,7 +111,7 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
   };
 
   render() {
-    const { podcastData, selectedEpisode, categories, auth } = this.state;
+    const { podcastData, media, categories, auth } = this.state;
     const { isMobile } = this.props;
 
     /**
@@ -126,12 +138,10 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
             <PodcastDetail
               open={true}
               rssFeed={props.match.params.rss}
-              selectedEpisode={selectedEpisode}
+              selectedEpisode={media.episode}
               isMobile={isMobile}
               onClose={() => this.onDialogClose()}
-              onEpisodeSelected={episode =>
-                this.setState({ selectedEpisode: episode })
-              }
+              onEpisodeSelected={episode => this.onEpisodeSelected(episode)}
             />
           )}
         />
@@ -152,9 +162,9 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
       <Navigation categories={categories} isMobile={isMobile} auth={auth}>
         <React.Fragment>
           {RoutingContents}
-          {selectedEpisode.content != null && (
-            <Slide direction={"up"} in={selectedEpisode.content != null}>
-              <MediaPlayer media={selectedEpisode} isMobile={isMobile} />
+          {media.episode != null && (
+            <Slide direction={"up"} in={media.episode.content != null}>
+              <MediaPlayer media={media} isMobile={isMobile} />
             </Slide>
           )}
         </React.Fragment>

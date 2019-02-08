@@ -34,3 +34,8 @@ export interface PodcastEpisode {
   isCompleted: boolean;
   storeLocally: boolean;
 }
+
+export interface MediaState {
+  episode: PodcastEpisode;
+  autoplay: boolean;
+}

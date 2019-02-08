@@ -19,7 +19,7 @@ export default class Auth {
     scope: "openid"
   });
 
-  handleAuthentication() {
+  handleAuthentication = () => {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
@@ -29,17 +29,17 @@ export default class Auth {
         alert(`Error: ${err.error}. Check the console for further details.`);
       }
     });
-  }
+  };
 
-  getAccessToken() {
+  getAccessToken = () => {
     return this.accessToken;
-  }
+  };
 
-  getIdToken() {
+  getIdToken = () => {
     return this.idToken;
-  }
+  };
 
-  setSession(authResult: auth0.Auth0DecodedHash) {
+  setSession = (authResult: auth0.Auth0DecodedHash) => {
     // Set isLoggedIn flag in localStorage
     localStorage.setItem("isLoggedIn", "true");
 
@@ -52,9 +52,9 @@ export default class Auth {
 
     // navigate to the home route
     this.routeProps.history.replace("/top");
-  }
+  };
 
-  renewSession() {
+  renewSession = () => {
     this.auth0.checkSession({}, (err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
@@ -66,9 +66,9 @@ export default class Auth {
         );
       }
     });
-  }
+  };
 
-  logout() {
+  logout = () => {
     // Remove tokens and expiry time
     this.accessToken = null;
     this.idToken = null;
@@ -79,16 +79,16 @@ export default class Auth {
 
     // navigate to the home route
     this.routeProps.history.replace("/top");
-  }
+  };
 
-  login() {
+  login = () => {
     this.auth0.authorize();
-  }
+  };
 
-  isAuthenticated() {
+  isAuthenticated = () => {
     // Check whether the current time is past the
-    // access token's expiry time
+    // access token's expiry time.
     let expiresAt = this.expiresAt as number;
     return new Date().getTime() < expiresAt;
-  }
+  };
 }

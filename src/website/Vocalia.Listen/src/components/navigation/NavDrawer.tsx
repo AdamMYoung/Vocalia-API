@@ -104,10 +104,13 @@ class NavDrawer extends Component<INavDrawerProps, INavDrawerState> {
               <ListItemIcon>
                 <Person />
               </ListItemIcon>
-              {isAuthenticated ? (
-                <ListItemText primary="Sign-in" onClick={() => this.login()} />
+              {!isAuthenticated() ? (
+                <ListItemText primary="Sign In" onClick={() => this.login()} />
               ) : (
-                <ListItemText primary="Sign-in" onClick={() => this.logout()} />
+                <ListItemText
+                  primary="Sign Out"
+                  onClick={() => this.logout()}
+                />
               )}
             </ListItem>
           </List>
@@ -126,14 +129,16 @@ class NavDrawer extends Component<INavDrawerProps, INavDrawerState> {
           </LinkContainer>
 
           {/* Subscribed */}
-          <LinkContainer to="/subscribed">
-            <ListItem button>
-              <ListItemIcon>
-                <Star />
-              </ListItemIcon>
-              <ListItemText primary="Subscribed" onClick={this.closeDrawer} />
-            </ListItem>
-          </LinkContainer>
+          {isAuthenticated() && (
+            <LinkContainer to="/subscribed">
+              <ListItem button>
+                <ListItemIcon>
+                  <Star />
+                </ListItemIcon>
+                <ListItemText primary="Subscribed" onClick={this.closeDrawer} />
+              </ListItem>
+            </LinkContainer>
+          )}
         </List>
         <Divider />
         <List>
