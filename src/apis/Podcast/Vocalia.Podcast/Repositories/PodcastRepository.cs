@@ -224,8 +224,9 @@ namespace Vocalia.Podcast.Repositories
         /// Parses an RSS feed into C# DTOs to serialize, allowing additional information to be added such as listen times and listen info.
         /// </summary>
         /// <param name="rssUrl">URL to parse.</param>
+        /// <param name="userUID">Optional ID of the user to fetch customized information.</param>
         /// <returns></returns>
-        public async Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl)
+        public async Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl, string userUID = null)
         {
             var cacheTerm = CacheKeys.Feed + rssUrl;
             if (!Cache.TryGetValue(cacheTerm, out DomainModels.Feed feedEntry))
@@ -258,6 +259,13 @@ namespace Vocalia.Podcast.Repositories
                 Cache.Set(cacheTerm, feedEntry, cacheEntryOptions);
             }
 
+            if(userUID != null)
+            {
+                feedEntry.IsSubscribed = await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == feedEntry.Link && s.UserUID == userUID);
+                foreach(var item in feedEntry.Items)
+                    item.Time = (await DbContext.Listens.FirstOrDefaultAsync(c => c.RssUrl == item.RssUrl && c.UserUID == userUID))?.Time ?? 0;
+            }
+
             return feedEntry;
         }
 
@@ -274,11 +282,9 @@ namespace Vocalia.Podcast.Repositories
             return await DbContext.Subscriptions.Where(x => x.UserUID == userUID).Select(s => new DomainModels.Subscription()
             {
                 ID = s.ID,
-                GUID = s.GUID.ToString(),
                 UserUID = s.UserUID,
                 RssUrl = s.RssUrl,
                 Name = s.Name,
-                Description = s.Description,
                 ImageUrl = s.ImageUrl
             }).ToListAsync();
         }
@@ -309,7 +315,6 @@ namespace Vocalia.Podcast.Repositories
             await DbContext.Subscriptions.AddAsync(new Subscription
             {
                 Name = subscription.Name,
-                Description = subscription.Description,
                 RssUrl = subscription.RssUrl,
                 UserUID = subscription.UserUID,
                 ImageUrl = subscription.ImageUrl

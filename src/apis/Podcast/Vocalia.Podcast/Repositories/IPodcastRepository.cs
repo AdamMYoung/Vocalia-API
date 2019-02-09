@@ -38,8 +38,9 @@ namespace Vocalia.Podcast.Repositories
         /// Parses an RSS feed into C# DTOs to serialize, allowing additional information to be added such as listen times and listen info.
         /// </summary>
         /// <param name="rssUrl">URL to parse.</param>
+        /// <param name="userUID">Optional ID of the user to fetch customized information.</param>
         /// <returns></returns>
-        Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl);
+        Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl, string userUID = null);
 
         /// <summary>
         /// Gets all subscriptions for the user.

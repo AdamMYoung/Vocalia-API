@@ -103,7 +103,7 @@ export default class ApiRepository {
    * @param url Path to query.
    * @param accessToken Access token to verify users.
    */
-  getInjectedFetch(url: string, accessToken: string) {
+  private getInjectedFetch(url: string, accessToken: string) {
     var headers = new Headers({
       "content-type": "application/json",
       Authorization: "Bearer " + accessToken

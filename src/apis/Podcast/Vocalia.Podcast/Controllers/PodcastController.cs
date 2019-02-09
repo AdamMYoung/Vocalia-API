@@ -125,10 +125,12 @@ namespace Vocalia.Podcast.Controllers
         [HttpGet]
         public async Task<IActionResult> ParseRssFeed(string rssUrl)
         {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if (rssUrl.Length == 0 || rssUrl == null)
                 return BadRequest();
 
-            var parsedFeed = await Repository.GetFeedFromUrl(rssUrl);
+            var parsedFeed = await Repository.GetFeedFromUrl(rssUrl, userId);
 
             if (parsedFeed == null)
                 return NotFound();

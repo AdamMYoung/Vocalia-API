@@ -57,10 +57,5 @@ namespace Vocalia.Podcast.DTOs
         /// Indicates if the podcast has been completed previously.
         /// </summary>
         public bool IsCompleted { get; internal set;  } = false;
-
-        /// <summary>
-        /// Indicates if the podcast data should be stored for local playback.
-        /// </summary>
-        public bool StoreLocally { get; internal set; } = false;
     }
 }

@@ -86,11 +86,9 @@ namespace Vocalia.Podcast.Db
         {
             builder.Property(i => i.UserUID).IsRequired();
             builder.Property(i => i.RssUrl).IsRequired();
-            builder.Property(i => i.EpisodeName).IsRequired();
-            builder.Property(i => i.EpisodeGUID).IsRequired();           
+            builder.Property(i => i.EpisodeName).IsRequired();  
             builder.Property(i => i.Time).IsRequired();
-
-           
+            builder.Property(i => i.IsCompleted).IsRequired();
         }
     }
 
@@ -101,7 +99,6 @@ namespace Vocalia.Podcast.Db
             builder.Property(i => i.UserUID).IsRequired();
             builder.Property(i => i.RssUrl).IsRequired();
             builder.Property(i => i.Name).IsRequired();
-            builder.Property(i => i.Description).IsRequired();
             builder.Property(i => i.ImageUrl).IsRequired();
 
             builder.HasMany(l => l.Listens)

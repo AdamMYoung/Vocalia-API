@@ -1,6 +1,6 @@
 import ApiRepository from "./ApiRepository";
 import LocalRepository from "./LocalRepository";
-import { Category, Podcast, PodcastFeed } from "../utility/types";
+import { Category, Podcast, PodcastFeed, Listen } from "../utility/types";
 
 export default class DataManager {
   api: ApiRepository = new ApiRepository();
@@ -75,5 +75,13 @@ export default class DataManager {
    */
   async deleteSubscription(rssUrl: string) {
     await this.api.deleteSubscription(this.accessToken, rssUrl);
+  }
+
+
+  async updateListenInfo(rssUrl: string, listen: Listen) {
+      if(this.accessToken == null){
+        this.local.SetPlaybackTime(rssUrl, listen.)
+      }
+      
   }
 }

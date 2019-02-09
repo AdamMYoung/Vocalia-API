@@ -38,3 +38,10 @@ export interface MediaState {
   episode: PodcastEpisode;
   autoplay: boolean;
 }
+
+export interface Listen {
+  rssUrl: string;
+  episodeName: string;
+  time: number;
+  isCompleted: boolean;
+}

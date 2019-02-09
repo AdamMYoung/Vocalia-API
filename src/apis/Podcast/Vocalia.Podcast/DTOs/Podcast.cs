@@ -14,7 +14,5 @@ namespace Vocalia.Podcast.DTOs
         public string RssUrl { get; internal set; }
 
         public string ImageUrl { get; internal set; }
-
-        public bool IsSubscribed { get; internal set; } = false;
     }
 }
