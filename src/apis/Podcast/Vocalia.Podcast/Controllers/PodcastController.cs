@@ -130,7 +130,7 @@ namespace Vocalia.Podcast.Controllers
             if (rssUrl.Length == 0 || rssUrl == null)
                 return BadRequest();
 
-            var parsedFeed = await Repository.GetFeedFromUrl(rssUrl, userId);
+            var parsedFeed = await Repository.GetFeedFromUrlAsync(rssUrl, userId);
 
             if (parsedFeed == null)
                 return NotFound();
@@ -173,7 +173,7 @@ namespace Vocalia.Podcast.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var subs = await Repository.GetSubscriptions("userUID");
+            var subs = await Repository.GetSubscriptionsAsync("userUID");
             if (subs == null)
                 return NotFound();
 
@@ -206,7 +206,7 @@ namespace Vocalia.Podcast.Controllers
                 RssUrl = podcast.RssUrl,
                 UserUID = userId
             };
-            await Repository.AddSubscription(sub);
+            await Repository.AddSubscriptionAsync(sub);
             return Ok();
         }
 
@@ -222,9 +222,63 @@ namespace Vocalia.Podcast.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            await Repository.DeleteSubscription(rssUrl, userId);
+            await Repository.DeleteSubscriptionAsync(rssUrl, userId);
             return Ok();
         }
+
+        #endregion
+
+        #region Listen API 
+
+        /// <summary>
+        /// Gets the listen info in the DB.
+        /// </summary>
+        /// <returns></returns>
+        [Route("listen")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetListenInfo(string rssUrl)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var info = await Repository.GetListenInfoAsync(rssUrl, userId);
+            if (info == null)
+                return NotFound();
+
+            var infoDTO = new DTOs.Listen
+            {
+                RssUrl = info.RssUrl,
+                Time = info.Time,
+                EpisodeName = info.EpisodeName,
+                IsCompleted = info.IsCompleted
+            };
+
+            return Ok(infoDTO);
+        }
+
+        /// <summary>
+        /// Updates the listen info in the DB.
+        /// </summary>
+        /// <returns></returns>
+        [Route("listen")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SetListenInfo(DTOs.Listen listenInfo)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var listen = new DomainModels.Listen
+            {
+                RssUrl = listenInfo.RssUrl,
+                EpisodeName = listenInfo.EpisodeName,
+                UserUID = userId,
+                IsCompleted = listenInfo.IsCompleted,
+                Time = listenInfo.Time
+            };
+
+            await Repository.SetListenInfoAsync(listen);
+            return Ok();
+        }
+
 
         #endregion
     }

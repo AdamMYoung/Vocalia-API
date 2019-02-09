@@ -40,27 +40,42 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="rssUrl">URL to parse.</param>
         /// <param name="userUID">Optional ID of the user to fetch customized information.</param>
         /// <returns></returns>
-        Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl, string userUID = null);
+        Task<DomainModels.Feed> GetFeedFromUrlAsync(string rssUrl, string userUID = null);
 
         /// <summary>
         /// Gets all subscriptions for the user.
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Subscription>> GetSubscriptions(string userUID);
+        Task<IEnumerable<DomainModels.Subscription>> GetSubscriptionsAsync(string userUID);
 
         /// <summary>
         /// Deletes the subscription with the specified ID in the database.
         /// </summary>
         /// <param name="rssUrl">RSS url of the entry.</param>
-        /// <param name="userUID">userUID to remove the item from.</param>
+        /// <param name="userUID">User UID to remove the item from.</param>
         /// <returns></returns>
-        Task DeleteSubscription(string rssUrl, string userUID);
+        Task DeleteSubscriptionAsync(string rssUrl, string userUID);
 
         /// <summary>
         /// Adds a subscription to the current user.
         /// </summary>
         /// <param name="subscription">Subscription to add</param>
         /// <returns></returns>
-        Task AddSubscription(DomainModels.Subscription subscription);
+        Task AddSubscriptionAsync(DomainModels.Subscription subscription);
+
+        /// <summary>
+        /// Gets listen info for the specified RSS url.
+        /// </summary>
+        /// <param name="rssUrl">RSS URL of the entry.</param>
+        /// <param name="userUID">User UID to get the information for.</param>
+        /// <returns></returns>
+        Task<DomainModels.Listen> GetListenInfoAsync(string rssUrl, string userUID);
+
+        /// <summary>
+        /// Sets information regarding listen information.
+        /// </summary>
+        /// <param name="listenInfo">Information to store about listen details.</param>
+        /// <returns></returns>
+        Task SetListenInfoAsync(DomainModels.Listen listenInfo);
     }
 }

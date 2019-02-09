@@ -226,7 +226,7 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="rssUrl">URL to parse.</param>
         /// <param name="userUID">Optional ID of the user to fetch customized information.</param>
         /// <returns></returns>
-        public async Task<DomainModels.Feed> GetFeedFromUrl(string rssUrl, string userUID = null)
+        public async Task<DomainModels.Feed> GetFeedFromUrlAsync(string rssUrl, string userUID = null)
         {
             var cacheTerm = CacheKeys.Feed + rssUrl;
             if (!Cache.TryGetValue(cacheTerm, out DomainModels.Feed feedEntry))
@@ -277,7 +277,7 @@ namespace Vocalia.Podcast.Repositories
         /// Gets all subscriptions for the user.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Subscription>> GetSubscriptions(string userUID)
+        public async Task<IEnumerable<DomainModels.Subscription>> GetSubscriptionsAsync(string userUID)
         {
             return await DbContext.Subscriptions.Where(x => x.UserUID == userUID).Select(s => new DomainModels.Subscription()
             {
@@ -294,7 +294,7 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="id">ID of the subscription.</param>
         /// <returns></returns>
-        public async Task DeleteSubscription(string rssUrl, string userUID)
+        public async Task DeleteSubscriptionAsync(string rssUrl, string userUID)
         {
             var subscription = await DbContext.Subscriptions
                 .FirstOrDefaultAsync(s => s.RssUrl == rssUrl && s.UserUID == userUID);
@@ -311,7 +311,7 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="subscription">Subscription to add</param>
         /// <returns></returns>
-        public async Task AddSubscription(DomainModels.Subscription subscription) {
+        public async Task AddSubscriptionAsync(DomainModels.Subscription subscription) {
             await DbContext.Subscriptions.AddAsync(new Subscription
             {
                 Name = subscription.Name,

@@ -14,21 +14,21 @@ export default class DataManager {
   /**
    * Gets all categories from the Vocalia API.
    */
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<Category[] | null> {
     return await this.api.getCategories();
   }
 
   /**
    * Gets the top podcasts from the Vocalia API.
    */
-  async getTopPodcasts(): Promise<Podcast[]> {
+  async getTopPodcasts(): Promise<Podcast[] | null> {
     return await this.api.getTopPodcasts();
   }
 
   /**
    * Gets the subscribed podcasts from the Vocalia API.
    */
-  async searchPodcasts(query: string): Promise<Podcast[]> {
+  async searchPodcasts(query: string): Promise<Podcast[] | null> {
     return await this.api.searchPodcasts(query);
   }
 
@@ -36,7 +36,7 @@ export default class DataManager {
    * Gets the top podcasts from the provided category from the Vocalia API.
    * @param categoryId ID of the category to filter by.
    */
-  async getPodcastByCategory(categoryId: number): Promise<Podcast[]> {
+  async getPodcastByCategory(categoryId: number): Promise<Podcast[] | null> {
     return await this.api.getPodcastByCategory(categoryId);
   }
 
@@ -45,23 +45,21 @@ export default class DataManager {
    * additional usage data using the Vocalia API.
    * @param rssUrl URL to parse.
    */
-  async parsePodcastFeed(rssUrl: string): Promise<PodcastFeed> {
-    var feed = await this.api.parsePodcastFeed(rssUrl, this.accessToken);
+  async parsePodcastFeed(rssUrl: string): Promise<PodcastFeed | null> {
+    var feed = await this.api.parsePodcastFeed(this.accessToken, rssUrl);
 
     return feed;
   }
 
   /**
    * Gets the subscriptions belonging to the user.
-   * @param accessToken Authentication token for API validation
    */
-  async getSubscriptions(): Promise<Podcast[]> {
+  async getSubscriptions(): Promise<Podcast[] | null> {
     return await this.api.getSubscriptions(this.accessToken);
   }
 
   /**
    * Adds the specified podcast to the user's subscribed database.
-   * @param accessToken Access token used for API authentication.
    * @param podcast Podcast to subscribe to.
    */
   async addSubscription(podcast: Podcast) {
@@ -70,18 +68,33 @@ export default class DataManager {
 
   /**
    * Rempoves the specified podcast from the user's subscribed database.
-   * @param accessToken Access token used for API authentication.
    * @param rssUrl RSS url of the podcast to unsubsribe from.
    */
   async deleteSubscription(rssUrl: string) {
     await this.api.deleteSubscription(this.accessToken, rssUrl);
   }
 
+  /**
+   * Updates the listen info for the specified podcast.
+   * @param listen Values to update.
+   */
+  async setListenInfo(listen: Listen) {
+    if (this.accessToken != null) {
+      await this.api.setListenInfo(this.accessToken, listen);
+    }
 
-  async updateListenInfo(rssUrl: string, listen: Listen) {
-      if(this.accessToken == null){
-        this.local.SetPlaybackTime(rssUrl, listen.)
-      }
-      
+    this.local.SetPlaybackTime(listen);
+  }
+
+  /**
+   * Gets lisen info for the specified podcast.
+   * @param rssUrl URL to fetch listen info for.
+   */
+  async getListenInfo(rssUrl: string): Promise<Listen | null> {
+    if (this.accessToken != null) {
+      return await this.api.getListenInfo(rssUrl, this.accessToken);
+    }
+
+    return this.local.GetPlaybackTime(rssUrl);
   }
 }
