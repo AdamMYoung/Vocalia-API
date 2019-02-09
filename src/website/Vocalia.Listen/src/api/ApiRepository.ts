@@ -3,13 +3,12 @@ var request = require("request");
 
 const API = "http://localhost:54578/podcast/";
 const CATEGORIES = "categories";
-const SUBSCRIBED = "subscribed";
 const TOP = "top";
 const PARSE = "parse";
 const SEARCH = "search";
 const SUBS = "subscriptions";
 
-class VocaliaAPI {
+export default class ApiRepository {
   /**
    * Gets all categories from the Vocalia API.
    */
@@ -28,16 +27,6 @@ class VocaliaAPI {
       .then(response => response.json())
       .then(data => data as Podcast[])
       .catch(() => Promise.reject("Failed fetching top podcasts."));
-  }
-
-  /**
-   * Gets the subscribed podcasts from the Vocalia API.
-   */
-  async getSubscribedPodcasts(): Promise<Podcast[]> {
-    return await fetch(API + SUBSCRIBED)
-      .then(response => response.json())
-      .then(data => data as Podcast[])
-      .catch(() => Promise.reject("Failed fetching subscribed podcasts"));
   }
 
   /**
@@ -68,9 +57,13 @@ class VocaliaAPI {
    * additional usage data using the Vocalia API.
    * @param rssUrl URL to parse.
    */
-  async parsePodcastFeed(rssUrl: string): Promise<PodcastFeed> {
+  async parsePodcastFeed(
+    rssUrl: string,
+    accessToken: string
+  ): Promise<PodcastFeed> {
     if (rssUrl != "undefined") {
-      return await fetch(API + PARSE + "?rssUrl=" + rssUrl)
+      var path = API + PARSE + "?rssUrl=" + rssUrl;
+      return await this.getInjectedFetch(path, accessToken)
         .then(response => response.json())
         .then(data => data as PodcastFeed)
         .catch(() =>
@@ -85,8 +78,7 @@ class VocaliaAPI {
    * @param accessToken Authentication token for API validation
    */
   async getSubscriptions(accessToken: string): Promise<Podcast[]> {
-    console.log(this.getHeaders(accessToken));
-    return await fetch(API + SUBS, { headers: this.getHeaders(accessToken) })
+    return await this.getInjectedFetch(API + SUBS, accessToken)
       .then(response => response.json())
       .then(data => data as Podcast[])
       .catch(() => Promise.reject("Failed parsing subscription feed."));
@@ -107,15 +99,16 @@ class VocaliaAPI {
   async deleteSubscription(accessToken: string, rssUrl: string) {}
 
   /**
-   * Builds a headers object for API authentication.
-   * @param accessToken Access token used for API authentication.
+   * Injects a fetch object with access token headers and returns it.
+   * @param url Path to query.
+   * @param accessToken Access token to verify users.
    */
-  getHeaders(accessToken: string): Headers {
-    return new Headers({
+  getInjectedFetch(url: string, accessToken: string) {
+    var headers = new Headers({
       "content-type": "application/json",
       Authorization: "Bearer " + accessToken
     });
+
+    return fetch(url, { headers: headers });
   }
 }
-
-export default VocaliaAPI;

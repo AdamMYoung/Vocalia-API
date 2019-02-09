@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { Subscription } from "../../utility/types";
+import { Podcast } from "../../utility/types";
 import Auth from "../../auth/Auth";
 import VocaliaAPI from "../../utility/VocaliaAPI";
 import PodcastBrowser from "../browse/PodcastBrowser";
 
 interface ISubscriptionsState {
-  subscriptions: Subscription[];
+  subscriptions: Podcast[];
 }
 
 interface ISubscriptionProps {
@@ -27,7 +27,6 @@ export default class Subscriptions extends Component<
   async componentDidMount() {
     let loader = new VocaliaAPI();
     let accessToken = this.props.auth.getAccessToken();
-    console.log(accessToken);
 
     if (accessToken != null) {
       let subscriptions = await loader.getSubscriptions(accessToken);
@@ -36,6 +35,7 @@ export default class Subscriptions extends Component<
   }
 
   render() {
-    return <PodcastBrowser podcasts={[]} />;
+    const { subscriptions } = this.state;
+    return <PodcastBrowser podcasts={subscriptions} />;
   }
 }

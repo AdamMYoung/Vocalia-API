@@ -5,7 +5,6 @@ export interface Category {
 }
 
 export interface Podcast {
-  id: number;
   title: string;
   rssUrl: string;
   imageUrl: string;
@@ -33,14 +32,6 @@ export interface PodcastEpisode {
   time: number;
   isCompleted: boolean;
   storeLocally: boolean;
-}
-
-export interface Subscription {
-  guid: string;
-  rssUrl: string;
-  name: string;
-  description: string;
-  imageUrl: string;
 }
 
 export interface MediaState {
