@@ -96,6 +96,7 @@ export default class MediaPlayer extends PureComponent<
     const { episode } = this.props.media;
 
     let info = await api.getListenInfo(episode.rssUrl);
+    console.log(info);
     if (info) audioObject.currentTime = info.time;
   };
 

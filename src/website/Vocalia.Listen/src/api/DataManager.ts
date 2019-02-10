@@ -129,8 +129,8 @@ export default class DataManager {
    * @param rssUrl URL to fetch listen info for.
    */
   async getListenInfo(rssUrl: string): Promise<Listen | null> {
-    if (this.accessToken != null) {
-      return await this.api.getListenInfo(rssUrl, this.accessToken);
+    if (this.accessToken != null && rssUrl != "undefined") {
+      return await this.api.getListenInfo(this.accessToken, rssUrl);
     }
 
     return this.local.getPlaybackTime(rssUrl);

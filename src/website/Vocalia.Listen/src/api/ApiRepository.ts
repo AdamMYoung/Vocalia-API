@@ -128,7 +128,7 @@ export default class ApiRepository {
     rssUrl: string
   ): Promise<Listen | null> {
     return await this.getInjectedFetch(
-      API + LISTEN + "?url=" + rssUrl,
+      API + LISTEN + "?rssUrl=" + rssUrl,
       accessToken
     )
       .then(response => response.json())
