@@ -15,13 +15,13 @@ import {
 } from "../utility/types";
 import Navigation from "./navigation/Navigation";
 import MediaPlayer from "./player/MediaPlayer";
-import VocaliaAPI from "../utility/VocaliaAPI";
+import DataManager from "../api/DataManager";
 import PodcastBrowser from "./browse/PodcastBrowser";
 import PodcastDetail from "./detail/PodcastDetail";
 import Subscriptions from "./subscriptions/Subscriptions";
 import Callback from "../auth/Callback";
 import Auth from "../auth/Auth";
-import { SetCurrentPodcast, GetCurrentPodcast } from "../utility/PlaybackUtils";
+import { access } from "fs";
 
 /**
  * State information for the application.
@@ -30,8 +30,9 @@ interface ILayoutState {
   podcastData: { [key: string]: Podcast[] };
   categories: Category[];
   dialogOpen: boolean;
-  media: MediaState;
+  media: MediaState | null;
   auth: Auth;
+  api: DataManager;
 }
 
 /**
@@ -50,12 +51,16 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
   constructor(props: ILayoutProps) {
     super(props);
 
+    let api = new DataManager();
+    var episode = api.getCurrentPodcast();
+
     this.state = {
-      auth: new Auth(props),
+      auth: new Auth(props, this.updateApiAccessToken),
+      api: api,
       podcastData: { top: [] },
       categories: [],
       dialogOpen: false,
-      media: { episode: GetCurrentPodcast(), autoplay: false }
+      media: episode != null ? { episode: episode, autoplay: false } : null
     };
   }
 
@@ -64,39 +69,46 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
    * and loads all categories and podcasts into memory.
    */
   async componentWillMount() {
-    var loader = new VocaliaAPI();
+    const { api } = this.state;
 
     //Load category list and category data asynchronously.
-    let categories = await loader.getCategories();
-    this.setState({ categories: categories });
+    let categories = await api.getCategories();
+    this.setState({ categories: categories || [] });
 
-    categories.forEach(async category => {
-      let id = category.id;
-      let podcasts = await loader.getPodcastByCategory(id);
+    if (categories)
+      categories.forEach(async category => {
+        let id = category.id;
+        let podcasts = await api.getPodcastByCategory(id);
+        if (podcasts) {
+          let loadedPodcast = this.state.podcastData;
 
-      let loadedPodcast = this.state.podcastData;
-      loadedPodcast[id] = podcasts;
-      this.setState({ podcastData: loadedPodcast });
-    });
+          loadedPodcast[id] = podcasts;
+          this.setState({ podcastData: loadedPodcast });
+        }
+      });
 
     //Load top podcast data asynchronously.
-    let podcasts = await loader.getTopPodcasts();
+    let podcasts = await api.getTopPodcasts();
 
-    let loadedPodcasts = this.state.podcastData;
-    loadedPodcasts["top"] = podcasts;
-    this.setState({ podcastData: loadedPodcasts });
+    if (podcasts) {
+      let loadedPodcasts = this.state.podcastData;
+      loadedPodcasts["top"] = podcasts;
+      this.setState({ podcastData: loadedPodcasts });
+    }
   }
 
   /**
    * Called when an episode has been selected for playback.
    */
   onEpisodeSelected = (episode: PodcastEpisode) => {
-    SetCurrentPodcast(episode);
+    this.state.api.setCurrentPodcast(episode);
 
     let media = this.state.media;
-    media.autoplay = true;
-    media.episode = episode;
-    this.setState({ media: media });
+    if (media) {
+      media.autoplay = true;
+      media.episode = episode;
+      this.setState({ media: media });
+    }
   };
 
   onDialogClose = () => {
@@ -111,8 +123,15 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
     }
   };
 
+  updateApiAccessToken = (accessToken: string) => {
+    let api = this.state.api;
+    api.accessToken = accessToken;
+
+    this.setState({ api: api });
+  };
+
   render() {
-    const { podcastData, media, categories, auth } = this.state;
+    const { podcastData, media, categories, auth, api } = this.state;
     const { isMobile } = this.props;
 
     /**
@@ -125,10 +144,7 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
           render={() => <PodcastBrowser podcasts={podcastData["top"]} />}
         />
 
-        <Route
-          path="/subscribed/"
-          render={() => <Subscriptions auth={auth} />}
-        />
+        <Route path="/subscribed/" render={() => <Subscriptions api={api} />} />
 
         <Route
           path="/browse/:id/"
@@ -143,8 +159,9 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
           render={props => (
             <PodcastDetail
               open={true}
+              api={api}
               rssFeed={props.match.params.rss}
-              selectedEpisode={media.episode}
+              selectedEpisode={media != null ? media.episode : null}
               isMobile={isMobile}
               onClose={() => this.onDialogClose()}
               onEpisodeSelected={episode => this.onEpisodeSelected(episode)}
@@ -164,12 +181,17 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
     );
 
     return (
-      <Navigation categories={categories} isMobile={isMobile} auth={auth}>
+      <Navigation
+        categories={categories}
+        isMobile={isMobile}
+        auth={auth}
+        api={api}
+      >
         <React.Fragment>
           {RoutingContents}
-          {media.episode != null && (
+          {media != null && media.episode != null && (
             <Slide direction={"up"} in={media.episode.content != null}>
-              <MediaPlayer media={media} isMobile={isMobile} />
+              <MediaPlayer media={media} isMobile={isMobile} api={api} />
             </Slide>
           )}
         </React.Fragment>

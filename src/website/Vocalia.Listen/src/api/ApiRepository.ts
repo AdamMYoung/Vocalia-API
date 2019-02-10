@@ -58,16 +58,14 @@ export default class ApiRepository {
    */
   async parsePodcastFeed(
     rssUrl: string,
-    accessToken: string
+    accessToken: string | null
   ): Promise<PodcastFeed | null> {
-    if (rssUrl != "undefined") {
-      var path = API + PARSE + "?rssUrl=" + rssUrl;
-      return await this.getInjectedFetch(path, accessToken)
-        .then(response => response.json())
-        .then(data => data as PodcastFeed)
-        .catch(() => null);
-    }
-    return Promise.reject("Bad Request");
+    var path = API + PARSE + "?rssUrl=" + rssUrl;
+
+    return await this.getInjectedFetch(path, accessToken)
+      .then(response => response.json())
+      .then(data => data as PodcastFeed)
+      .catch(e => null);
   }
 
   /**
@@ -115,12 +113,9 @@ export default class ApiRepository {
    * @param accessToken Access token used for API authentication.
    */
   async setListenInfo(accessToken: string, listenInfo: Listen) {
-    return await this.getInjectedFetch(
-      API + LISTEN,
-      accessToken,
-      "POST",
-      listenInfo
-    );
+    if (Math.round(listenInfo.time) % 10 == 0) {
+      await this.getInjectedFetch(API + LISTEN, accessToken, "PUT", listenInfo);
+    }
   }
 
   /**
@@ -148,7 +143,7 @@ export default class ApiRepository {
    */
   private getInjectedFetch(
     url: string,
-    accessToken: string,
+    accessToken: string | null,
     queryType: string = "GET",
     body: {} | null = null
   ) {
@@ -157,10 +152,15 @@ export default class ApiRepository {
       Authorization: "Bearer " + accessToken
     });
 
-    return fetch(url, {
-      headers: headers,
-      method: queryType,
-      body: JSON.stringify(body)
-    });
+    return accessToken != null
+      ? fetch(url, {
+          headers: headers,
+          method: queryType,
+          body: body != null ? JSON.stringify(body) : null
+        })
+      : fetch(url, {
+          method: queryType,
+          body: body != null ? JSON.stringify(body) : null
+        });
   }
 }

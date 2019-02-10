@@ -6,9 +6,14 @@ export default class Auth {
   idToken: string | null = null;
   expiresAt: number | null = null;
   routeProps: RouteComponentProps;
+  accessTokenCallback: (accessToken: string) => void;
 
-  constructor(routeProps: RouteComponentProps) {
+  constructor(
+    routeProps: RouteComponentProps,
+    accessTokenCallback: (accessToken: string) => void
+  ) {
     this.routeProps = routeProps;
+    this.accessTokenCallback = accessTokenCallback;
   }
 
   auth0 = new auth0.WebAuth({
@@ -50,6 +55,8 @@ export default class Auth {
     this.accessToken = authResult.accessToken as string;
     this.idToken = authResult.idToken as string;
     this.expiresAt = expiresAt;
+
+    this.accessTokenCallback(this.accessToken);
 
     // navigate to the home route
     this.routeProps.history.replace("/top");

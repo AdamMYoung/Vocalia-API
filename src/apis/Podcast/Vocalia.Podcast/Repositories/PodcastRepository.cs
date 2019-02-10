@@ -356,10 +356,19 @@ namespace Vocalia.Podcast.Repositories
         public async Task SetListenInfoAsync(DomainModels.Listen listenInfo)
         {
             var entry = await DbContext.Listens
-                .FirstOrDefaultAsync(l => l.RssUrl == listenInfo.RssUrl && l.UserUID == listenInfo.UserUID);
+                .FirstOrDefaultAsync(l => l.RssUrl == listenInfo.RssUrl && l.UserUID == listenInfo.UserUID) ;
+
+            if(entry == null)
+                entry = new Listen
+                {
+                    EpisodeName = listenInfo.EpisodeName,
+                    RssUrl = listenInfo.RssUrl,
+                    UserUID = listenInfo.UserUID
+                };
 
             entry.IsCompleted = listenInfo.IsCompleted;
             entry.Time = listenInfo.Time;
+            entry.LastUpdated = DateTime.UtcNow;
 
             await DbContext.SaveChangesAsync();
         }

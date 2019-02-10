@@ -29,8 +29,12 @@ export default class LocalRepository {
    * Sets the podcast URL as the current podcast.
    * @param url Podcast to save as current.
    */
-  setCurrentPodcast(episode: PodcastEpisode) {
-    localStorage.setItem(CURRENT, JSON.stringify(episode));
+  setCurrentPodcast(episode: PodcastEpisode | null) {
+    if (episode == null) {
+      localStorage.removeItem(CURRENT);
+    } else {
+      localStorage.setItem(CURRENT, JSON.stringify(episode));
+    }
   }
 
   /**

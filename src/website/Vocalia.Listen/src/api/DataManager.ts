@@ -1,15 +1,17 @@
 import ApiRepository from "./ApiRepository";
 import LocalRepository from "./LocalRepository";
-import { Category, Podcast, PodcastFeed, Listen } from "../utility/types";
+import {
+  Category,
+  Podcast,
+  PodcastFeed,
+  Listen,
+  PodcastEpisode
+} from "../utility/types";
 
 export default class DataManager {
   private api: ApiRepository = new ApiRepository();
   private local: LocalRepository = new LocalRepository();
-  private accessToken: string = "";
-
-  setAccessToken(accessToken: string) {
-    this.accessToken = accessToken;
-  }
+  accessToken: string | null = null;
 
   /**
    * Gets the subscribed podcasts from the Vocalia API.
@@ -24,9 +26,7 @@ export default class DataManager {
    * @param rssUrl URL to parse.
    */
   async parsePodcastFeed(rssUrl: string): Promise<PodcastFeed | null> {
-    var feed = await this.api.parsePodcastFeed(this.accessToken, rssUrl);
-
-    return feed;
+    return await this.api.parsePodcastFeed(rssUrl, this.accessToken);
   }
 
   /**
@@ -76,14 +76,17 @@ export default class DataManager {
    * Gets the subscriptions belonging to the user.
    */
   async getSubscriptions(): Promise<Podcast[] | null> {
-    var subs = await this.api.getSubscriptions(this.accessToken);
+    if (this.accessToken) {
+      var subs = await this.api.getSubscriptions(this.accessToken);
 
-    if (subs != null) {
-      this.local.setCategoryPodcasts(subs, "subscriptions");
-      return subs;
+      if (subs != null) {
+        this.local.setCategoryPodcasts(subs, "subscriptions");
+        return subs;
+      }
+
+      return this.local.getCategoryPodcasts("subscriptions");
     }
-
-    return this.local.getCategoryPodcasts("subscriptions");
+    return null;
   }
 
   /**
@@ -91,7 +94,8 @@ export default class DataManager {
    * @param podcast Podcast to subscribe to.
    */
   async addSubscription(podcast: Podcast) {
-    await this.api.addSubscription(this.accessToken, podcast);
+    if (this.accessToken)
+      await this.api.addSubscription(this.accessToken, podcast);
   }
 
   /**
@@ -99,7 +103,8 @@ export default class DataManager {
    * @param rssUrl RSS url of the podcast to unsubsribe from.
    */
   async deleteSubscription(rssUrl: string) {
-    await this.api.deleteSubscription(this.accessToken, rssUrl);
+    if (this.accessToken)
+      await this.api.deleteSubscription(this.accessToken, rssUrl);
   }
 
   /**
@@ -107,7 +112,12 @@ export default class DataManager {
    * @param listen Values to update.
    */
   async setListenInfo(listen: Listen) {
+    console.log("Setting listen info: " + this.accessToken);
+    console.log(listen);
+
     if (this.accessToken != null) {
+      console.log("Setting listen info");
+      console.log(listen);
       await this.api.setListenInfo(this.accessToken, listen);
     }
 
@@ -124,5 +134,20 @@ export default class DataManager {
     }
 
     return this.local.getPlaybackTime(rssUrl);
+  }
+
+  /**
+   * Gets the current podcast from the API.
+   */
+  getCurrentPodcast(): PodcastEpisode | null {
+    return this.local.getCurrentPodcast();
+  }
+
+  /**
+   * Sets the current podcast to the API.
+   * @param podcast Podcast to update information for.
+   */
+  async setCurrentPodcast(podcast: PodcastEpisode | null) {
+    this.local.setCurrentPodcast(podcast);
   }
 }

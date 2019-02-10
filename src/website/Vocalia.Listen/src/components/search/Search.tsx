@@ -15,8 +15,8 @@ import {
 import SearchIcon from "@material-ui/icons/Search";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import { Podcast } from "../../utility/types";
-import VocaliaAPI from "../../utility/VocaliaAPI";
 import { LinkContainer } from "react-router-bootstrap";
+import DataManager from "../../api/DataManager";
 
 /**
  * CSS styles of the top AppBar.
@@ -80,7 +80,9 @@ const styles = (theme: Theme) =>
     }
   });
 
-interface ISearchProps extends WithStyles<typeof styles> {}
+interface ISearchProps extends WithStyles<typeof styles> {
+  api: DataManager; //Manager for I/O of API calls.
+}
 
 interface ISearchState {
   podcasts: Podcast[];
@@ -104,11 +106,12 @@ class Search extends Component<ISearchProps, ISearchState> {
   }
 
   querySearch = async (term: string) => {
-    let loader = new VocaliaAPI();
+    const { api } = this.props;
 
     if (term.length >= 3) {
-      var podcasts = await loader.searchPodcasts(term);
-      this.setState({ podcasts: podcasts });
+      var podcasts = await api.searchPodcasts(term);
+
+      if (podcasts) this.setState({ podcasts: podcasts });
     }
   };
 

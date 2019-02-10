@@ -19,6 +19,7 @@ import { Category } from "../../utility/types";
 import { drawerWidth } from "../../utility/constants";
 import Auth from "../../auth/Auth";
 import Search from "../search/Search";
+import DataManager from "../../api/DataManager";
 
 /**
  * CSS styles of the top AppBar.
@@ -107,6 +108,7 @@ interface INavigationProps extends WithStyles<typeof styles> {
   categories: Category[]; //Categories to display.
   isMobile: boolean; //Indicates if the device is a mobile device.
   auth: Auth; //Auth0 authentication object.
+  api: DataManager; //Manager for I/O of API calls.
 }
 
 /**
@@ -137,7 +139,7 @@ class Navigation extends Component<INavigationProps, INavigationState> {
   };
 
   render() {
-    const { classes, isMobile } = this.props;
+    const { classes, isMobile, api } = this.props;
 
     return (
       <div className={classes.root}>
@@ -163,7 +165,7 @@ class Navigation extends Component<INavigationProps, INavigationState> {
               Vocalia
             </Typography>
             <div className={classes.grow} />
-            <Search />
+            <Search api={api} />
           </Toolbar>
         </AppBar>
 

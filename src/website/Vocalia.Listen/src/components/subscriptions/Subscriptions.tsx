@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import { Podcast } from "../../utility/types";
 import Auth from "../../auth/Auth";
-import VocaliaAPI from "../../utility/VocaliaAPI";
 import PodcastBrowser from "../browse/PodcastBrowser";
+import DataManager from "../../api/DataManager";
 
 interface ISubscriptionsState {
   subscriptions: Podcast[];
 }
 
 interface ISubscriptionProps {
-  auth: Auth;
+  api: DataManager; //Manages the I/O of API calls.
 }
 
 export default class Subscriptions extends Component<
@@ -25,13 +25,10 @@ export default class Subscriptions extends Component<
   }
 
   async componentDidMount() {
-    let loader = new VocaliaAPI();
-    let accessToken = this.props.auth.getAccessToken();
+    const { api } = this.props;
 
-    if (accessToken != null) {
-      let subscriptions = await loader.getSubscriptions(accessToken);
-      this.setState({ subscriptions: subscriptions });
-    }
+    let subscriptions = await api.getSubscriptions();
+    if (subscriptions) this.setState({ subscriptions: subscriptions });
   }
 
   render() {

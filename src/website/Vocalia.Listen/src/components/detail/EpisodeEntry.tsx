@@ -26,7 +26,7 @@ const styles = {
  */
 interface IEpisodeProps {
   episode: PodcastEpisode; //Episode the component represents.
-  selectedEpisode: PodcastEpisode; //The currently playing episode.
+  selectedEpisode: PodcastEpisode | null; //The currently playing episode.
   onEpisodeSelected: (episode: PodcastEpisode) => void; //Called when the entry has been selected.
 }
 
@@ -47,7 +47,7 @@ class EpisodeEntry extends Component<IEpisodeProps, IEpisodeState> {
     const { episode, onEpisodeSelected, selectedEpisode } = this.props;
 
     let selectedItem =
-      episode.content == selectedEpisode.content
+      episode.content == (selectedEpisode != null && selectedEpisode.content)
         ? ({ time: 0 } as PodcastEpisode)
         : episode;
     onEpisodeSelected(selectedItem);
@@ -59,7 +59,12 @@ class EpisodeEntry extends Component<IEpisodeProps, IEpisodeState> {
     //Toggles between a stop button or play button depending if the
     // current episode matches the object being represented.
     let icon =
-      episode.content == selectedEpisode.content ? <Stop /> : <PlayArrow />;
+      episode.content ==
+      (selectedEpisode != null && selectedEpisode.content) ? (
+        <Stop />
+      ) : (
+        <PlayArrow />
+      );
 
     return (
       <ExpansionPanel>

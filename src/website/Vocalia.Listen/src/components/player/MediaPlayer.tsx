@@ -9,14 +9,10 @@ import {
 } from "@material-ui/icons";
 import Slider from "@material-ui/lab/Slider";
 import "./MediaPlayer.css";
-import { PodcastEpisode, MediaState } from "../../utility/types";
+import { Listen, MediaState } from "../../utility/types";
 import { formatTime } from "../../utility/FormatUtils";
-import {
-  GetPlaybackTime,
-  SetPlaybackTime,
-  SetCurrentPodcast
-} from "../../utility/PlaybackUtils";
 import { Link } from "react-router-dom";
+import DataManager from "../../api/DataManager";
 
 /**
  * Required properties for the player.
@@ -24,6 +20,7 @@ import { Link } from "react-router-dom";
 interface IPlayerProps {
   media: MediaState; //The media to be played.
   isMobile: boolean; //Indicates if the current device is a mobile device.
+  api: DataManager; //Manages the I/O of API calls.
 }
 
 /**
@@ -51,14 +48,11 @@ export default class MediaPlayer extends PureComponent<
   constructor(props: IPlayerProps) {
     super(props);
 
-    const { media } = this.props;
+    const { media, api } = this.props;
     let audioObject = document.createElement("audio");
     audioObject.loop = false;
     audioObject.ontimeupdate = () => this.onHandleTimeUpdate();
-    audioObject.onended = () => {
-      SetCurrentPodcast({ time: 0 } as PodcastEpisode);
-      this.setState({ paused: true });
-    };
+    audioObject.onended = () => this.playbackFinished();
 
     this.state = {
       paused: true,
@@ -69,24 +63,41 @@ export default class MediaPlayer extends PureComponent<
     };
   }
 
+  playbackFinished = () => {
+    const { api } = this.props;
+
+    api.setCurrentPodcast(null);
+    this.setState({ paused: true });
+  };
+
   /**
    * Saves the current playback position to memory.
    */
   savePlaybackPosition = () => {
     const { audioObject } = this.state;
+    const { api } = this.props;
     const { episode } = this.props.media;
 
-    SetPlaybackTime(episode.rssUrl, audioObject.currentTime);
+    let info = {
+      rssUrl: episode.rssUrl,
+      episodeName: episode.title,
+      time: audioObject.currentTime,
+      isCompleted: false
+    } as Listen;
+
+    api.setListenInfo(info);
   };
 
   /**
    * Loads the saved playback position from memory.
    */
-  loadPlaybackPosition = () => {
+  loadPlaybackPosition = async () => {
     const { audioObject } = this.state;
+    const { api } = this.props;
     const { episode } = this.props.media;
 
-    audioObject.currentTime = GetPlaybackTime(episode.rssUrl);
+    let info = await api.getListenInfo(episode.rssUrl);
+    if (info) audioObject.currentTime = info.time;
   };
 
   /**
@@ -236,19 +247,19 @@ export default class MediaPlayer extends PureComponent<
               </Fade>
             </div>
           )}
-
-          <IconButton className="icon" onClick={this.onRewind}>
-            <Replay10 />
-          </IconButton>
-
-          <Fab size="small" color="primary" onClick={this.onTogglePause}>
-            {icon}
-          </Fab>
-
-          <IconButton className="icon" onClick={this.onForward}>
-            <Forward30 />
-          </IconButton>
         </div>
+
+        <IconButton className="icon" onClick={this.onRewind}>
+          <Replay10 />
+        </IconButton>
+
+        <Fab size="small" color="primary" onClick={this.onTogglePause}>
+          {icon}
+        </Fab>
+
+        <IconButton className="icon" onClick={this.onForward}>
+          <Forward30 />
+        </IconButton>
 
         {/* Seek & Naming */}
         <div className="player-center">
