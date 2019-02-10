@@ -3,8 +3,8 @@ import LocalRepository from "./LocalRepository";
 import { Category, Podcast, PodcastFeed, Listen } from "../utility/types";
 
 export default class DataManager {
-  api: ApiRepository = new ApiRepository();
-  local: LocalRepository = new LocalRepository();
+  private api: ApiRepository = new ApiRepository();
+  private local: LocalRepository = new LocalRepository();
   private accessToken: string = "";
 
   setAccessToken(accessToken: string) {
@@ -12,32 +12,10 @@ export default class DataManager {
   }
 
   /**
-   * Gets all categories from the Vocalia API.
-   */
-  async getCategories(): Promise<Category[] | null> {
-    return await this.api.getCategories();
-  }
-
-  /**
-   * Gets the top podcasts from the Vocalia API.
-   */
-  async getTopPodcasts(): Promise<Podcast[] | null> {
-    return await this.api.getTopPodcasts();
-  }
-
-  /**
    * Gets the subscribed podcasts from the Vocalia API.
    */
   async searchPodcasts(query: string): Promise<Podcast[] | null> {
     return await this.api.searchPodcasts(query);
-  }
-
-  /**
-   * Gets the top podcasts from the provided category from the Vocalia API.
-   * @param categoryId ID of the category to filter by.
-   */
-  async getPodcastByCategory(categoryId: number): Promise<Podcast[] | null> {
-    return await this.api.getPodcastByCategory(categoryId);
   }
 
   /**
@@ -52,10 +30,60 @@ export default class DataManager {
   }
 
   /**
+   * Gets all categories from the Vocalia API.
+   */
+  async getCategories(): Promise<Category[] | null> {
+    var categories = await this.api.getCategories();
+
+    if (categories != null) {
+      this.local.setCategories(categories);
+      return categories;
+    }
+
+    return this.local.getCategories();
+  }
+
+  /**
+   * Gets the top podcasts from the Vocalia API.
+   */
+  async getTopPodcasts(): Promise<Podcast[] | null> {
+    var podcasts = await this.api.getTopPodcasts();
+
+    if (podcasts != null) {
+      this.local.setCategoryPodcasts(podcasts, "top");
+      return podcasts;
+    }
+
+    return this.local.getCategoryPodcasts("top");
+  }
+
+  /**
+   * Gets the top podcasts from the provided category from the Vocalia API.
+   * @param categoryId ID of the category to filter by.
+   */
+  async getPodcastByCategory(categoryId: number): Promise<Podcast[] | null> {
+    var podcasts = await this.api.getPodcastByCategory(categoryId);
+
+    if (podcasts != null) {
+      this.local.setCategoryPodcasts(podcasts, categoryId.toString());
+      return podcasts;
+    }
+
+    return this.local.getCategoryPodcasts(categoryId.toString());
+  }
+
+  /**
    * Gets the subscriptions belonging to the user.
    */
   async getSubscriptions(): Promise<Podcast[] | null> {
-    return await this.api.getSubscriptions(this.accessToken);
+    var subs = await this.api.getSubscriptions(this.accessToken);
+
+    if (subs != null) {
+      this.local.setCategoryPodcasts(subs, "subscriptions");
+      return subs;
+    }
+
+    return this.local.getCategoryPodcasts("subscriptions");
   }
 
   /**
@@ -83,7 +111,7 @@ export default class DataManager {
       await this.api.setListenInfo(this.accessToken, listen);
     }
 
-    this.local.SetPlaybackTime(listen);
+    this.local.setPlaybackTime(listen);
   }
 
   /**
@@ -95,6 +123,6 @@ export default class DataManager {
       return await this.api.getListenInfo(rssUrl, this.accessToken);
     }
 
-    return this.local.GetPlaybackTime(rssUrl);
+    return this.local.getPlaybackTime(rssUrl);
   }
 }

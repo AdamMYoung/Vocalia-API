@@ -323,6 +323,48 @@ namespace Vocalia.Podcast.Repositories
             await DbContext.SaveChangesAsync();
         }
         #endregion
+
+        #region Listen
+
+        /// <summary>
+        /// Gets listen info for the specified RSS url.
+        /// </summary>
+        /// <param name="rssUrl">RSS URL of the entry.</param>
+        /// <param name="userUID">User UID to get the information for.</param>
+        /// <returns></returns>
+        public async Task<DomainModels.Listen> GetListenInfoAsync(string rssUrl, string userUID)
+        {
+            var entry = await DbContext.Listens.FirstOrDefaultAsync(l => l.RssUrl == rssUrl && l.UserUID == userUID);
+
+            return new DomainModels.Listen
+            {
+                ID = entry.ID,
+                EpisodeName = entry.EpisodeName,
+                IsCompleted = entry.IsCompleted,
+                RssUrl = entry.RssUrl,
+                Time = entry.Time,
+                SubscriptionID = entry.SubscriptionID,
+                UserUID = entry.UserUID
+            };
+        }
+
+        /// <summary>
+        /// Sets information regarding listen information.
+        /// </summary>
+        /// <param name="listenInfo">Information to store about listen details.</param>
+        /// <returns></returns>
+        public async Task SetListenInfoAsync(DomainModels.Listen listenInfo)
+        {
+            var entry = await DbContext.Listens
+                .FirstOrDefaultAsync(l => l.RssUrl == listenInfo.RssUrl && l.UserUID == listenInfo.UserUID);
+
+            entry.IsCompleted = listenInfo.IsCompleted;
+            entry.Time = listenInfo.Time;
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        #endregion
     }
 
     /// <summary>

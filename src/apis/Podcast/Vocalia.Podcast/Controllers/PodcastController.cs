@@ -261,7 +261,7 @@ namespace Vocalia.Podcast.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("listen")]
-        [HttpPost]
+        [HttpPut]
         [Authorize]
         public async Task<IActionResult> SetListenInfo(DTOs.Listen listenInfo)
         {
