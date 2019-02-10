@@ -13,6 +13,8 @@ export default class DataManager {
   private local: LocalRepository = new LocalRepository();
   accessToken: string | null = null;
 
+  lastUpdate: number = 0;
+
   /**
    * Gets the subscribed podcasts from the Vocalia API.
    */
@@ -112,13 +114,11 @@ export default class DataManager {
    * @param listen Values to update.
    */
   async setListenInfo(listen: Listen) {
-    console.log("Setting listen info: " + this.accessToken);
-    console.log(listen);
-
     if (this.accessToken != null) {
-      console.log("Setting listen info");
-      console.log(listen);
-      await this.api.setListenInfo(this.accessToken, listen);
+      if (this.lastUpdate != listen.time) {
+        this.lastUpdate = listen.time;
+        await this.api.setListenInfo(this.accessToken, listen);
+      }
     }
 
     this.local.setPlaybackTime(listen);

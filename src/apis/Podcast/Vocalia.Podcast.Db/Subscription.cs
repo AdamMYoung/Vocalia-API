@@ -11,7 +11,5 @@ namespace Vocalia.Podcast.Db
         public virtual string RssUrl { get; set; }
         public virtual string Name { get; set; }
         public virtual string ImageUrl { get; set; }
-
-        public virtual IEnumerable<Listen> Listens { get; set; }
     }
 }

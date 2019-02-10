@@ -48,7 +48,6 @@ export default class MediaPlayer extends PureComponent<
   constructor(props: IPlayerProps) {
     super(props);
 
-    const { media, api } = this.props;
     let audioObject = document.createElement("audio");
     audioObject.loop = false;
     audioObject.ontimeupdate = () => this.onHandleTimeUpdate();
@@ -81,7 +80,7 @@ export default class MediaPlayer extends PureComponent<
     let info = {
       rssUrl: episode.rssUrl,
       episodeName: episode.title,
-      time: audioObject.currentTime,
+      time: Math.round(audioObject.currentTime),
       isCompleted: false
     } as Listen;
 

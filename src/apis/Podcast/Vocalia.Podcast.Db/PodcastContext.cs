@@ -100,9 +100,6 @@ namespace Vocalia.Podcast.Db
             builder.Property(i => i.RssUrl).IsRequired();
             builder.Property(i => i.Name).IsRequired();
             builder.Property(i => i.ImageUrl).IsRequired();
-
-            builder.HasMany(l => l.Listens)
-               .WithOne(e => e.Subscription);
         }
     }
 

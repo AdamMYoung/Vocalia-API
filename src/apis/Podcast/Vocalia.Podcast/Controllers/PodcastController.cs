@@ -263,7 +263,7 @@ namespace Vocalia.Podcast.Controllers
         [Route("listen")]
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> SetListenInfo(DTOs.Listen listenInfo)
+        public async Task<IActionResult> SetListenInfo([FromBody] DTOs.Listen listenInfo)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var listen = new DomainModels.Listen
