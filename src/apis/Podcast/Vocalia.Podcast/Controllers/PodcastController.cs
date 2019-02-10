@@ -142,6 +142,7 @@ namespace Vocalia.Podcast.Controllers
                 Description = parsedFeed.Description,
                 Copyright = parsedFeed.Copyright,
                 ImageUrl = parsedFeed.ImageUrl,
+                IsSubscribed = parsedFeed.IsSubscribed,
                 Items = parsedFeed.Items.Select(i => new DTOs.FeedItem
                 {
                     Title = i.Title,
@@ -152,6 +153,7 @@ namespace Vocalia.Podcast.Controllers
                     Author = i.Title,
                     Id = i.Id,
                     Content = i.Content
+               
                 })
             };
 

@@ -78,7 +78,7 @@ export default class MediaPlayer extends PureComponent<
     const { episode } = this.props.media;
 
     let info = {
-      rssUrl: episode.rssUrl,
+      rssUrl: episode.content,
       episodeName: episode.title,
       time: Math.round(audioObject.currentTime),
       isCompleted: false
@@ -92,12 +92,9 @@ export default class MediaPlayer extends PureComponent<
    */
   loadPlaybackPosition = async () => {
     const { audioObject } = this.state;
-    const { api } = this.props;
     const { episode } = this.props.media;
 
-    let info = await api.getListenInfo(episode.rssUrl);
-    console.log(info);
-    if (info) audioObject.currentTime = info.time;
+    audioObject.currentTime = episode.time;
   };
 
   /**

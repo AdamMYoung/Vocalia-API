@@ -117,6 +117,10 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
                       </div>
                     </div>
                   </Typography>
+
+                  <Button variant="contained" color="primary">
+                    Subscribe
+                  </Button>
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 5 }}>
                   {/* Episodes */}
