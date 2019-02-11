@@ -264,7 +264,7 @@ namespace Vocalia.Podcast.Repositories
             {
                 feedEntry.IsSubscribed = await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == feedEntry.Link && s.UserUID == userUID);
                 foreach(var item in feedEntry.Items)
-                    item.Time = (await DbContext.Listens.FirstOrDefaultAsync(c => c.RssUrl == item.RssUrl && c.UserUID == userUID))?.Time ?? 0;
+                    item.Time = (await DbContext.Listens.FirstOrDefaultAsync(c => c.RssUrl == item.Content && c.UserUID == userUID))?.Time ?? 0;
             }
 
             return feedEntry;

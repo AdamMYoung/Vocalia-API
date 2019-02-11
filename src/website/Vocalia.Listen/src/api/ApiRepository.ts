@@ -100,10 +100,9 @@ export default class ApiRepository {
    */
   async deleteSubscription(accessToken: string, rssUrl: string) {
     return await this.getInjectedFetch(
-      API + SUBS,
+      API + SUBS + "?rssUrl=" + rssUrl,
       accessToken,
-      "DELETE",
-      rssUrl
+      "DELETE"
     );
   }
 
