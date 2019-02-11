@@ -174,7 +174,7 @@ namespace Vocalia.Podcast.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var subs = await Repository.GetSubscriptionsAsync("userUID");
+            var subs = await Repository.GetSubscriptionsAsync(userId);
             if (subs == null)
                 return NotFound();
 
@@ -182,7 +182,9 @@ namespace Vocalia.Podcast.Controllers
             {
                 Title = s.Name,
                 ImageUrl = s.ImageUrl,
-                RssUrl = s.RssUrl
+                RssUrl = s.RssUrl,
+                ID = 0
+               
             });
 
             return Ok(subDTOs);

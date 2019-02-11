@@ -81,14 +81,12 @@ export default class DataManager {
     if (this.accessToken) {
       var subs = await this.api.getSubscriptions(this.accessToken);
 
-      if (subs != null) {
+      if (subs) {
         this.local.setCategoryPodcasts(subs, "subscriptions");
         return subs;
       }
-
-      return this.local.getCategoryPodcasts("subscriptions");
     }
-    return null;
+    return this.local.getCategoryPodcasts("subscriptions");
   }
 
   /**

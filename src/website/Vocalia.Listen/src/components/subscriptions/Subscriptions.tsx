@@ -24,7 +24,7 @@ export default class Subscriptions extends Component<
     };
   }
 
-  async componentDidMount() {
+  async componentWillMount() {
     const { api } = this.props;
 
     let subscriptions = await api.getSubscriptions();

@@ -41,13 +41,20 @@ class PodcastBrowser extends Component<IBrowserProps, IBrowserState> {
     return (
       <Grid container justify="space-evenly">
         {/* If podcasts are available, display them. Otherwise, display empty entries to fill the UI */}
-        {podcasts != null && podcasts.length > 0
-          ? podcasts.map(podcast => (
-              <PodcastEntry key={podcast.rssUrl} podcast={podcast} />
-            ))
-          : Array.from(Array(100).keys()).map(num => (
-              <PodcastEntry key={num} podcast={{} as Podcast} />
-            ))}
+        {podcasts == null &&
+          Array.from(Array(100).keys()).map(num => (
+            <PodcastEntry key={num} podcast={{} as Podcast} />
+          ))}
+
+        {podcasts != null &&
+          podcasts.map(podcast => (
+            <PodcastEntry key={podcast.rssUrl} podcast={podcast} />
+          ))}
+
+        {podcasts != null &&
+          Array.from(Array(100 - podcasts.length).keys()).map(num => (
+            <PodcastEntry key={num} podcast={{} as Podcast} />
+          ))}
       </Grid>
     );
   }

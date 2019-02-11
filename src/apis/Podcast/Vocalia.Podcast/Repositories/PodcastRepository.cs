@@ -239,7 +239,7 @@ namespace Vocalia.Podcast.Repositories
                 feedEntry = new DomainModels.Feed()
                 {
                     Title = feed.Title,
-                    Link = feed.Link,
+                    Link = rssUrl,
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     ImageUrl = feed.ImageUrl,
