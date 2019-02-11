@@ -2,15 +2,12 @@ version: '3.4'
 
 services:
   vocalia.podcast:
-    image: ${DOCKER_REGISTRY-}vocaliapodcast
-    build:
-      context: .
-      dockerfile: src\apis\Podcast\Vocalia.Podcast\Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
 
   vocalia.gateway:
-    image: ${DOCKER_REGISTRY-}vocaliagateway
-    build:
-      context: .
-      dockerfile: src\services\Vocalia.Gateway\Dockerfile
-    depends_on:
-      - vocalia.podcast
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "54578:80"
