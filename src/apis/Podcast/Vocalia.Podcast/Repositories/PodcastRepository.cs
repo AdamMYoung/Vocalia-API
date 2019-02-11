@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Vocalia.Podcast.Facades.iTunes;
 using CodeHollow.FeedReader;
 using Microsoft.Extensions.Caching.Memory;
+using Vocalia.Podcast.DomainModels;
 
 namespace Vocalia.Podcast.Repositories
 {
@@ -312,7 +313,7 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="subscription">Subscription to add</param>
         /// <returns></returns>
         public async Task AddSubscriptionAsync(DomainModels.Subscription subscription) {
-            await DbContext.Subscriptions.AddAsync(new Subscription
+            await DbContext.Subscriptions.AddAsync(new Db.Subscription
             {
                 Name = subscription.Name,
                 RssUrl = subscription.RssUrl,
@@ -378,6 +379,7 @@ namespace Vocalia.Podcast.Repositories
             }
             await DbContext.SaveChangesAsync();
         }
+
 
         #endregion
     }

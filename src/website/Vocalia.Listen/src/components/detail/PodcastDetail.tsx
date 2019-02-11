@@ -9,7 +9,7 @@ import {
   Typography,
   Fade
 } from "@material-ui/core";
-import { PodcastFeed, PodcastEpisode } from "../../utility/types";
+import { PodcastFeed, PodcastEpisode, Podcast } from "../../utility/types";
 import EpisodeEntry from "./EpisodeEntry";
 import { removeTags } from "../../utility/FormatUtils";
 import DataManager from "../../api/DataManager";
@@ -35,6 +35,7 @@ interface IDetailState {
   visibleEpisodes: number; //Number of visible episodes.
   loading: boolean; //Indicates the feed is loading.
   imageLoaded: boolean; //Indicates if the image has loaded.
+  isSubscribed: boolean; //Indicates if the user has subscribed to the current podcast.
 }
 
 /**
@@ -48,7 +49,8 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
       feed: {} as PodcastFeed,
       visibleEpisodes: 20,
       loading: true,
-      imageLoaded: false
+      imageLoaded: false,
+      isSubscribed: false
     };
   }
 
@@ -62,12 +64,41 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
       this.setState({ loading: true });
       let feed = await api.parsePodcastFeed(rssFeed);
 
-      if (feed) this.setState({ feed: feed, loading: false });
+      if (feed)
+        this.setState({
+          feed: feed,
+          loading: false,
+          isSubscribed: feed.isSubscribed
+        });
+    }
+  };
+
+  onSubscribeClick = async () => {
+    const { isSubscribed, feed } = this.state;
+    const { api, rssFeed } = this.props;
+
+    if (isSubscribed) {
+      await api.deleteSubscription(rssFeed);
+      this.setState({ isSubscribed: false });
+    } else {
+      await api.addSubscription({
+        title: feed.title,
+        rssUrl: feed.link,
+        imageUrl: feed.imageUrl,
+        isSubscribed: true
+      } as Podcast);
+      this.setState({ isSubscribed: true });
     }
   };
 
   render() {
-    const { feed, visibleEpisodes, loading, imageLoaded } = this.state;
+    const {
+      feed,
+      visibleEpisodes,
+      loading,
+      imageLoaded,
+      isSubscribed
+    } = this.state;
     const {
       open,
       onClose,
@@ -75,6 +106,24 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
       selectedEpisode,
       isMobile
     } = this.props;
+
+    const button = isSubscribed ? (
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => this.onSubscribeClick}
+      >
+        Unsubscribe
+      </Button>
+    ) : (
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => this.onSubscribeClick}
+      >
+        Subscribe
+      </Button>
+    );
 
     return (
       <Card
@@ -117,10 +166,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
                       </div>
                     </div>
                   </Typography>
-
-                  <Button variant="contained" color="primary">
-                    Subscribe
-                  </Button>
+                  <div>{button}</div>
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 5 }}>
                   {/* Episodes */}

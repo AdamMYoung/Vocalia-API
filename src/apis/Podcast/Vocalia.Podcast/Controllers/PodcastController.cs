@@ -153,7 +153,6 @@ namespace Vocalia.Podcast.Controllers
                     Author = i.Title,
                     Id = i.Id,
                     Content = i.Content
-               
                 })
             };
 
@@ -280,7 +279,6 @@ namespace Vocalia.Podcast.Controllers
             await Repository.SetListenInfoAsync(listen);
             return Ok();
         }
-
 
         #endregion
     }

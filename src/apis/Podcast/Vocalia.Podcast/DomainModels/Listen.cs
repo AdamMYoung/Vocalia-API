@@ -13,11 +13,6 @@ namespace Vocalia.Podcast.DomainModels
         public int ID { get; set; }
 
         /// <summary>
-        /// Subscription of the listen entry.
-        /// </summary>
-        public int SubscriptionID { get; set; }
-
-        /// <summary>
         /// ID of the user.
         /// </summary>
         public string UserUID { get; set; }
