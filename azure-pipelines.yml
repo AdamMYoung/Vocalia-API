@@ -7,13 +7,16 @@ trigger:
 - master
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  vmImage: 'Ubuntu 16.04'
+
+variables:
+  imageName: 'vocalia:$(build.buildId)'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    docker-compose -p site up -d
+    docker build --network=site_default --build-arg MIX_ENV=test
+    docker-compose down
+  displayName: 'test'
+- script: docker build -f Dockerfile -t $(imageName) .
+  displayName: 'docker build'
