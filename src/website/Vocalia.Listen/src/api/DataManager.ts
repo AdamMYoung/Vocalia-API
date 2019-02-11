@@ -28,7 +28,13 @@ export default class DataManager {
    * @param rssUrl URL to parse.
    */
   async parsePodcastFeed(rssUrl: string): Promise<PodcastFeed | null> {
-    return await this.api.parsePodcastFeed(rssUrl, this.accessToken);
+    var podcast = await this.api.parsePodcastFeed(rssUrl, this.accessToken);
+    if (podcast != null) {
+      this.local.setFeed(podcast);
+      return podcast;
+    }
+
+    return this.local.getFeed(rssUrl);
   }
 
   /**

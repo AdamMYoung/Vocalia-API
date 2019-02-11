@@ -1,9 +1,16 @@
-import { PodcastEpisode, Listen, Category, Podcast } from "../utility/types";
+import {
+  PodcastEpisode,
+  Listen,
+  Category,
+  Podcast,
+  PodcastFeed
+} from "../utility/types";
 
 const PLAYBACK_POSITION = "|position";
 const CURRENT = "|current";
 const CATEGORIES = "|categories";
 const PODCASTS = "|podcasts";
+const FEED = "|feed";
 
 export default class LocalRepository {
   /**
@@ -72,8 +79,25 @@ export default class LocalRepository {
    * Gets the podcasts belonging to the specified category.
    * @param category Category to filter podcasts by.
    */
-  getCategoryPodcasts(category: string) {
+  getCategoryPodcasts(category: string): Podcast[] | null {
     let key = category + PODCASTS;
+    return this.ParseKey(key);
+  }
+
+  /**
+   * Stores the feed into local storage.
+   */
+  setFeed(feed: PodcastFeed) {
+    let key = feed.link + FEED;
+    localStorage.setItem(key, JSON.stringify(feed));
+  }
+
+  /**
+   *
+   * @param rssUrl Returns the feed belonging to the required URL, or null if not available.
+   */
+  getFeed(rssUrl: string): PodcastFeed | null {
+    let key = rssUrl + FEED;
     return this.ParseKey(key);
   }
 
@@ -81,7 +105,7 @@ export default class LocalRepository {
    * Returns items from local storage, or null if nothing is found.
    * @param key Key to parse.
    */
-  private ParseKey(key: string): any | null {
+  private ParseKey(key: string): any {
     let item = localStorage.getItem(key);
     if (item != null) return JSON.parse(item);
     else return null;
