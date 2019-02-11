@@ -163,6 +163,7 @@ export class Layout extends Component<ILayoutProps, ILayoutState> {
               rssFeed={props.match.params.rss}
               selectedEpisode={media != null ? media.episode : null}
               isMobile={isMobile}
+              isAuthenticated={auth.isAuthenticated()}
               onClose={() => this.onDialogClose()}
               onEpisodeSelected={episode => this.onEpisodeSelected(episode)}
             />

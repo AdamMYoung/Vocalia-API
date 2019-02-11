@@ -22,6 +22,7 @@ interface IDetailProps {
   rssFeed: string; //Feed to load.
   open: boolean; //External control for dialog visibility.
   isMobile: boolean; //Indicates if the device is a mobile device.
+  isAuthenticated: boolean; // Indicates if the user is authenticated.
   selectedEpisode: PodcastEpisode | null; //The currently playing episode.
   onClose: () => void; //Called when the dialog requests to be closed.
   onEpisodeSelected: (episode: PodcastEpisode) => void; //Called when an episode isselected.
@@ -104,7 +105,8 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
       onClose,
       onEpisodeSelected,
       selectedEpisode,
-      isMobile
+      isMobile,
+      isAuthenticated
     } = this.props;
 
     let button = isSubscribed ? (
@@ -166,7 +168,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
                       </div>
                     </div>
                   </Typography>
-                  <div>{button}</div>
+                  {isAuthenticated && button}
                 </DialogTitle>
                 <DialogContent style={{ paddingTop: 5 }}>
                   {/* Episodes */}
