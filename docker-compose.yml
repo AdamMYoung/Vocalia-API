@@ -5,12 +5,13 @@ services:
     image: ${DOCKER_REGISTRY-}vocaliapodcast
     build:
       context: .
-      dockerfile: src\apis\Podcast\Vocalia.Podcast\Dockerfile
+      dockerfile: src/apis/Podcast/Vocalia.Podcast/Dockerfile
 
   vocalia.gateway:
     image: ${DOCKER_REGISTRY-}vocaliagateway
     build:
       context: .
-      dockerfile: src\services\Vocalia.Gateway\Dockerfile
+      dockerfile: src/services/Vocalia.Gateway/Dockerfile
     depends_on:
       - vocalia.podcast
+
