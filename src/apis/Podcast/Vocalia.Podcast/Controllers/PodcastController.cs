@@ -196,15 +196,15 @@ namespace Vocalia.Podcast.Controllers
         [Route("subscriptions")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddPodcastToSubscriptions(DTOs.Podcast podcast)
+        public async Task<IActionResult> AddPodcastToSubscriptions([FromBody]DTOs.Podcast podast)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             var sub = new DomainModels.Subscription()
             {
-                Name = podcast.Title,
-                ImageUrl = podcast.ImageUrl,
-                RssUrl = podcast.RssUrl,
+                Name = podast.Title,
+                ImageUrl = podast.ImageUrl,
+                RssUrl = podast.RssUrl,
                 UserUID = userId
             };
             await Repository.AddSubscriptionAsync(sub);

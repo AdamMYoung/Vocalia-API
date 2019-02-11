@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/podcast/{everything}",
-      "UpstreamHttpMethod": [ "GET", "DELETE", "PUT" ]
+      "UpstreamHttpMethod": [ "GET", "DELETE", "POST", "PUT" ]
     }
   ],
   "GlobalConfiguration": {

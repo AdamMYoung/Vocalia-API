@@ -86,7 +86,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
         rssUrl: feed.link,
         imageUrl: feed.imageUrl,
         isSubscribed: true
-      } as Podcast);
+      });
       this.setState({ isSubscribed: true });
     }
   };
@@ -107,11 +107,11 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
       isMobile
     } = this.props;
 
-    const button = isSubscribed ? (
+    let button = isSubscribed ? (
       <Button
         variant="contained"
         color="secondary"
-        onClick={() => this.onSubscribeClick}
+        onClick={() => this.onSubscribeClick()}
       >
         Unsubscribe
       </Button>
@@ -119,7 +119,7 @@ class PodcastDetail extends PureComponent<IDetailProps, IDetailState> {
       <Button
         variant="contained"
         color="primary"
-        onClick={() => this.onSubscribeClick}
+        onClick={() => this.onSubscribeClick()}
       >
         Subscribe
       </Button>
