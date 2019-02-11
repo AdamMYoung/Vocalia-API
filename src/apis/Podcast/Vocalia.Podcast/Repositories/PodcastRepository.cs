@@ -252,6 +252,7 @@ namespace Vocalia.Podcast.Repositories
                         PublishingDate = i.PublishingDate,
                         Author = feed.Title,
                         Id = i.Id,
+                        Time = 0,
                         Content = i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content
                     })
                 };
@@ -263,8 +264,14 @@ namespace Vocalia.Podcast.Repositories
             if(userUID != null)
             {
                 feedEntry.IsSubscribed = await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == feedEntry.Link && s.UserUID == userUID);
-                foreach(var item in feedEntry.Items)
-                    item.Time = (await DbContext.Listens.FirstOrDefaultAsync(c => c.RssUrl == item.Content && c.UserUID == userUID))?.Time ?? 0;
+                var listenHistory = await DbContext.Listens.Where(c => c.UserUID == userUID).ToListAsync();
+
+                foreach(var item in listenHistory)
+                {
+                    var entry = feedEntry.Items.FirstOrDefault(c => c.Content == item.RssUrl);
+                    if (entry != null)
+                        feedEntry.Items.FirstOrDefault(c => c.RssUrl == entry.RssUrl).Time = item.Time;
+                }
             }
 
             return feedEntry;
