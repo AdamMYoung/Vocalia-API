@@ -20,6 +20,7 @@ namespace Vocalia.Gateway
         public static void Main(string[] args)
         {
             new WebHostBuilder()
+            .UseSetting("https_port", "443")
             .UseKestrel()
             .UseContentRoot(Directory.GetCurrentDirectory())
             .ConfigureAppConfiguration((hostingContext, config) =>
@@ -50,6 +51,8 @@ namespace Vocalia.Gateway
             .Configure(app =>
             {
                 app.UseCors("CorsPolicy");
+                app.UseHttpsRedirection();
+                
                 app.UseOcelot().Wait();
             })
             .Build()
