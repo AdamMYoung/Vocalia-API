@@ -1,8 +1,11 @@
-FROM microsoft/dotnet:2.2-aspnetcore-runtime AS base
+#Depending on the operating system of the host machines(s) that will build or run the containers, the image specified in the FROM statement may need to be changed.
+#For more information, please see http://aka.ms/containercompat 
+
+FROM microsoft/dotnet:2.2-aspnetcore-runtime-nanoserver-1803 AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/dotnet:2.2-sdk AS build
+FROM microsoft/dotnet:2.2-sdk-nanoserver-1803 AS build
 WORKDIR /src
 COPY src/apis/Podcast/Vocalia.Podcast/Vocalia.Podcast.csproj src/apis/Podcast/Vocalia.Podcast/
 COPY src/apis/Podcast/Vocalia.Podcast.Db/Vocalia.Podcast.Db.csproj src/apis/Podcast/Vocalia.Podcast.Db/

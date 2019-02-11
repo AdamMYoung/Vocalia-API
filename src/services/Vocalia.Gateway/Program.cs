@@ -20,9 +20,7 @@ namespace Vocalia.Gateway
         public static void Main(string[] args)
         {
             new WebHostBuilder()
-             .UseKestrel(options => {
-                 options.Listen(IPAddress.Loopback, 5080); //HTTP port
-             })
+            .UseKestrel()
             .UseContentRoot(Directory.GetCurrentDirectory())
             .ConfigureAppConfiguration((hostingContext, config) =>
             {

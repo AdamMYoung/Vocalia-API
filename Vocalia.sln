@@ -43,9 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Facades.GPodder", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Facades.iTunes", "src\apis\Podcast\Facades\Vocalia.Facades.iTunes\Vocalia.Facades.iTunes.csproj", "{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Account", "Account", "{C8D63679-A296-46F9-99A7-930904688CB1}"
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{B9E0AAA1-24DE-4F89-A052-89D0776D461D}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{244B5CD7-D762-48BE-9B53-A48FB775BD6F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Account", "Account", "{C8D63679-A296-46F9-99A7-930904688CB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,10 +97,10 @@ Global
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC77AB86-83EA-4EAD-BC79-A4BA013A3BCB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{244B5CD7-D762-48BE-9B53-A48FB775BD6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{244B5CD7-D762-48BE-9B53-A48FB775BD6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{244B5CD7-D762-48BE-9B53-A48FB775BD6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{244B5CD7-D762-48BE-9B53-A48FB775BD6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E0AAA1-24DE-4F89-A052-89D0776D461D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
