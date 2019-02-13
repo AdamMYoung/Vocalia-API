@@ -70,7 +70,6 @@ namespace Vocalia.Podcast
 
             app.UseAuthentication();
 
-            app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
