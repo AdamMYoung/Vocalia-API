@@ -1,7 +1,7 @@
 import { Category, Podcast, PodcastFeed, Listen } from "../utility/types";
 var request = require("request");
 
-const API = "http://localhost:54578/podcast/";
+const API = process.env.REACT_APP_PODCAST_API_URL;
 const CATEGORIES = "categories";
 const TOP = "top";
 const PARSE = "parse";
