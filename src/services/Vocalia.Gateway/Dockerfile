@@ -5,10 +5,10 @@ EXPOSE 443
 
 FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
-COPY src/Vocalia.Gateway/Vocalia.Gateway.csproj src/Vocalia.Gateway/
+COPY src/services/Vocalia.Gateway/Vocalia.Gateway.csproj src/services/Vocalia.Gateway/
 RUN dotnet restore src/services/Vocalia.Gateway/Vocalia.Gateway.csproj
 COPY . .
-WORKDIR /src/Vocalia.Gateway
+WORKDIR /src/src/services/Vocalia.Gateway
 RUN dotnet build Vocalia.Gateway.csproj -c Release -o /app
 
 FROM build AS publish

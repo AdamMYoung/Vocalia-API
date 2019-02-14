@@ -14,6 +14,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://api.vocalia.co.uk"
+    "BaseUrl": "https://localhost:54578"
   }
 }

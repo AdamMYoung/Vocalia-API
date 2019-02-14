@@ -5,7 +5,7 @@ services:
     image: ${DOCKER_REGISTRY-}vocaliagateway
     build:
       context: .
-      dockerfile: src/Vocalia.Gateway/Dockerfile
+      dockerfile: src/services/Vocalia.Gateway/Dockerfile
 
   vocalia.podcast:
     image: ${DOCKER_REGISTRY-}vocaliapodcast
