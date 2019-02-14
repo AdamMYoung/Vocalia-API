@@ -150,7 +150,7 @@ namespace Vocalia.Podcast.Controllers
                     ImageUrl = i.ImageUrl,
                     Description = i.Description,
                     PublishingDate = i.PublishingDate,
-                    Author = i.Title,
+                    Author = i.Author,
                     Id = i.Id,
                     Content = i.Content
                 })
