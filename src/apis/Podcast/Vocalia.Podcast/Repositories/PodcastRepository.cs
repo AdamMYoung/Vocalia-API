@@ -267,7 +267,7 @@ namespace Vocalia.Podcast.Repositories
             var listenHistory = userUID != null ? await DbContext.Listens.Where(c => c.UserUID == userUID && c.RssUrl == rssUrl).ToListAsync() : null;
 
             foreach (var entry in feedEntry.Items)
-                entry.Time = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content)?.Time ?? 10;
+                entry.Time = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content)?.Time ?? 0;
 
             return feedEntry;
         }
