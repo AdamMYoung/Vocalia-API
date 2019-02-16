@@ -35,7 +35,7 @@ namespace Vocalia.Podcast.DomainModels
         /// <summary>
         /// Collections of items.
         /// </summary>
-        public IEnumerable<FeedItem> Items { get; internal set; }
+        public IList<FeedItem> Items { get; internal set; }
 
         /// <summary>
         /// Indicates the user is subscribed to the podcast.

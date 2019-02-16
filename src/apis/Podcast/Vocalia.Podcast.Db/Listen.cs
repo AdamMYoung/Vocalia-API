@@ -9,6 +9,7 @@ namespace Vocalia.Podcast.Db
         public virtual int ID { get; set; }
         public virtual string UserUID { get; set; }
         public virtual string RssUrl { get; set; }
+        public virtual string EpisodeUrl { get; set; }
         public virtual string EpisodeName { get; set; }
         public virtual bool IsCompleted { get; set; }
         public virtual int Time { get; set; }

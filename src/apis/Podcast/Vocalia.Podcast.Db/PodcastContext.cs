@@ -23,7 +23,6 @@ namespace Vocalia.Podcast.Db
         {
             builder.Property(i => i.Name).IsRequired();
             builder.Property(i => i.LogoUrl).IsRequired();
-
         }
     }
 
@@ -86,6 +85,7 @@ namespace Vocalia.Podcast.Db
         {
             builder.Property(i => i.UserUID).IsRequired();
             builder.Property(i => i.RssUrl).IsRequired();
+            builder.Property(i => i.EpisodeUrl).IsRequired();
             builder.Property(i => i.EpisodeName).IsRequired();  
             builder.Property(i => i.Time).IsRequired();
             builder.Property(i => i.IsCompleted).IsRequired();
@@ -114,6 +114,12 @@ namespace Vocalia.Podcast.Db
         public DbSet<PodcastIntegration> PodcastIntegrations { get; set; }
         public DbSet<Listen> Listens { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.EnableSensitiveDataLogging();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

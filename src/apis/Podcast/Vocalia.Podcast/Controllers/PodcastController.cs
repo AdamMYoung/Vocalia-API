@@ -152,7 +152,9 @@ namespace Vocalia.Podcast.Controllers
                     PublishingDate = i.PublishingDate,
                     Author = i.Author,
                     Id = i.Id,
-                    Content = i.Content
+                    Content = i.Content,
+                    Time = i.Time,
+                    IsCompleted = i.IsCompleted
                 })
             };
 
@@ -240,17 +242,18 @@ namespace Vocalia.Podcast.Controllers
         [Route("listen")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetListenInfo(string rssUrl)
+        public async Task<IActionResult> GetListenInfo(string episodeUrl)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var info = await Repository.GetListenInfoAsync(rssUrl, userId);
+            var info = await Repository.GetListenInfoAsync(episodeUrl, userId);
             if (info == null)
                 return NotFound();
 
             var infoDTO = new DTOs.Listen
             {
                 RssUrl = info.RssUrl,
+                EpisodeUrl = info.EpisodeUrl,
                 Time = info.Time,
                 EpisodeName = info.EpisodeName,
                 IsCompleted = info.IsCompleted
@@ -272,6 +275,7 @@ namespace Vocalia.Podcast.Controllers
             var listen = new DomainModels.Listen
             {
                 RssUrl = listenInfo.RssUrl,
+                EpisodeUrl = listenInfo.EpisodeUrl,
                 EpisodeName = listenInfo.EpisodeName,
                 UserUID = userId,
                 IsCompleted = listenInfo.IsCompleted,

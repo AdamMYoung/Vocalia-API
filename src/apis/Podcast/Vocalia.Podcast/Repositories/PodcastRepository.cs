@@ -242,7 +242,8 @@ namespace Vocalia.Podcast.Repositories
                     Link = rssUrl,
                     Description = feed.Description,
                     Copyright = feed.Copyright,
-                    ImageUrl = feed.ImageUrl,
+                    IsSubscribed = false,
+                    ImageUrl = feed.SpecificFeed.Element.Elements("{itunes}image").FirstOrDefault()?.Attribute("href")?.Value ?? feed.ImageUrl,
                     Items = feed.Items.Select(i => new DomainModels.FeedItem()
                     {
                         Title = i.Title,
@@ -254,25 +255,19 @@ namespace Vocalia.Podcast.Repositories
                         Id = i.Id,
                         Time = 0,
                         Content = i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content
-                    })
+                    }).ToList()
                 };
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(2));
                 Cache.Set(cacheTerm, feedEntry, cacheEntryOptions);
             }
 
-            if(userUID != null)
-            {
-                feedEntry.IsSubscribed = await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == feedEntry.Link && s.UserUID == userUID);
-                var listenHistory = await DbContext.Listens.Where(c => c.UserUID == userUID).ToListAsync();
+            //Assign listen history outside of cache block.
+            feedEntry.IsSubscribed = userUID != null ? await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == rssUrl && s.UserUID == userUID) : false;
+            var listenHistory = userUID != null ? await DbContext.Listens.Where(c => c.UserUID == userUID && c.RssUrl == rssUrl).ToListAsync() : null;
 
-                foreach(var item in listenHistory)
-                {
-                    var entry = feedEntry.Items.FirstOrDefault(c => c.Content == item.RssUrl);
-                    if (entry != null)
-                        feedEntry.Items.FirstOrDefault(c => c.RssUrl == entry.RssUrl).Time = item.Time;
-                }
-            }
+            foreach (var entry in feedEntry.Items)
+                entry.Time = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content)?.Time ?? 10;
 
             return feedEntry;
         }
@@ -350,6 +345,7 @@ namespace Vocalia.Podcast.Repositories
                 EpisodeName = entry.EpisodeName,
                 IsCompleted = entry.IsCompleted,
                 RssUrl = entry.RssUrl,
+                EpisodeUrl = entry.EpisodeUrl,
                 Time = entry.Time,
                 UserUID = entry.UserUID
             };
@@ -363,7 +359,7 @@ namespace Vocalia.Podcast.Repositories
         public async Task SetListenInfoAsync(DomainModels.Listen listenInfo)
         {
             var entry = await DbContext.Listens
-                .FirstOrDefaultAsync(l => l.RssUrl == listenInfo.RssUrl && l.UserUID == listenInfo.UserUID);
+                .FirstOrDefaultAsync(l => l.EpisodeUrl == listenInfo.EpisodeUrl && l.UserUID == listenInfo.UserUID);
 
             if (entry == null)
             {
@@ -371,6 +367,7 @@ namespace Vocalia.Podcast.Repositories
                 {
                     EpisodeName = listenInfo.EpisodeName,
                     RssUrl = listenInfo.RssUrl,
+                    EpisodeUrl = listenInfo.EpisodeUrl,
                     UserUID = listenInfo.UserUID,
                     IsCompleted = listenInfo.IsCompleted,
                     Time = listenInfo.Time,
