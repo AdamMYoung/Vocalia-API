@@ -41,7 +41,7 @@ namespace Vocalia.Podcast
             }).AddJwtBearer(options =>
             {
                 options.Authority = "https://vocalia.eu.auth0.com/";
-                options.Audience = "https://api.vocalia.co.uk/podcast";
+                options.Audience = "https://api.vocalia.co.uk";
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
