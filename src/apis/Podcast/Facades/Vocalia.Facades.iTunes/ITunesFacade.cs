@@ -32,14 +32,40 @@ namespace Vocalia.Podcast.Facades.iTunes
         }
 
         /// <summary>
-        /// Parses the RSS url from iTunes store data.
+        /// Parses iTunes IDS into a collection of RSS urls.
         /// </summary>
-        /// <param name="jsonData">Data to parse.</param>
+        /// <param name="ids">IDs to parse.</param>
         /// <returns></returns>
-        private string ParseRssUrl(string jsonData)
+        private async Task<string[]> GetRssFeedIDs(IEnumerable<long> ids)
         {
-            var json = JObject.Parse(jsonData);
-            return json.Value<JArray>("results")[0].Value<string>("feedUrl");
+            var chunkSize = 50;
+            var iTunesIDs = ids.ToList();
+            List<long[]> splitIDs = new List<long[]>();
+            List<string> rssUrls = new List<string>();
+
+            while (iTunesIDs.Count != 0)
+            {
+                if(iTunesIDs.Count >= chunkSize)
+                {
+                    splitIDs.Add(iTunesIDs.GetRange(0, chunkSize).ToArray());
+                    iTunesIDs.RemoveRange(0, chunkSize);
+                } else
+                {
+                    splitIDs.Add(iTunesIDs.GetRange(0, iTunesIDs.Count).ToArray());
+                    iTunesIDs.RemoveRange(0, iTunesIDs.Count);
+                }
+            }
+
+            foreach (var entry in splitIDs)
+            {
+                var feed = await SearchService.GetRssFeedByIdAsync(string.Join<long>(",", entry));
+                var json = JObject.Parse(feed);
+
+                var items = json.Value<JArray>("results").Select(x => x.Value<string>("feedUrl"));
+                rssUrls.AddRange(items);
+            }
+
+            return rssUrls.ToArray();
         }
 
         /// <summary>
@@ -59,6 +85,7 @@ namespace Vocalia.Podcast.Facades.iTunes
             var podcasts = new List<Vocalia.Facades.iTunes.DTOs.Podcast>();
             
             var rssEntries = rssResult.Feed.Entry;
+            var urls = await GetRssFeedIDs(rssEntries.Select(x => x.Id.Attributes.ImId).AsEnumerable());
 
             for (int i = 0; i < rssEntries.Count(); i++)
             {
@@ -70,7 +97,7 @@ namespace Vocalia.Podcast.Facades.iTunes
                     Name = entry.ImName.Label,
                     ArtistName = entry.ImArtist.Label,
                     ImageUrl = entry.ImImage.LastOrDefault()?.Label.AbsoluteUri,
-                    RssUrl = ParseRssUrl(await SearchService.GetRssFeedByIdAsync((int)entry.Id.Attributes.ImId))
+                    RssUrl = urls[i]
                 });
             }
 

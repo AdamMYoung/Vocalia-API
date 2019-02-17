@@ -49,6 +49,13 @@ namespace Vocalia.Podcast.Repositories
         Task<IEnumerable<DomainModels.Subscription>> GetSubscriptionsAsync(string userUID);
 
         /// <summary>
+        /// Gets the latest podcast for the user.
+        /// </summary>
+        /// <param name="userUID">ID to check.</param>
+        /// <returns></returns>
+        Task<DomainModels.FeedItem> GetLatestPodcastListenedAsync(string userUID);
+
+        /// <summary>
         /// Deletes the subscription with the specified ID in the database.
         /// </summary>
         /// <param name="rssUrl">RSS url of the entry.</param>

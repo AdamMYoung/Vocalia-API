@@ -384,6 +384,31 @@ namespace Vocalia.Podcast.Repositories
             await DbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Gets the latest podcasts for the user.
+        /// </summary>
+        /// <param name="userUID">ID to check.</param>
+        /// <returns></returns>
+        public async Task<DomainModels.FeedItem> GetLatestPodcastListenedAsync(string userUID)
+        {
+            var listen = await DbContext.Listens.OrderByDescending(p => p.LastUpdated)
+                .FirstOrDefaultAsync(l => l.UserUID == userUID);
+
+            if (listen != null)
+                return null;
+
+            var rssFeed = await GetFeedFromUrlAsync(listen.RssUrl);
+
+            return new DomainModels.FeedItem
+            {
+                Title = listen.EpisodeName,
+                RssUrl = listen.RssUrl,
+                Content = listen.EpisodeUrl,
+                IsCompleted = listen.IsCompleted,
+                Time = listen.Time,
+                ImageUrl = rssFeed.ImageUrl
+            };
+        }
 
         #endregion
     }

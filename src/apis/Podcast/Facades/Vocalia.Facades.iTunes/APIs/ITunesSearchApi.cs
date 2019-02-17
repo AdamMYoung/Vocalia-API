@@ -24,7 +24,7 @@ namespace Vocalia.Facades.iTunes
         /// </summary>
         /// <param name="id">iTunes podcast ID to search for.</param>
         /// <returns></returns>
-        [Get("/lookup?id={id}&entity=podcast")]
-        Task<string> GetRssFeedByIdAsync(int id);
+        [Get("/lookup?id={ids}&entity=podcast")]
+        Task<string> GetRssFeedByIdAsync(string ids);
     }
 }
