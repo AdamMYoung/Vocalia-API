@@ -117,34 +117,6 @@ namespace Vocalia.Podcast.Controllers
         }
 
         /// <summary>
-        /// Gets the latest podcast listened to by the user.
-        /// </summary>
-        /// <returns></returns>
-        [Route("latest")]
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetLatestPodcast()
-        {
-            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var listened = await Repository.GetLatestPodcastListenedAsync(userId);
-            if (listened == null)
-                return NotFound();
-
-            var listenDTO = new DTOs.FeedItem
-            {
-                Title = listened.Title,
-                RssUrl = listened.RssUrl,
-                Content = listened.Content,
-                IsCompleted = listened.IsCompleted,
-                Time = listened.Time,
-                ImageUrl = listened.ImageUrl
-            };
-
-            return Ok(listenDTO);
-        }
-
-        /// <summary>
         /// Parses an RSS feed into JSON objects, with current duration and completion status if applicable.
         /// </summary>
         /// <param name="rssUrl">URL to parse.</param>
@@ -312,6 +284,36 @@ namespace Vocalia.Podcast.Controllers
 
             await Repository.SetListenInfoAsync(listen);
             return Ok();
+        }
+
+
+        /// <summary>
+        /// Gets the latest podcast listened to by the user.
+        /// </summary>
+        /// <returns></returns>
+        [Route("latest")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetLatestPodcast()
+        {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var listened = await Repository.GetLatestPodcastListenedAsync(userId);
+            if (listened == null)
+                return NotFound();
+
+            var listenDTO = new DTOs.FeedItem
+            {
+                Title = listened.Title,
+                Author = listened.Author,
+                RssUrl = listened.RssUrl,
+                Content = listened.Content,
+                IsCompleted = listened.IsCompleted,
+                Time = listened.Time,
+                ImageUrl = listened.ImageUrl
+            };
+
+            return Ok(listenDTO);
         }
 
         #endregion

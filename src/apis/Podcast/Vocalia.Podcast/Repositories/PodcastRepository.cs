@@ -402,6 +402,7 @@ namespace Vocalia.Podcast.Repositories
             return new DomainModels.FeedItem
             {
                 Title = listen.EpisodeName,
+                Author = rssFeed.Items[0].Author,
                 RssUrl = listen.RssUrl,
                 Content = listen.EpisodeUrl,
                 IsCompleted = listen.IsCompleted,
