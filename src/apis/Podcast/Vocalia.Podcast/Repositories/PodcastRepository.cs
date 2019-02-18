@@ -394,7 +394,7 @@ namespace Vocalia.Podcast.Repositories
             var listen = await DbContext.Listens.OrderByDescending(p => p.LastUpdated)
                 .FirstOrDefaultAsync(l => l.UserUID == userUID);
 
-            if (listen != null)
+            if (listen == null)
                 return null;
 
             var rssFeed = await GetFeedFromUrlAsync(listen.RssUrl);

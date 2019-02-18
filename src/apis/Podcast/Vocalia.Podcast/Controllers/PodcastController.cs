@@ -129,7 +129,7 @@ namespace Vocalia.Podcast.Controllers
 
             var listened = await Repository.GetLatestPodcastListenedAsync(userId);
             if (listened == null)
-                return null;
+                return NotFound();
 
             var listenDTO = new DTOs.FeedItem
             {
