@@ -6,22 +6,21 @@ using Vocalia.Social.DomainModels;
 
 namespace Vocalia.Social.Repositories
 {
-    interface IListenRepository
+    internal interface ISocialRepository
     {
         /// <summary>
-        /// Returns the user's co mbined feed.
+        /// Returns the user's combined feed.
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="count"></param>
+        /// <param name="userId">ID of the user.</param>
+        /// <param name="count">Number of elements to get.</param>
         /// <returns></returns>
-        Task<IEnumerable<SocialEntry>> GetUserFeedAsync(string userId, int count);
+        Task<IEnumerable<SocialEntry>> GetFeedAsync(string userId, int count);
 
         /// <summary>
         /// Returns feed information about a single user.
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        Task<User> GetSingleUserAsync(string userId);
-
+        Task<User> GetUserAsync(string userId);
     }
 }
