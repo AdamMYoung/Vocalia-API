@@ -14,7 +14,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public Task<IEnumerable<SocialEntry>> GetFeedAsync(string userId, int count)
+        public Task<IEnumerable<object>> GetFeedAsync(string userId, int count)
         {
             throw new NotImplementedException();
         }
