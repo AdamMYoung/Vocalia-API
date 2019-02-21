@@ -69,7 +69,6 @@ namespace Vocalia.Podcast
             }
 
             app.UseAuthentication();
-
             app.UseMvc();
         }
     }
