@@ -89,6 +89,8 @@ namespace Vocalia.Social.Repositories
         public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userId, int count)
         {
             var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserUID == userId && u.Active);
+            if (user == null)
+                return null;
 
             var feed = user.Listens.OrderByDescending(c => c.Date)
                 .GroupBy(c => c.EpisodeUrl)

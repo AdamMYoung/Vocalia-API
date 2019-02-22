@@ -76,6 +76,7 @@ namespace Vocalia.Social.Db
         {
             public void Configure(EntityTypeBuilder<User> builder)
             {
+                builder.HasKey(x => x.UserUID);
                 builder.Property(c => c.UserUID).IsRequired();
                 builder.Property(c => c.FirstName).IsRequired();
                 builder.Property(c => c.LastName).IsRequired();
@@ -89,10 +90,12 @@ namespace Vocalia.Social.Db
                 .WithOne(e => e.User);
 
                 builder.HasMany(l => l.Followers)
-                    .WithOne(e => e.Following);
+                    .WithOne(e => e.Following)
+                    .HasForeignKey(e => e.FollowUID);
 
                 builder.HasMany(l => l.Followings)
-                    .WithOne(e => e.Follower);
+                    .WithOne(e => e.Follower)
+                    .HasForeignKey(e => e.UserUID);
             }
         }
 
