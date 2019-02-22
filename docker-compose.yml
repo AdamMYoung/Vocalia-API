@@ -13,3 +13,9 @@ services:
       context: .
       dockerfile: src/apis/Podcast/Vocalia.Podcast/Dockerfile
 
+  vocalia.social:
+    image: ${DOCKER_REGISTRY-}vocaliasocial
+    build:
+      context: .
+      dockerfile: src/apis/Social/Vocalia.Social/Dockerfile
+

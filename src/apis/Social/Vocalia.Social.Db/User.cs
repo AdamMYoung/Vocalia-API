@@ -13,5 +13,9 @@ namespace Vocalia.Social.Db
         public virtual bool Active { get; set; }
 
         public virtual IEnumerable<UserGroup> UserGroups { get; set; }
+        public virtual IEnumerable<Listen> Listens { get; set; }
+        public virtual IEnumerable<Follow> Followers { get; set; }
+        public virtual IEnumerable<Follow> Followings { get; set; }
+        
     }
 }
