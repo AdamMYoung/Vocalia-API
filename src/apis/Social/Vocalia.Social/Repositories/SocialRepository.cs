@@ -24,6 +24,8 @@ namespace Vocalia.Social.Repositories
             DbContext = context;
         }
 
+        #region Feed
+
         /// <summary>
         /// Returns the user's combined feed.
         /// </summary>
@@ -64,9 +66,9 @@ namespace Vocalia.Social.Repositories
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        public async Task<DomainModels.User> GetUserAsync(string userId)
+        public async Task<DomainModels.User> GetUserAsync(string userTag)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserUID == userId && u.Active);
+            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserTag == userTag && u.Active);
 
             if (user == null)
                 return null;
@@ -86,9 +88,9 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="count">Number of items to return.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userId, int count)
+        public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userTag, int count)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserUID == userId && u.Active);
+            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserTag == userTag && u.Active);
             if (user == null)
                 return null;
 
@@ -108,5 +110,89 @@ namespace Vocalia.Social.Repositories
                 IsCompleted = x.IsCompleted
             });
         }
+
+        #endregion
+
+        #region Following
+
+        /// <summary>
+        /// Returns all followings of the specified user UID.
+        /// </summary>
+        /// <param name="userId">ID of the user.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.User>> GetFollowingsAsync(string userTag)
+        {
+            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == userTag);
+            var followings = user.Followings.Select(x => x.Following);
+
+            return followings.Select(c => new DomainModels.User
+            {
+                UserUID = c.UserUID,
+                UserTag = c.UserTag,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Birthday = c.Birthday
+            });
+        }
+
+        /// <summary>
+        /// Returns all followers of the specified user tag.
+        /// </summary>
+        /// <param name="userId">ID of the user.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.User>> GetFollowersAsync(string userTag)
+        {
+            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == userTag);
+            var follower = user.Followers.Select(x => x.Follower);
+
+            return follower.Select(c => new DomainModels.User
+            {
+                UserUID = c.UserUID,
+                UserTag = c.UserTag,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Birthday = c.Birthday
+            });
+        }
+
+        /// <summary>
+        /// Adds the specified user to the users' following list.
+        /// </summary>
+        /// <param name="userId">User to add following to.</param>
+        /// <param name="friendId">User to add.</param>
+        /// <returns></returns>
+        public async Task AddFollowingAsync(string userId, string followingTag)
+        {
+            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == userId);
+            var following = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == followingTag);
+
+            await DbContext.Follows.AddAsync(new Follow
+            {
+                UserUID = user.UserUID,
+                FollowUID = user.UserUID
+            });
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Removes the specified user from the users' following list.
+        /// </summary>
+        /// <param name="userId">User to remove following from.</param>
+        /// <param name="friendId">User to remove.</param>
+        /// <returns></returns>
+        public async Task RemoveFollowingAsync(string userId, string followingTag)
+        {
+            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == userId);
+            var following = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == followingTag);
+
+            var entry = user.Followings.FirstOrDefault(x => x.UserUID == user.UserUID && x.FollowUID == following.UserUID);
+            if (entry != null)
+                DbContext.Follows.Remove(entry);
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        #endregion
     }
 }

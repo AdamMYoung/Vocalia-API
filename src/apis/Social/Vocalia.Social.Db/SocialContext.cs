@@ -80,6 +80,7 @@ namespace Vocalia.Social.Db
                 builder.Property(c => c.UserUID).IsRequired();
                 builder.Property(c => c.FirstName).IsRequired();
                 builder.Property(c => c.LastName).IsRequired();
+                builder.Property(c => c.UserTag).IsRequired();
                 builder.Property(c => c.Birthday).IsRequired();
                 builder.Property(c => c.Active).IsRequired();
 

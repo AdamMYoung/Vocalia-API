@@ -9,6 +9,7 @@ namespace Vocalia.Social.DomainModels
         public string UserUID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string UserTag { get; set; }
         public DateTime Birthday { get; set; }
     }
 }
