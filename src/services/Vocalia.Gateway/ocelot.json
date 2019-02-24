@@ -23,6 +23,18 @@
       ],
       "UpstreamPathTemplate": "/social/{everything}",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/voice/{catchAll}",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "vocalia.ingest",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ingest/voice/{catchAll}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     }
   ],
   "GlobalConfiguration": {

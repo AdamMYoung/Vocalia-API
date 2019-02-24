@@ -35,7 +35,7 @@ namespace Vocalia.Gateway
                 s.AddCors(options =>
                 {
                     options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
+                    builder => builder.WithOrigins("http://localhost:3000", "http://listen.vocalia.co.uk", "http://create.vocalia.co.uk")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials());
@@ -50,6 +50,7 @@ namespace Vocalia.Gateway
             .Configure(app =>
             {
                 app.UseCors("CorsPolicy");
+                app.UseWebSockets();
                 app.UseOcelot().Wait();
             })
             .Build()
