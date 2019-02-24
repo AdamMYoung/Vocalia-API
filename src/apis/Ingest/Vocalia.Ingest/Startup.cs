@@ -27,11 +27,14 @@ namespace Vocalia.Ingest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
+            // Add service and create Policy with options
+            services.AddCors(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.WithOrigins("http://localhost:3000", "http://10.0.75.1:3000")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -51,21 +54,17 @@ namespace Vocalia.Ingest
                 app.UseHsts();
             }
 
-   
+            app.UseCors("CorsPolicy");
+
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseCors(builder =>
-            {
-                builder.AllowCredentials()
-                .WithOrigins("http://localhost:3000")
-                .WithMethods()
-                .WithHeaders();
-            });
+            app.UseMvc();
+
             app.UseSignalR(routes =>
             {
                 routes.MapHub<VocaliaHub>("/voice");
             });
-            app.UseMvc();
+            
 
 
         }

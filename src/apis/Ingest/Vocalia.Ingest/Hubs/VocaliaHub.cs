@@ -12,7 +12,7 @@ namespace Vocalia.Ingest.Hubs
         /// <summary>
         /// Collection of current users in a call.
         /// </summary>
-        private List<DomainModels.User> Users { get; } = new List<DomainModels.User>();
+        private static List<DomainModels.User> Users { get; } = new List<DomainModels.User>();
 
         /// <summary>
         /// Assigns the connecting user to the specified group.
@@ -22,16 +22,21 @@ namespace Vocalia.Ingest.Hubs
         public async Task JoinGroup(string userTag, string groupId)
         {
             DomainModels.User user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
-            if(user != null)
+            if (user != null)
+            {
                 await Groups.RemoveFromGroupAsync(user.ConnectionId, user.CurrentGroupId);
+                Users.RemoveAll(x => x.ConnectionId == Context.ConnectionId);
+            }
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
             Users.Add(new DomainModels.User
             {
                 UserTag = userTag,
                 CurrentGroupId = groupId,
                 ConnectionId = Context.ConnectionId
             });
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+            
         }
 
         /// <summary>
@@ -50,12 +55,12 @@ namespace Vocalia.Ingest.Hubs
         /// </summary>
         /// <param name="data">Data to transmit.</param>
         /// <returns></returns>
-        public async Task SendOffer(string data)
+        public async Task SendOffer(string offer)
         {
             var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
                 await Clients.GroupExcept(user.CurrentGroupId, user.ConnectionId)
-                    .SendAsync("onOffer", data);
+                    .SendAsync("onOffer", offer);
         }
 
         /// <summary>
@@ -63,12 +68,12 @@ namespace Vocalia.Ingest.Hubs
         /// </summary>
         /// <param name="data">Data to transmit.</param>
         /// <returns></returns>
-        public async Task SendAnswer(string data)
+        public async Task SendAnswer(string answer)
         {
             var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
                 await Clients.GroupExcept(user.CurrentGroupId, user.ConnectionId)
-                    .SendAsync("onAnswer", data);
+                    .SendAsync("onAnswer", answer);
         }
 
         /// <summary>
@@ -76,12 +81,12 @@ namespace Vocalia.Ingest.Hubs
         /// </summary>
         /// <param name="data">Data to transmit.</param>
         /// <returns></returns>
-        public async Task NewCandidate(string data)
+        public async Task NewCandidate(string candidate)
         {
             var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
                 await Clients.GroupExcept(user.CurrentGroupId, user.ConnectionId)
-                    .SendAsync("onCandidate", data);
+                    .SendAsync("onCandidate", candidate);
         }
     }
 }
