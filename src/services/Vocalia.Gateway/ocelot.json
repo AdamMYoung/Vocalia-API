@@ -41,6 +41,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://api.vocalia.co.uk"
+    "BaseUrl": "https://api.vocalia.co.uk"
   }
 }
