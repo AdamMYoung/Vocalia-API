@@ -33,6 +33,14 @@ namespace Vocalia.Gateway
             })
             .ConfigureServices(s => {
                 s.AddSignalR();
+                s.AddCors(options =>
+                {
+                    options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+                });
                 s.AddOcelot();
             })
             .ConfigureLogging((hostingContext, logging) =>
@@ -42,6 +50,7 @@ namespace Vocalia.Gateway
             .UseIISIntegration()
             .Configure(app =>
             {
+                app.UseCors("CorsPolicy");
                 app.UseWebSockets();
                 app.UseOcelot().Wait();
             })
