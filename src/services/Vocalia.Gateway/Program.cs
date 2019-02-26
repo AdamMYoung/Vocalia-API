@@ -32,24 +32,16 @@ namespace Vocalia.Gateway
                     .AddEnvironmentVariables();
             })
             .ConfigureServices(s => {
-                s.AddCors(options =>
-                {
-                    options.AddPolicy("CorsPolicy",
-                    builder => builder.WithOrigins("http://localhost:3000", "http://listen.vocalia.co.uk", "http://create.vocalia.co.uk")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
-                });
+                s.AddSignalR();
                 s.AddOcelot();
             })
             .ConfigureLogging((hostingContext, logging) =>
             {
-                //add your logging
+
             })
             .UseIISIntegration()
             .Configure(app =>
             {
-                app.UseCors("CorsPolicy");
                 app.UseWebSockets();
                 app.UseOcelot().Wait();
             })

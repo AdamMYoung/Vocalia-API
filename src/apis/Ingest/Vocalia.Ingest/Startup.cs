@@ -27,15 +27,6 @@ namespace Vocalia.Ingest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add service and create Policy with options
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder.WithOrigins("http://localhost:3000", "http://10.0.75.1:3000")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
-            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -53,8 +44,6 @@ namespace Vocalia.Ingest
             {
                 app.UseHsts();
             }
-
-            app.UseCors("CorsPolicy");
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
