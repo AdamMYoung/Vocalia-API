@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Vocalia.Ingest.Db;
 using Vocalia.Ingest.Hubs;
+using Vocalia.Ingest.Repositories;
 
 namespace Vocalia.Ingest
 {
@@ -29,6 +32,12 @@ namespace Vocalia.Ingest
         {
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            //Configure catalog database context.
+            services.AddDbContext<IngestContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
+
+            services.AddScoped<IIngestRepository, IngestRepository>();
 
             services.AddSignalR();
         }

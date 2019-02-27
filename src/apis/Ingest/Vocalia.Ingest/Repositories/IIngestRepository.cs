@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Ingest.Repositories
 {
-    interface IIngestRepository
+    public interface IIngestRepository
     {
         /// <summary>
         /// Gets all groups belonging to the specified user.
@@ -19,13 +19,27 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="groupUID">UID of the group.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Podcast>> GetGroupPodcastsAsync(string groupUID);
+        Task<IEnumerable<DomainModels.Podcast>> GetGroupPodcastsAsync(Guid groupUID);
 
         /// <summary>
         /// Gets all sesions belonging to the specified podcast UID.
         /// </summary>
-        /// <param name="podcsatUID">UID of the podcast.</param>
+        /// <param name="podcastUID">UID of the podcast.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Session>> GetPodcastSessionsAsync(string podcsatUID);
+        Task<IEnumerable<DomainModels.Session>> GetPodcastSessionsAsync(Guid podcastUID);
+
+        /// <summary>
+        /// Returns the current active session belonging to the podcast UID, or null if none is available.
+        /// </summary>
+        /// <param name="podcastUID">UID of the podcast.</param>
+        /// <returns></returns>
+        Task<DomainModels.Session> GetCurrentSessionAsync(Guid podcastUID);
+
+        /// <summary>
+        /// Creates a new session for the specified podcast UID.
+        /// </summary>
+        /// <param name="podcastUID">UID of the podcast.</param>
+        /// <returns></returns>
+        Task<Guid> CreateNewSessionAsync(Guid podcastUID);
     }
 }

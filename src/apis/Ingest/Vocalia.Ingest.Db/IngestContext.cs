@@ -34,6 +34,7 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.UID).IsRequired();
                 builder.Property(c => c.UID).IsRequired();
                 builder.Property(c => c.PodcastID).IsRequired();
+                builder.Property(c => c.InProgress).IsRequired();
             }
         }
 

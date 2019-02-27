@@ -11,5 +11,6 @@ namespace Vocalia.Ingest.DomainModels
         public Guid UID { get; set; }
         public int PodcastID { get; set; }
         public DateTime Date { get; set; }
+        public bool InProgress { get; set; }
     }
 }
