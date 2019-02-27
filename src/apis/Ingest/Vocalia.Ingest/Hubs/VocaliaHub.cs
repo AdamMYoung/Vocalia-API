@@ -49,7 +49,8 @@ namespace Vocalia.Ingest.Hubs
             var users = Users.Where(x => x.CurrentGroupId == user.CurrentGroupId).Where(x => x.ConnectionId != Context.ConnectionId);
 
             await Clients.Client(user.ConnectionId)
-                .SendAsync("onMembersAcquired", users.Select(x => x.ConnectionId));
+                .SendAsync("onMembersAcquired", users.Select(x => 
+                new DTOs.User { ID = x.ConnectionId, Tag = x.UserTag }));
         }
 
         /// <summary>
@@ -72,7 +73,8 @@ namespace Vocalia.Ingest.Hubs
         {
             var sender = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (sender != null)
-                await Clients.Client(targetId).SendAsync("onOffer", offer, sender.ConnectionId);
+                await Clients.Client(targetId).SendAsync("onOffer", offer, 
+                    new DTOs.User { ID = sender.ConnectionId, Tag = sender.UserTag});
         }
 
         /// <summary>
@@ -84,7 +86,8 @@ namespace Vocalia.Ingest.Hubs
         {
             var sender = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             await Clients.Client(targetId)
-                .SendAsync("onAnswer", answer, sender.ConnectionId);
+                .SendAsync("onAnswer", answer,
+                new DTOs.User { ID = sender.ConnectionId, Tag = sender.UserTag });
         }
 
         /// <summary>
@@ -92,11 +95,11 @@ namespace Vocalia.Ingest.Hubs
         /// </summary>
         /// <param name="data">Data to transmit.</param>
         /// <returns></returns>
-        public async Task NewCandidate(string candidate, string key)
+        public async Task NewCandidate(string candidate, string targetId)
         {
             var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
-                await Clients.Client(key).SendAsync("onCandidate", candidate, user.ConnectionId);
+                await Clients.Client(targetId).SendAsync("onCandidate", candidate, user.ConnectionId);
         }
     }
 }
