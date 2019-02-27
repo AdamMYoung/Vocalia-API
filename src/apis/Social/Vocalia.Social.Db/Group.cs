@@ -7,6 +7,7 @@ namespace Vocalia.Social.Db
     public class Group
     {
         public virtual int ID { get; set; }
+        public virtual Guid UID { get; set; }
         public virtual string Name { get; set; }
         public virtual string Description { get; set; }
         public virtual string WebsiteUrl { get; set; }

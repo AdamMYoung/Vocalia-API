@@ -14,6 +14,7 @@ namespace Vocalia.Social.Db
             public void Configure(EntityTypeBuilder<Group> builder)
             {
                 builder.Property(c => c.ID).IsRequired();
+                builder.Property(c => c.UID).IsRequired();
                 builder.Property(c => c.Name).IsRequired();
                 builder.Property(c => c.Description).IsRequired();
                 builder.Property(c => c.WebsiteUrl).IsRequired();
@@ -31,6 +32,7 @@ namespace Vocalia.Social.Db
             public void Configure(EntityTypeBuilder<Podcast> builder)
             {
                 builder.Property(c => c.ID).IsRequired();
+                builder.Property(c => c.UID).IsRequired();
                 builder.Property(c => c.GroupID).IsRequired();
                 builder.Property(c => c.Name).IsRequired();
                 builder.Property(c => c.WebsiteUrl).IsRequired();

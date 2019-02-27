@@ -7,6 +7,7 @@ namespace Vocalia.Podcast.Db
     public class Podcast
     {
         public virtual int ID { get; set; }
+        public virtual Guid UID { get; set; }
         public virtual int CategoryID { get; set; }
         public virtual int LanguageID { get; set; }
         public virtual int GroupID { get; set; }

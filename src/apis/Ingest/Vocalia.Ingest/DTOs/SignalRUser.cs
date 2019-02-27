@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Ingest.DTOs
 {
-    public class User
+    public class SignalRUser
     {
         public string ID { get; set; }
         public string Tag { get; set; }

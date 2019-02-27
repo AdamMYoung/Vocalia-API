@@ -13,7 +13,7 @@ namespace Vocalia.Ingest.Hubs
         /// <summary>
         /// Collection of current users in a call.
         /// </summary>
-        private static List<DomainModels.User> Users { get; } = new List<DomainModels.User>();
+        private static List<DomainModels.SignalRUser> Users { get; } = new List<DomainModels.SignalRUser>();
 
         /// <summary>
         /// Assigns the connecting user to the specified group.
@@ -22,14 +22,14 @@ namespace Vocalia.Ingest.Hubs
         /// <returns></returns>
         public async Task JoinGroup(string userTag, string groupId)
         {
-            DomainModels.User user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            DomainModels.SignalRUser user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
             {
                 await Groups.RemoveFromGroupAsync(user.ConnectionId, user.CurrentGroupId);
                 Users.RemoveAll(x => x.ConnectionId == Context.ConnectionId);
             }
 
-            Users.Add(new DomainModels.User
+            Users.Add(new DomainModels.SignalRUser
             {
                 UserTag = userTag,
                 CurrentGroupId = groupId,
@@ -50,7 +50,7 @@ namespace Vocalia.Ingest.Hubs
 
             await Clients.Client(user.ConnectionId)
                 .SendAsync("onMembersAcquired", users.Select(x => 
-                new DTOs.User { ID = x.ConnectionId, Tag = x.UserTag }));
+                new DTOs.SignalRUser { ID = x.ConnectionId, Tag = x.UserTag }));
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Vocalia.Ingest.Hubs
             var sender = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (sender != null)
                 await Clients.Client(targetId).SendAsync("onOffer", offer, 
-                    new DTOs.User { ID = sender.ConnectionId, Tag = sender.UserTag});
+                    new DTOs.SignalRUser { ID = sender.ConnectionId, Tag = sender.UserTag});
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Vocalia.Ingest.Hubs
             var sender = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             await Clients.Client(targetId)
                 .SendAsync("onAnswer", answer,
-                new DTOs.User { ID = sender.ConnectionId, Tag = sender.UserTag });
+                new DTOs.SignalRUser { ID = sender.ConnectionId, Tag = sender.UserTag });
         }
 
         /// <summary>

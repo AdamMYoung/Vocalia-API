@@ -40,6 +40,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<Podcast> builder)
         {
+            builder.Property(p => p.UID).IsRequired();
             builder.Property(p => p.GroupID).IsRequired();
             builder.Property(p => p.Title).IsRequired();
             builder.Property(p => p.Description).IsRequired();

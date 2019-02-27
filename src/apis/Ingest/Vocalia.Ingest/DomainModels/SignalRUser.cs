@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Ingest.DomainModels
 {
-    public class User
+    public class SignalRUser
     {
         public string ConnectionId { get; set; }
         public string CurrentGroupId { get; set; }

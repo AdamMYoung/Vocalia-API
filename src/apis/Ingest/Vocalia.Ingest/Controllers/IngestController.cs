@@ -8,7 +8,7 @@ namespace Ingest_API.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class IngestController : ControllerBase
     {
        
     }
