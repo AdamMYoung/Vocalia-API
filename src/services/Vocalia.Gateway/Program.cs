@@ -52,6 +52,7 @@ namespace Vocalia.Gateway
             {
                 app.UseCors("CorsPolicy");
                 app.UseWebSockets();
+                app.UseHttpsRedirection();
                 app.UseOcelot().Wait();
             })
             .Build()

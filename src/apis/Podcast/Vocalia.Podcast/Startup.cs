@@ -33,15 +33,6 @@ namespace Vocalia.Podcast
         {
             services.AddMemoryCache();
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                builder => builder.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials());
-            });
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -76,8 +67,7 @@ namespace Vocalia.Podcast
             {
                 app.UseHsts();
             }
-
-            app.UseCors("CorsPolicy");
+            
             app.UseAuthentication();
             app.UseMvc();
         }
