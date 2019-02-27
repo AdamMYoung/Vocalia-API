@@ -254,7 +254,7 @@ namespace Vocalia.Podcast.Repositories
                         Author = feed.Title,
                         Id = i.Id,
                         Time = 0,
-                        Content = i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content
+                        Content = ReplaceHttpWithHttps(i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
                     }).ToList()
                 };
 
