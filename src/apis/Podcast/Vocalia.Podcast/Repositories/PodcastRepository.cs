@@ -243,12 +243,12 @@ namespace Vocalia.Podcast.Repositories
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     IsSubscribed = false,
-                    ImageUrl = feed.SpecificFeed.Element.Elements("{itunes}image").FirstOrDefault()?.Attribute("href")?.Value ?? feed.ImageUrl,
+                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed.Element.Elements("{itunes}image").FirstOrDefault()?.Attribute("href")?.Value ?? feed.ImageUrl),
                     Items = feed.Items.Select(i => new DomainModels.FeedItem()
                     {
                         Title = i.Title,
                         RssUrl = rssUrl,
-                        ImageUrl = feed.ImageUrl,
+                        ImageUrl = ReplaceHttpWithHttps(feed.ImageUrl),
                         Description = i.Description,
                         PublishingDate = i.PublishingDate,
                         Author = feed.Title,
@@ -270,6 +270,16 @@ namespace Vocalia.Podcast.Repositories
                 entry.Time = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content)?.Time ?? 0;
 
             return feedEntry;
+        }
+
+        /// <summary>
+        /// Replaces any occurance of "Http://" with "Https://".
+        /// </summary>
+        /// <param name="link">:ink to replace.</param>
+        /// <returns></returns>
+        private string ReplaceHttpWithHttps(string link)
+        {
+            return link.Replace("http://", "https://");
         }
 
         #endregion
