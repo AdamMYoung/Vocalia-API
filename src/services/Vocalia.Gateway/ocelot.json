@@ -24,7 +24,7 @@
         }
       ],
       "UpstreamPathTemplate": "/social/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamHttpMethod": [ "GET", "PUT", "POST" ]
     },
     //Ingest
     {

@@ -63,29 +63,12 @@ namespace Vocalia.Ingest.Db
             }
         }
 
-        internal class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
-        {
-            public void Configure(EntityTypeBuilder<User> builder)
-            {
-                builder.HasKey(x => x.UserUID);
-                builder.Property(c => c.UserUID).IsRequired();
-                builder.Property(c => c.FirstName).IsRequired();
-                builder.Property(c => c.LastName).IsRequired();
-                builder.Property(c => c.UserTag).IsRequired();
-                builder.Property(c => c.Active).IsRequired();
-
-                builder.HasMany(l => l.UserGroups)
-               .WithOne(e => e.User);
-            }
-        }
-
         public IngestContext(DbContextOptions<IngestContext> options) : base(options) { }
 
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
-        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -95,7 +78,6 @@ namespace Vocalia.Ingest.Db
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserGroupEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new GroupEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());

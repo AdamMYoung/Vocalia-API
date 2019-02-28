@@ -74,34 +74,6 @@ namespace Vocalia.Social.Db
             }
         }
 
-        internal class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
-        {
-            public void Configure(EntityTypeBuilder<User> builder)
-            {
-                builder.HasKey(x => x.UserUID);
-                builder.Property(c => c.UserUID).IsRequired();
-                builder.Property(c => c.FirstName).IsRequired();
-                builder.Property(c => c.LastName).IsRequired();
-                builder.Property(c => c.UserTag).IsRequired();
-                builder.Property(c => c.Birthday).IsRequired();
-                builder.Property(c => c.Active).IsRequired();
-
-                builder.HasMany(l => l.UserGroups)
-               .WithOne(e => e.User);
-
-                builder.HasMany(l => l.Listens)
-                .WithOne(e => e.User);
-
-                builder.HasMany(l => l.Followers)
-                    .WithOne(e => e.Following)
-                    .HasForeignKey(e => e.FollowUID);
-
-                builder.HasMany(l => l.Followings)
-                    .WithOne(e => e.Follower)
-                    .HasForeignKey(e => e.UserUID);
-            }
-        }
-
         public SocialContext(DbContextOptions<SocialContext> options) : base(options)  { }
 
         public DbSet<Podcast> Podcasts { get; set; }
@@ -109,7 +81,6 @@ namespace Vocalia.Social.Db
         public DbSet<Listen> Listens { get; set; }
         public DbSet<Follow> Follows { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
-        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -119,7 +90,6 @@ namespace Vocalia.Social.Db
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserGroupEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new GroupEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());

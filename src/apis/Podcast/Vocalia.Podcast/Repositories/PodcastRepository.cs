@@ -239,7 +239,7 @@ namespace Vocalia.Podcast.Repositories
                 feedEntry = new DomainModels.Feed()
                 {
                     Title = feed.Title,
-                    Link = rssUrl,
+                    Link = ReplaceHttpWithHttps(rssUrl),
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     IsSubscribed = false,
@@ -247,7 +247,7 @@ namespace Vocalia.Podcast.Repositories
                     Items = feed.Items.Select(i => new DomainModels.FeedItem()
                     {
                         Title = i.Title,
-                        RssUrl = rssUrl,
+                        RssUrl = feedEntry.Link,
                         ImageUrl = ReplaceHttpWithHttps(feed.ImageUrl),
                         Description = i.Description,
                         PublishingDate = i.PublishingDate,

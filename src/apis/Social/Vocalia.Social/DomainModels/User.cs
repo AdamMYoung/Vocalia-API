@@ -6,10 +6,10 @@ namespace Vocalia.Social.DomainModels
 {
     public class User
     {
-        public string UserUID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string UserTag { get; set; }
-        public DateTime Birthday { get; set; }
+        public string user_id { get; set; }
+        public string given_name { get; set; }
+        public string family_name { get; set; }
+        public string nickname { get; set; }
+        public string picture { get; set; }
     }
 }

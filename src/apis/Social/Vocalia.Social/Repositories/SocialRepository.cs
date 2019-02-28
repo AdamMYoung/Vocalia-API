@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,16 +35,11 @@ namespace Vocalia.Social.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.Listen>> GetTimelineFeedAsync(string userId, int count)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserUID == userId && u.Active);
-
-            if (user == null)
-                return null;
-
-            var followingUsers = user.Followings.Select(x => x.Following);
+            var followingUsers = await DbContext.Follows.Where(x => x.UserUID == userId).ToListAsync();
 
             // Get all listen entries for the users the selected user follows, order them by descending then get the newest entry for each episode.
             var feed = followingUsers
-                .SelectMany(x => x.Listens
+                .SelectMany(x => DbContext.Listens.Where(c => c.UserUID == x.UserUID)
                 .OrderByDescending(c => c.Date)
                 .GroupBy(c => c.EpisodeUrl)
                 .Select(e => e.FirstOrDefault())).Take(count);
@@ -194,5 +190,13 @@ namespace Vocalia.Social.Repositories
         }
 
         #endregion
+
+        private User GetUserAsync(string userId, string accessToken)
+        {
+            var client = new RestClient($"https://vocalia.eu.auth0.com/api/v2/users/{userId}");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("authorization", $"Bearer {accessToken}");
+            return client.Execute<User>(request).Data;
+        }
     }
 }

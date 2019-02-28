@@ -13,7 +13,5 @@ namespace Vocalia.Social.Db
         public virtual string EpisodeName { get; set; }
         public virtual DateTime Date { get; set; }
         public virtual bool IsCompleted { get; set; }
-
-        public virtual User User { get; set; }
     }
 }

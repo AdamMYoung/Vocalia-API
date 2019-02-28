@@ -82,6 +82,7 @@ namespace Vocalia.Social.Controllers
                 UserTag = user.UserTag,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                PictureUrl = user.PictureUrl,
                 Followers = followers.Select(x => new DTOs.User
                 {
                     UserTag = x.UserTag,

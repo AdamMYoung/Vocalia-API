@@ -9,8 +9,5 @@ namespace Vocalia.Social.Db
         public virtual int ID { get; set; }
         public virtual string UserUID { get; set; }
         public virtual string FollowUID { get; set; }
-
-        public virtual User Follower { get; set; }
-        public virtual User Following { get; set; }
     }
 }
