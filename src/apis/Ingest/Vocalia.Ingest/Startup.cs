@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -30,15 +31,25 @@ namespace Vocalia.Ingest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = "https://vocalia.eu.auth0.com/";
+                options.Audience = "https://api.vocalia.co.uk";
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
 
             //Configure catalog database context.
             services.AddDbContext<IngestContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
 
             services.AddScoped<IIngestRepository, IngestRepository>();
-
             services.AddSignalR();
         }
 
@@ -54,6 +65,7 @@ namespace Vocalia.Ingest
                 app.UseHsts();
             }
 
+            app.UseAuthentication();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseMvc();
@@ -62,9 +74,6 @@ namespace Vocalia.Ingest
             {
                 routes.MapHub<VocaliaHub>("/voice");
             });
-            
-
-
         }
     }
 }

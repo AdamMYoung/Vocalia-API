@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Vocalia.Ingest.Db\Vocalia.Ingest.Db.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -38,6 +38,18 @@
       ],
       "UpstreamPathTemplate": "/ingest/voice/",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/{anything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "vocalia.ingest",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ingest/api/{anything}",
+      "UpstreamHttpMethod": [ "GET", "POST" ]
     }
   ],
   "GlobalConfiguration": {
