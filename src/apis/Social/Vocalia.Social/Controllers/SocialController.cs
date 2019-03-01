@@ -41,7 +41,7 @@ namespace Vocalia.Social.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var feed = await Repository.GetTimelineFeedAsync(userId, count, GetAccessToken());
+            var feed = await Repository.GetTimelineFeedAsync(userId, count);
 
             if (feed == null)
                 return NotFound();
@@ -71,14 +71,13 @@ namespace Vocalia.Social.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetUser(string userId, int count = 25)
         {
-            var accessToken = GetAccessToken();
-            var user = await Repository.GetUserAsync(userId, accessToken);
+            var user = await Repository.GetUserAsync(userId);
             if (user == null)
                 return NotFound();
 
-            var followers = await Repository.GetFollowersAsync(userId, accessToken);
-            var following = await Repository.GetFollowingsAsync(userId, accessToken);
-            var feed = await Repository.GetUserFeedAsync(userId, 25, accessToken);
+            var followers = await Repository.GetFollowersAsync(userId);
+            var following = await Repository.GetFollowingsAsync(userId);
+            var feed = await Repository.GetUserFeedAsync(userId, 25);
 
             var userDto = new DTOs.User
             {
@@ -143,18 +142,6 @@ namespace Vocalia.Social.Controllers
             await Repository.RemoveFollowingAsync(userId, followerId);
 
             return Ok();
-        }
-
-        /// <summary>
-        /// Gets the access token from the request header.
-        /// </summary>
-        /// <returns></returns>
-        private string GetAccessToken()
-        {
-            StringValues accessToken = "";
-            Request.Headers.TryGetValue("Bearer", out accessToken);
-
-            return accessToken;
         }
     }
 }

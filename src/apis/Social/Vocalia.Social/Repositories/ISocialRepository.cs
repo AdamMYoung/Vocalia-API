@@ -15,7 +15,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="count">Number of elements to get.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<IEnumerable<Listen>> GetTimelineFeedAsync(string userId, int count, string accessToken);
+        Task<IEnumerable<Listen>> GetTimelineFeedAsync(string userId, int count);
 
         /// <summary>
         /// Returns user information for a specific user.
@@ -23,7 +23,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userTag">Tag of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<User> GetUserAsync(string userUid, string accessToken);
+        Task<User> GetUserAsync(string userUid);
 
         /// <summary>
         /// Returns feed information for a speficic user.
@@ -32,7 +32,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="count">Number of elements to get.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<IEnumerable<Listen>> GetUserFeedAsync(string userUid, int count, string accessToken);
+        Task<IEnumerable<Listen>> GetUserFeedAsync(string userUid, int count);
 
         /// <summary>
         /// Returns all followings of the specified user tag.
@@ -40,7 +40,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<IEnumerable<User>> GetFollowingsAsync(string userUid, string accessToken);
+        Task<IEnumerable<User>> GetFollowingsAsync(string userUid);
 
         /// <summary>
         /// Returns all followers of the specified user tag.
@@ -48,7 +48,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<IEnumerable<User>> GetFollowersAsync(string userUid, string accessToken);
+        Task<IEnumerable<User>> GetFollowersAsync(string userUid);
 
         /// <summary>
         /// Removes the specified user from the users' following list.

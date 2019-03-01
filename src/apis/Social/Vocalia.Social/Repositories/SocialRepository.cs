@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Social.Db;
 using Vocalia.Social.DomainModels;
+using Vocalia.UserFacade;
 
 namespace Vocalia.Social.Repositories
 {
@@ -17,12 +18,18 @@ namespace Vocalia.Social.Repositories
         private SocialContext DbContext { get; }
 
         /// <summary>
+        /// API for Auth0 user access.
+        /// </summary>
+        private IUserFacade UserAPI { get; }
+
+        /// <summary>
         /// Instantiates a new SocialRepository.
         /// </summary>
         /// <param name="context"></param>
-        public SocialRepository(SocialContext context)
+        public SocialRepository(SocialContext context, IUserFacade userFacade)
         {
             DbContext = context;
+            UserAPI = userFacade;
         }
 
         #region Feed
@@ -33,7 +40,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="count">Number of elements to get.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Listen>> GetTimelineFeedAsync(string userId, int count, string accessToken)
+        public async Task<IEnumerable<DomainModels.Listen>> GetTimelineFeedAsync(string userId, int count)
         {
             var followingUsers = await DbContext.Follows.Where(x => x.UserUID == userId).ToListAsync();
 
@@ -57,7 +64,7 @@ namespace Vocalia.Social.Repositories
 
             foreach (var user in timeline)
             {
-                var auth0Entry = await UserFacade.Auth0.GetUserInfoAsync(userId, accessToken);
+                var auth0Entry = await UserAPI.GetUserInfoAsync(userId);
                 user.UserName = auth0Entry.name;
             }
 
@@ -70,9 +77,9 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        public async Task<DomainModels.User> GetUserAsync(string userId, string accessToken)
+        public async Task<DomainModels.User> GetUserAsync(string userId)
         {
-            var user = await UserFacade.Auth0.GetUserInfoAsync(userId, accessToken);
+            var user = await UserAPI.GetUserInfoAsync(userId);
 
             return new DomainModels.User
             {
@@ -91,9 +98,9 @@ namespace Vocalia.Social.Repositories
         /// <param name="count">Number of items to return.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userUid, int count, string accessToken)
+        public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userUid, int count)
         {
-            var user = await UserFacade.Auth0.GetUserInfoAsync(userUid, accessToken);
+            var user = await UserAPI.GetUserInfoAsync(userUid);
 
             var feed = await DbContext.Listens.Where(x => x.UserUID == userUid).OrderByDescending(c => c.Date)
                 .GroupBy(c => c.EpisodeUrl)
@@ -122,12 +129,12 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.User>> GetFollowingsAsync(string userUid, string accessToken)
+        public async Task<IEnumerable<DomainModels.User>> GetFollowingsAsync(string userUid)
         {
             var users = new List<UserFacade.User>();
             await DbContext.Follows.Where(x => x.UserUID == userUid).ForEachAsync(async x =>
             {
-                users.Add(await UserFacade.Auth0.GetUserInfoAsync(x.FollowUID, accessToken));
+                users.Add(await UserAPI.GetUserInfoAsync(x.FollowUID));
             });         
 
             return users.Select(c => new DomainModels.User
@@ -145,12 +152,12 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.User>> GetFollowersAsync(string userUid, string accessToken)
+        public async Task<IEnumerable<DomainModels.User>> GetFollowersAsync(string userUid)
         {
             var users = new List<UserFacade.User>();
             await DbContext.Follows.Where(x => x.FollowUID == userUid).ForEachAsync(async x =>
             {
-                users.Add(await UserFacade.Auth0.GetUserInfoAsync(x.UserUID, accessToken));
+                users.Add(await UserAPI.GetUserInfoAsync(x.UserUID));
             });
 
             return users.Select(c => new DomainModels.User

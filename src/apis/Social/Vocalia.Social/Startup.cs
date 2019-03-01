@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Vocalia.Social.Db;
 using Vocalia.Social.Repositories;
+using Vocalia.UserFacade;
 
 namespace Vocalia.Social
 {
@@ -47,6 +48,7 @@ namespace Vocalia.Social
                 options.UseSqlServer(Configuration.GetConnectionString("SocialDatabase")));
 
             services.AddScoped<ISocialRepository, SocialRepository>();
+            services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
