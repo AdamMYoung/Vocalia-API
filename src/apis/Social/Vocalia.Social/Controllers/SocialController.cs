@@ -69,19 +69,20 @@ namespace Vocalia.Social.Controllers
         [Route("user")]
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetUser(string userTag, int count = 25)
+        public async Task<IActionResult> GetUser(string userId, int count = 25)
         {
             var accessToken = GetAccessToken();
-            var user = await Repository.GetUserAsync(userTag, accessToken);
+            var user = await Repository.GetUserAsync(userId, accessToken);
             if (user == null)
                 return NotFound();
 
-            var followers = await Repository.GetFollowersAsync(userTag, accessToken);
-            var following = await Repository.GetFollowingsAsync(userTag, accessToken);
-            var feed = await Repository.GetUserFeedAsync(userTag, 25, accessToken);
+            var followers = await Repository.GetFollowersAsync(userId, accessToken);
+            var following = await Repository.GetFollowingsAsync(userId, accessToken);
+            var feed = await Repository.GetUserFeedAsync(userId, 25, accessToken);
 
             var userDto = new DTOs.User
             {
+                UserUID = userId,
                 UserTag = user.UserTag,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -120,10 +121,10 @@ namespace Vocalia.Social.Controllers
         [Route("followers")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddFollower(string userTag)
+        public async Task<IActionResult> AddFollower(string followerId)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            await Repository.AddFollowingAsync(userId, userTag);
+            await Repository.AddFollowingAsync(userId, followerId);
 
             return Ok();
         }
@@ -131,15 +132,15 @@ namespace Vocalia.Social.Controllers
         /// <summary>
         /// Removes the specified user from the authorized user's follow list.
         /// </summary>
-        /// <param name="userTag">User to remove.</param>
+        /// <param name="userId">User to remove.</param>
         /// <returns></returns>
         [Route("followers")]
         [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> RemoveFollower(string userTag)
+        public async Task<IActionResult> RemoveFollower(string followerId)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            await Repository.RemoveFollowingAsync(userId, userTag);
+            await Repository.RemoveFollowingAsync(userId, followerId);
 
             return Ok();
         }

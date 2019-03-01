@@ -30,6 +30,7 @@ namespace Vocalia.Social.Repositories
         /// </summary>
         /// <param name="userTag">Tag of the user.</param>
         /// <param name="count">Number of elements to get.</param>
+        /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
         Task<IEnumerable<Listen>> GetUserFeedAsync(string userUid, int count, string accessToken);
 
@@ -37,6 +38,7 @@ namespace Vocalia.Social.Repositories
         /// Returns all followings of the specified user tag.
         /// </summary>
         /// <param name="userId">ID of the user.</param>
+        /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
         Task<IEnumerable<User>> GetFollowingsAsync(string userUid, string accessToken);
 
@@ -44,6 +46,7 @@ namespace Vocalia.Social.Repositories
         /// Returns all followers of the specified user tag.
         /// </summary>
         /// <param name="userId">ID of the user.</param>
+        /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
         Task<IEnumerable<User>> GetFollowersAsync(string userUid, string accessToken);
 
