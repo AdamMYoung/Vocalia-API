@@ -33,7 +33,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="count">Number of elements to get.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Listen>> GetTimelineFeedAsync(string userId, int count)
+        public async Task<IEnumerable<DomainModels.Listen>> GetTimelineFeedAsync(string userId, int count, string accessToken)
         {
             var followingUsers = await DbContext.Follows.Where(x => x.UserUID == userId).ToListAsync();
 
@@ -44,17 +44,24 @@ namespace Vocalia.Social.Repositories
                 .GroupBy(c => c.EpisodeUrl)
                 .Select(e => e.FirstOrDefault())).Take(count);
 
-            return feed.Select(x => new DomainModels.Listen
+            var timeline = feed.Select(x => new DomainModels.Listen
             {
                 ID = x.ID,
                 UserUID = x.UserUID,
-                UserName = x.User.FirstName + " " + x.User.LastName,
                 RssUrl = x.RssUrl,
                 EpisodeUrl = x.EpisodeUrl,
                 EpisodeName = x.EpisodeName,
                 Date = x.Date,
                 IsCompleted = x.IsCompleted
             });
+
+            foreach (var user in timeline)
+            {
+                var auth0Entry = await UserFacade.Auth0.GetUserAsync(userId, accessToken);
+                user.UserName = auth0Entry.name;
+            }
+
+            return timeline;
         }
 
         /// <summary>
@@ -62,19 +69,17 @@ namespace Vocalia.Social.Repositories
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        public async Task<DomainModels.User> GetUserAsync(string userTag)
+        public async Task<DomainModels.User> GetUserAsync(string userId, string accessToken)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserTag == userTag && u.Active);
-
-            if (user == null)
-                return null;
+            var user = await UserFacade.Auth0.GetUserAsync(userId, accessToken);
 
             return new DomainModels.User
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Birthday = user.Birthday,
-                UserUID = user.UserUID
+                FirstName = user.given_name,
+                LastName = user.family_name,
+                UserUID = user.user_id,
+                UserTag = user.nickname,
+                PictureUrl = user.picture
             };
         }
 
@@ -84,20 +89,18 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="count">Number of items to return.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userTag, int count)
+        public async Task<IEnumerable<DomainModels.Listen>> GetUserFeedAsync(string userUid, int count, string accessToken)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(u => u.UserTag == userTag && u.Active);
-            if (user == null)
-                return null;
+            var user = await UserFacade.Auth0.GetUserAsync(userUid, accessToken);
 
-            var feed = user.Listens.OrderByDescending(c => c.Date)
+            var feed = await DbContext.Listens.Where(x => x.UserUID == userUid).OrderByDescending(c => c.Date)
                 .GroupBy(c => c.EpisodeUrl)
-                .Select(e => e.FirstOrDefault()).Take(count);
+                .Select(e => e.FirstOrDefault()).Take(count).ToListAsync();
 
             return feed.Select(x => new DomainModels.Listen
             {
                 ID = x.ID,
-                UserName = user.FirstName + " " + user.LastName,
+                UserName = user.name,
                 UserUID = x.UserUID,
                 EpisodeName = x.EpisodeName,
                 EpisodeUrl = x.EpisodeUrl,
@@ -116,18 +119,20 @@ namespace Vocalia.Social.Repositories
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.User>> GetFollowingsAsync(string userTag)
+        public async Task<IEnumerable<DomainModels.User>> GetFollowingsAsync(string userUid, string accessToken)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == userTag);
-            var followings = user.Followings.Select(x => x.Following);
-
-            return followings.Select(c => new DomainModels.User
+            var users = new List<UserFacade.User>();
+            await DbContext.Follows.Where(x => x.UserUID == userUid).ForEachAsync(async x =>
             {
-                UserUID = c.UserUID,
-                UserTag = c.UserTag,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Birthday = c.Birthday
+                users.Add(await UserFacade.Auth0.GetUserAsync(x.FollowUID, accessToken));
+            });         
+
+            return users.Select(c => new DomainModels.User
+            {
+                UserUID = c.user_id,
+                UserTag = c.nickname,
+                FirstName = c.family_name,
+                LastName = c.given_name
             });
         }
 
@@ -136,18 +141,20 @@ namespace Vocalia.Social.Repositories
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.User>> GetFollowersAsync(string userTag)
+        public async Task<IEnumerable<DomainModels.User>> GetFollowersAsync(string userUid, string accessToken)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == userTag);
-            var follower = user.Followers.Select(x => x.Follower);
-
-            return follower.Select(c => new DomainModels.User
+            var users = new List<UserFacade.User>();
+            await DbContext.Follows.Where(x => x.FollowUID == userUid).ForEachAsync(async x =>
             {
-                UserUID = c.UserUID,
-                UserTag = c.UserTag,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Birthday = c.Birthday
+                users.Add(await UserFacade.Auth0.GetUserAsync(x.UserUID, accessToken));
+            });
+
+            return users.Select(c => new DomainModels.User
+            {
+                UserUID = c.user_id,
+                UserTag = c.nickname,
+                FirstName = c.family_name,
+                LastName = c.given_name
             });
         }
 
@@ -157,15 +164,12 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">User to add following to.</param>
         /// <param name="friendId">User to add.</param>
         /// <returns></returns>
-        public async Task AddFollowingAsync(string userId, string followingTag)
+        public async Task AddFollowingAsync(string userUid, string followingUid)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == userId);
-            var following = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == followingTag);
-
             await DbContext.Follows.AddAsync(new Follow
             {
-                UserUID = user.UserUID,
-                FollowUID = user.UserUID
+                UserUID = userUid,
+                FollowUID = followingUid
             });
 
             await DbContext.SaveChangesAsync();
@@ -177,12 +181,9 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">User to remove following from.</param>
         /// <param name="friendId">User to remove.</param>
         /// <returns></returns>
-        public async Task RemoveFollowingAsync(string userId, string followingTag)
+        public async Task RemoveFollowingAsync(string userUid, string followingUid)
         {
-            var user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == userId);
-            var following = await DbContext.Users.FirstOrDefaultAsync(x => x.UserTag == followingTag);
-
-            var entry = user.Followings.FirstOrDefault(x => x.UserUID == user.UserUID && x.FollowUID == following.UserUID);
+            var entry = await DbContext.Follows.FirstOrDefaultAsync(x => x.UserUID == userUid && x.FollowUID == followingUid);
             if (entry != null)
                 DbContext.Follows.Remove(entry);
 
@@ -190,13 +191,5 @@ namespace Vocalia.Social.Repositories
         }
 
         #endregion
-
-        private User GetUserAsync(string userId, string accessToken)
-        {
-            var client = new RestClient($"https://vocalia.eu.auth0.com/api/v2/users/{userId}");
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("authorization", $"Bearer {accessToken}");
-            return client.Execute<User>(request).Data;
-        }
     }
 }

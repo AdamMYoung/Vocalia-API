@@ -13,15 +13,17 @@ namespace Vocalia.Social.Repositories
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <param name="count">Number of elements to get.</param>
+        /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<IEnumerable<Listen>> GetTimelineFeedAsync(string userId, int count);
+        Task<IEnumerable<Listen>> GetTimelineFeedAsync(string userId, int count, string accessToken);
 
         /// <summary>
         /// Returns user information for a specific user.
         /// </summary>
         /// <param name="userTag">Tag of the user.</param>
+        /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<User> GetUserAsync(string userTag);
+        Task<User> GetUserAsync(string userUid, string accessToken);
 
         /// <summary>
         /// Returns feed information for a speficic user.
@@ -29,21 +31,21 @@ namespace Vocalia.Social.Repositories
         /// <param name="userTag">Tag of the user.</param>
         /// <param name="count">Number of elements to get.</param>
         /// <returns></returns>
-        Task<IEnumerable<Listen>> GetUserFeedAsync(string userTag, int count);
+        Task<IEnumerable<Listen>> GetUserFeedAsync(string userUid, int count, string accessToken);
 
         /// <summary>
         /// Returns all followings of the specified user tag.
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        Task<IEnumerable<User>> GetFollowingsAsync(string userTag);
+        Task<IEnumerable<User>> GetFollowingsAsync(string userUid, string accessToken);
 
         /// <summary>
         /// Returns all followers of the specified user tag.
         /// </summary>
         /// <param name="userId">ID of the user.</param>
         /// <returns></returns>
-        Task<IEnumerable<User>> GetFollowersAsync(string userTag);
+        Task<IEnumerable<User>> GetFollowersAsync(string userUid, string accessToken);
 
         /// <summary>
         /// Removes the specified user from the users' following list.
@@ -51,7 +53,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">User to remove following from.</param>
         /// <param name="friendId">User to remove.</param>
         /// <returns></returns>
-        Task RemoveFollowingAsync(string userId, string followingTag);
+        Task RemoveFollowingAsync(string userUid, string followingUid);
 
         /// <summary>
         /// Adds the specified user to the users' following list.
@@ -59,6 +61,6 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">User to add following to.</param>
         /// <param name="friendId">User to add.</param>
         /// <returns></returns>
-        Task AddFollowingAsync(string userId, string followingTag);
+        Task AddFollowingAsync(string userUid, string followingUid);
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Vocalia.Social.Repositories;
 
 namespace Vocalia.Social.Controllers
@@ -39,7 +40,8 @@ namespace Vocalia.Social.Controllers
         public async Task<IActionResult> GetUserFeed(int count = 25)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var feed = await Repository.GetTimelineFeedAsync(userId, count);
+
+            var feed = await Repository.GetTimelineFeedAsync(userId, count, GetAccessToken());
 
             if (feed == null)
                 return NotFound();
@@ -69,13 +71,14 @@ namespace Vocalia.Social.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetUser(string userTag, int count = 25)
         {
-            var user = await Repository.GetUserAsync(userTag);
+            var accessToken = GetAccessToken();
+            var user = await Repository.GetUserAsync(userTag, accessToken);
             if (user == null)
                 return NotFound();
 
-            var followers = await Repository.GetFollowersAsync(userTag);
-            var following = await Repository.GetFollowingsAsync(userTag);
-            var feed = await Repository.GetUserFeedAsync(userTag, 25);
+            var followers = await Repository.GetFollowersAsync(userTag, accessToken);
+            var following = await Repository.GetFollowingsAsync(userTag, accessToken);
+            var feed = await Repository.GetUserFeedAsync(userTag, 25, accessToken);
 
             var userDto = new DTOs.User
             {
@@ -139,6 +142,18 @@ namespace Vocalia.Social.Controllers
             await Repository.RemoveFollowingAsync(userId, userTag);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Gets the access token from the request header.
+        /// </summary>
+        /// <returns></returns>
+        private string GetAccessToken()
+        {
+            StringValues accessToken = "";
+            Request.Headers.TryGetValue("Bearer", out accessToken);
+
+            return accessToken;
         }
     }
 }
