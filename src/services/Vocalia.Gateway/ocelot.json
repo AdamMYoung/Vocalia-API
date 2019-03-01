@@ -10,7 +10,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/podcast/{everything}",
+      "UpstreamPathTemplate": "/podcast/api/{everything}",
       "UpstreamHttpMethod": [ "GET", "DELETE", "POST", "PUT" ]
     },
     //Social
@@ -23,8 +23,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/social/{everything}",
-      "UpstreamHttpMethod": [ "GET", "PUT", "POST" ]
+      "UpstreamPathTemplate": "/social/api/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
     },
     //Ingest
     {
