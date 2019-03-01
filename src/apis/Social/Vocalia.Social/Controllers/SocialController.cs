@@ -41,23 +41,49 @@ namespace Vocalia.Social.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            var user = await Repository.GetUserAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            var followers = await Repository.GetFollowersAsync(userId);
+            var following = await Repository.GetFollowingsAsync(userId);
             var feed = await Repository.GetTimelineFeedAsync(userId, count);
 
             if (feed == null)
                 return NotFound();
 
-            var entries = feed.Select(x => new DTOs.Listen
+            var userDto = new DTOs.User
             {
-                UserUID = x.UserUID,
-                UserName = x.UserName,
-                RssUrl = x.RssUrl,
-                EpisodeUrl = x.EpisodeUrl,
-                EpisodeName = x.EpisodeName,
-                Date = x.Date,
-                IsCompleted = x.IsCompleted
-            });
+                UserUID = userId,
+                UserTag = user.UserTag,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PictureUrl = user.PictureUrl,
+                Followers = followers.Select(x => new DTOs.User
+                {
+                    UserTag = x.UserTag,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName
+                }),
+                Following = following.Select(x => new DTOs.User
+                {
+                    UserTag = x.UserTag,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName
+                }),
+                Feed = feed.Select(x => new DTOs.Listen
+                {
+                    UserUID = x.UserUID,
+                    UserName = x.UserName,
+                    RssUrl = x.RssUrl,
+                    EpisodeUrl = x.EpisodeUrl,
+                    EpisodeName = x.EpisodeName,
+                    Date = x.Date,
+                    IsCompleted = x.IsCompleted
+                })
+            };
 
-            return Ok(entries);
+            return Ok(userDto);
         }
 
         /// <summary>
@@ -109,7 +135,7 @@ namespace Vocalia.Social.Controllers
                 })
             };
 
-            return Ok(user);
+            return Ok(userDto);
         }
 
         /// <summary>

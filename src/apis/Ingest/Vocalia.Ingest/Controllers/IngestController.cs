@@ -31,7 +31,7 @@ namespace Ingest_API.Controllers
         /// Gets all groups belonging to the authenticated user.
         /// </summary>
         /// <returns></returns>
-        [Route("groups")]
+        [Route("group")]
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetUserGroups()
