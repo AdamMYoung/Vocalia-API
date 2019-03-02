@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Vocalia.UserFacade
@@ -11,23 +12,28 @@ namespace Vocalia.UserFacade
         /// <summary>
         /// API token for management access.
         /// </summary>
-        private string AccessToken { get; set; }
+     
+        private static string AccessToken { get; set; }
 
         public UserFacade()
         {
-            SetAccessToken();
+            new Timer(
+                e => GetAccessToken().Wait(),
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromHours(18));
         }
 
         /// <summary>
         /// Sets the access token for the Auth service.
         /// </summary>
-        private async void SetAccessToken()
+        private static async Task GetAccessToken()
         {
-            var client = new RestClient("https://login0.local.dev.auth0.com/oauth/token");
+            var client = new RestClient("https://vocalia.eu.auth0.com/oauth/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json");
             request.AddParameter("application/json", "{\"client_id\":\"LjokVu10MznuFJhXd9ZIJwiVERJl4wqP\",\"client_secret\":\"zgeLda4nK_sVQW2_MrNrrdi0OjRzcivkkcW4NfTTnizXrkocmjiAErpVBY-cCQHm\",\"audience\":\"https://vocalia.eu.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}", ParameterType.RequestBody);
-            var response = await client.ExecuteGetTaskAsync<Auth0TokenResponse>(request);
+            var response = await client.ExecuteTaskAsync<Auth0TokenResponse>(request);
 
             AccessToken = response.Data.access_token;
         }
