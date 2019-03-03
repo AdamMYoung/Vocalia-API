@@ -35,6 +35,11 @@ namespace Vocalia.Podcast.Repositories
         private IMemoryCache Cache { get; }
 
         /// <summary>
+        /// Namespace for parsing itunes feed links.
+        /// </summary>
+        private string ITunesNamespace { get; } = "http://www.itunes.com/dtds/podcast-1.0.dtd";
+
+        /// <summary>
         /// Initializes a new PodcastRepository.
         /// </summary>
         /// <param name="context">Vocalia database reference.</param>
@@ -229,10 +234,12 @@ namespace Vocalia.Podcast.Repositories
         /// <returns></returns>
         public async Task<DomainModels.Feed> GetFeedFromUrlAsync(string rssUrl, string userUID = null)
         {
+
             var cacheTerm = CacheKeys.Feed + rssUrl;
             if (!Cache.TryGetValue(cacheTerm, out DomainModels.Feed feedEntry))
             {
                 var feed = await FeedReader.ReadAsync(rssUrl);
+                
                 if (feed == null)
                     return null;
 
@@ -243,20 +250,22 @@ namespace Vocalia.Podcast.Repositories
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     IsSubscribed = false,
-                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed.Element.Elements("{itunes}image").FirstOrDefault()?.Attribute("href")?.Value ?? feed.ImageUrl),
-                    Items = feed.Items.Select(i => new DomainModels.FeedItem()
-                    {
-                        Title = i.Title,
-                        RssUrl = feedEntry.Link,
-                        ImageUrl = ReplaceHttpWithHttps(feed.ImageUrl),
-                        Description = i.Description,
-                        PublishingDate = i.PublishingDate,
-                        Author = feed.Title,
-                        Id = i.Id,
-                        Time = 0,
-                        Content = ReplaceHttpWithHttps(i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
-                    }).ToList()
+                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed.Element.Element("{" + ITunesNamespace + "}image")?.Attribute("href")?.Value ?? feed.ImageUrl),
+                    
                 };
+
+                feedEntry.Items = feed.Items.Select(i => new DomainModels.FeedItem()
+                {
+                    Title = i.Title,
+                    RssUrl = feedEntry.Link,
+                    ImageUrl = feedEntry.ImageUrl,
+                    Description = i.Description,
+                    PublishingDate = i.PublishingDate,
+                    Author = feed.Title,
+                    Id = i.Id,
+                    Time = 0,
+                    Content = ReplaceHttpWithHttps(i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
+                }).ToList();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(2));
                 Cache.Set(cacheTerm, feedEntry, cacheEntryOptions);
@@ -407,7 +416,7 @@ namespace Vocalia.Podcast.Repositories
             if (listen == null)
                 return null;
 
-            var rssFeed = await GetFeedFromUrlAsync(listen.RssUrl);
+            var rssFeed = await GetFeedFromUrlAsync(listen.RssUrl, userUID);
 
             return new DomainModels.FeedItem
             {
