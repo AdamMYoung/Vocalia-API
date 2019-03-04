@@ -1,7 +1,6 @@
 ﻿using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -73,9 +72,7 @@ namespace Vocalia.UserFacade
         /// <returns></returns>
         public async Task<IEnumerable<User>> SearchUsersAsync(string term)
         {
-            var searchTerm = HtmlEncoder.Create().Encode($"name:*{term}*");
-
-            var client = new RestClient($"https://YOUR_DOMAIN/api/v2/users?q={searchTerm}&search_engine=v3");
+            var client = new RestClient($"https://YOUR_DOMAIN/api/v2/users?q=name:*{term}*&search_engine=v3");
             var request = new RestRequest(Method.GET);
             request.AddHeader("authorization", $"Bearer {AccessToken}");
             var response = await client.ExecuteGetTaskAsync<IEnumerable<User>>(request);
