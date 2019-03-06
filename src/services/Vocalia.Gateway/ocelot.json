@@ -48,7 +48,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ingest/api/{anything}",
+      "UpstreamPathTemplate": "/ingest/{anything}",
       "UpstreamHttpMethod": [ "GET", "POST" ]
     }
   ],

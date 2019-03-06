@@ -132,8 +132,7 @@ namespace Ingest_API.Controllers
             var sessionDTOs = sessions.Select(x => new Vocalia.Ingest.DTOs.Session
             {
                 UID = x.UID,
-                Date = x.Date,
-                InProgress = x.InProgress
+                Date = x.Date
             });
 
             return Ok(sessionDTOs);

@@ -49,6 +49,7 @@ namespace Vocalia.Ingest.Repositories
             };
 
             await DbContext.Sessions.AddAsync(session);
+            await DbContext.SaveChangesAsync();
             return session.UID;
         }
 
@@ -79,7 +80,7 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.Session>> GetPodcastSessionsAsync(Guid podcastUID, string userUID)
         {
-            var sessions = await DbContext.Sessions.Where(x => x.Podcast.UID == podcastUID && 
+            var sessions = await DbContext.Sessions.Where(x => x.Podcast.UID == podcastUID && x.InProgress &&
                 x.Podcast.Group.UserGroups.Any(c => c.UserUID == userUID)).ToListAsync();
 
             return sessions.Select(x => new DomainModels.Session
@@ -87,8 +88,7 @@ namespace Vocalia.Ingest.Repositories
                 ID = x.ID,
                 UID = x.UID,
                 PodcastID = x.PodcastID,
-                Date = x.Date,
-                InProgress = x.InProgress
+                Date = x.Date
             });
         }
 
@@ -147,7 +147,7 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task CreateGroupPodcastAsync(string userUID, Guid groupId, string name)
         {
-            var group = await DbContext.Groups.FirstOrDefaultAsync(x => x.UID == groupId);
+            var group = await DbContext.Groups.Include(x => x.UserGroups).FirstOrDefaultAsync(x => x.UID == groupId);
             if (group.UserGroups.Any(x => x.UserUID == userUID))
             {
                 var podcast = new Db.Podcast
@@ -169,7 +169,7 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task<Guid?> CreateInviteLinkAsync(Guid groupUID, string userUID, DateTime? expiry)
         {
-            var group = await DbContext.Groups.FirstOrDefaultAsync(x => x.UID == groupUID);
+            var group = await DbContext.Groups.Include(x => x.UserGroups).FirstOrDefaultAsync(x => x.UID == groupUID);
             if (group.UserGroups.Any(x => x.UserUID == userUID))
             {
                 var invite = new Db.GroupInvites

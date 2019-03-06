@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Vocalia.Ingest.Db
@@ -7,6 +8,7 @@ namespace Vocalia.Ingest.Db
     public class Group
     {
         public virtual int ID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public virtual Guid UID { get; set; }
         public virtual string Name { get; set; }
         public virtual string Description { get; set; }

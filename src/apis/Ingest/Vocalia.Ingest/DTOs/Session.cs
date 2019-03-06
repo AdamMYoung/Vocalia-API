@@ -9,6 +9,5 @@ namespace Vocalia.Ingest.DTOs
     {
         public Guid UID { get; set; }
         public DateTime Date { get; set; }
-        public bool InProgress { get; set; }
     }
 }
