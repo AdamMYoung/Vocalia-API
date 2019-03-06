@@ -145,7 +145,7 @@ namespace Ingest_API.Controllers
         /// <param name="podcastUid">Podcast UID.</param>
         /// <returns></returns>
         [Route("session")]
-        [HttpGet]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreatePodcastSession(Guid podcastUid)
         {
@@ -155,7 +155,7 @@ namespace Ingest_API.Controllers
             if (sessionGuid == null)
                 return NotFound();
 
-            return Ok(sessionGuid);
+            return Ok();
         }
 
         /// <summary>

@@ -198,6 +198,9 @@ namespace Vocalia.Ingest.Repositories
             if(link != null && (link.Expiry == null || link.Expiry > DateTime.Now))
             {
                 var group = await DbContext.Groups.FindAsync(link.GroupID);
+                if (group.UserGroups.Any(x => x.UserUID == userUID))
+                    return false;
+
                 await DbContext.UserGroups.AddAsync(new UserGroup
                 {
                     UserUID = userUID,
