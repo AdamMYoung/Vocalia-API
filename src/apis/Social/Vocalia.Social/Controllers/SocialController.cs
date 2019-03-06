@@ -41,7 +41,7 @@ namespace Vocalia.Social.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var user = await Repository.GetUserAsync(userId);
+            var user = await Repository.GetUserDetailAsync(userId);
             if (user == null)
                 return NotFound();
 
@@ -52,20 +52,20 @@ namespace Vocalia.Social.Controllers
             if (feed == null)
                 return NotFound();
 
-            var userDto = new DTOs.User
+            var userDto = new DTOs.UserDetail
             {
                 UserUID = userId,
                 UserTag = user.UserTag,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PictureUrl = user.PictureUrl,
-                Followers = followers.Select(x => new DTOs.User
+                Followers = followers.Select(x => new DTOs.UserDetail
                 {
                     UserTag = x.UserTag,
                     FirstName = x.FirstName,
                     LastName = x.LastName
                 }),
-                Following = following.Select(x => new DTOs.User
+                Following = following.Select(x => new DTOs.UserDetail
                 {
                     UserTag = x.UserTag,
                     FirstName = x.FirstName,
@@ -87,17 +87,16 @@ namespace Vocalia.Social.Controllers
         }
 
         /// <summary>
-        /// Gets the user with the specified user tag.
+        /// Gets detailed information for the user with the specified tag.
         /// </summary>
-        /// <param name="userTag">User to fetch.</param>
-        /// <param name="count">Number of entries to return.</param>
+        /// <param name="userId">User to fetch.</param>
         /// <returns></returns>
-        [Route("user")]
+        [Route("user/detail")]
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetUser(string userId, int count = 25)
+        public async Task<IActionResult> GetUserDetail(string userId, int count = 25)
         {
-            var user = await Repository.GetUserAsync(userId);
+            var user = await Repository.GetUserDetailAsync(userId);
             if (user == null)
                 return NotFound();
 
@@ -105,20 +104,20 @@ namespace Vocalia.Social.Controllers
             var following = await Repository.GetFollowingsAsync(userId);
             var feed = await Repository.GetUserFeedAsync(userId, 25);
 
-            var userDto = new DTOs.User
+            var userDto = new DTOs.UserDetail
             {
                 UserUID = userId,
                 UserTag = user.UserTag,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PictureUrl = user.PictureUrl,
-                Followers = followers.Select(x => new DTOs.User
+                Followers = followers.Select(x => new DTOs.UserDetail
                 {
                     UserTag = x.UserTag,
                     FirstName = x.FirstName,
                     LastName = x.LastName
                 }),
-                Following = following.Select(x => new DTOs.User
+                Following = following.Select(x => new DTOs.UserDetail
                 {
                     UserTag = x.UserTag,
                     FirstName = x.FirstName,
@@ -133,6 +132,32 @@ namespace Vocalia.Social.Controllers
                     Date = x.Date,
                     IsCompleted = x.IsCompleted
                 })
+            };
+
+            return Ok(userDto);
+        }
+
+        /// <summary>
+        /// Gets basic user information for the user with the provided tag.
+        /// </summary>
+        /// <param name="userId">User to fetch.</param>
+        /// <returns></returns>
+        [Route("user/overview")]
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUserOverview(string userId)
+        {
+            var user = await Repository.GetUserDetailAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            var userDto = new DTOs.UserOverview
+            {
+                UserUID = userId,
+                UserTag = user.UserTag,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PictureUrl = user.PictureUrl,
             };
 
             return Ok(userDto);

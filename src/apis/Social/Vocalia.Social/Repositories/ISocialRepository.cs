@@ -18,12 +18,12 @@ namespace Vocalia.Social.Repositories
         Task<IEnumerable<Listen>> GetTimelineFeedAsync(string userId, int count);
 
         /// <summary>
-        /// Returns user information for a specific user.
+        /// Returns detailed user information for a specific user.
         /// </summary>
         /// <param name="userTag">Tag of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        Task<User> GetUserAsync(string userUid);
+        Task<User> GetUserDetailAsync(string userUid);
 
         /// <summary>
         /// Returns feed information for a speficic user.

@@ -77,7 +77,7 @@ namespace Vocalia.Social.Repositories
         /// <param name="userId">ID of the user.</param>
         /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
-        public async Task<DomainModels.User> GetUserAsync(string userId)
+        public async Task<DomainModels.User> GetUserDetailAsync(string userId)
         {
             var user = await UserAPI.GetUserInfoAsync(userId);
 

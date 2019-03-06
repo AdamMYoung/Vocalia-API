@@ -23,6 +23,9 @@ namespace Vocalia.Ingest.Db
 
                 builder.HasMany(l => l.Podcasts)
                  .WithOne(e => e.Group);
+
+                builder.HasMany(l => l.Invites)
+                    .WithOne(l => l.Group);
             }
         }
 
@@ -51,7 +54,16 @@ namespace Vocalia.Ingest.Db
                     .WithOne(c => c.Podcast);
             }
         }
-        
+
+        internal class GroupInvotesEntityTypeConfiguration : IEntityTypeConfiguration<GroupInvites>
+        {
+            public void Configure(EntityTypeBuilder<GroupInvites> builder)
+            {
+                builder.Property(c => c.ID).IsRequired();
+                builder.Property(c => c.GroupID).IsRequired();
+                builder.Property(c => c.Expiry).IsRequired();
+            }
+        }
 
         internal class UserGroupEntityTypeConfiguration : IEntityTypeConfiguration<UserGroup>
         {
@@ -69,6 +81,7 @@ namespace Vocalia.Ingest.Db
         public DbSet<Group> Groups { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
+        public DbSet<GroupInvites> GroupInvites { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -82,6 +95,7 @@ namespace Vocalia.Ingest.Db
             modelBuilder.ApplyConfiguration(new GroupEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new GroupInvotesEntityTypeConfiguration());
         }
     }
 }

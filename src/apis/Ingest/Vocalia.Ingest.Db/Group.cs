@@ -12,6 +12,7 @@ namespace Vocalia.Ingest.Db
         public virtual string Description { get; set; }
 
         public virtual IEnumerable<UserGroup> UserGroups { get; set; }
+        public virtual IEnumerable<GroupInvites> Invites { get; set; }
         public virtual IEnumerable<Podcast> Podcasts { get; set; }
     }
 }

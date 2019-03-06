@@ -110,5 +110,105 @@ namespace Vocalia.Ingest.Repositories
                 Description = x.Description
             });
         }
+
+        /// <summary>
+        /// Creates a group for the specified user.
+        /// </summary>
+        /// <param name="userUID">User to add the group to.</param>
+        /// <param name="name">Name of the group.</param>
+        /// <param name="description">Description of the group.</param>
+        /// <returns></returns>
+        public async Task CreateGroupAsync(string userUID, string name, string description)
+        {
+            var group = new Db.Group()
+            {
+                Name = name,
+                Description = description,
+            };
+
+            await DbContext.Groups.AddAsync(group);
+
+            var userGroup = new Db.UserGroup()
+            {
+                UserUID = userUID,
+                GroupID = group.ID
+            };
+
+            await DbContext.UserGroups.AddAsync(userGroup);
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Creates a new podcast for the specified user using the provided information.
+        /// </summary>
+        /// <param name="userUID">ID to create the podcast for.</param>
+        /// <param name="groupId">Group to insert the podcast into.</param>
+        /// <param name="name">Name of the podcast.</param>
+        /// <returns></returns>
+        public async Task CreateGroupPodcastAsync(string userUID, Guid groupId, string name)
+        {
+            var group = await DbContext.Groups.FirstOrDefaultAsync(x => x.UID == groupId);
+            if (group.UserGroups.Any(x => x.UserUID == userUID))
+            {
+                var podcast = new Db.Podcast
+                {
+                    Name = name,
+                    GroupID = group.ID
+                };
+
+                await DbContext.Podcasts.AddAsync(podcast);
+                await DbContext.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// Creates an invite link for the specified groupUID.
+        /// </summary>
+        /// <param name="groupUID">Group to create link for.</param>
+        /// <param name="userUID">User ID to add the group to.</param>
+        /// <returns></returns>
+        public async Task<Guid?> CreateInviteLinkAsync(Guid groupUID, string userUID, DateTime? expiry)
+        {
+            var group = await DbContext.Groups.FirstOrDefaultAsync(x => x.UID == groupUID);
+            if (group.UserGroups.Any(x => x.UserUID == userUID))
+            {
+                var invite = new Db.GroupInvites
+                {
+                    GroupID = group.ID,
+                    Expiry = expiry,
+                };
+
+                await DbContext.GroupInvites.AddAsync(invite);
+                await DbContext.SaveChangesAsync();
+
+                return invite.InviteUID;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Accepts the invite link.
+        /// </summary>
+        /// <param name="inviteLink">GUID to accept.</param>
+        /// <returns></returns>
+        public async Task<bool> AcceptInviteLinkAsync(Guid inviteLink, string userUID)
+        {
+            var link = await DbContext.GroupInvites.FirstOrDefaultAsync(x => x.InviteUID == inviteLink);
+            if(link != null && (link.Expiry == null || link.Expiry > DateTime.Now))
+            {
+                var group = await DbContext.Groups.FindAsync(link.GroupID);
+                await DbContext.UserGroups.AddAsync(new UserGroup
+                {
+                    UserUID = userUID,
+                    GroupID = group.ID
+                });
+
+                await DbContext.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
     }
 }

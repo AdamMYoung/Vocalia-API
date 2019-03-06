@@ -53,6 +53,24 @@ namespace Ingest_API.Controllers
         }
 
         /// <summary>
+        /// Creates a group for the specified user using the provided group info.
+        /// </summary>
+        /// <param name="name">Name of the group to insert.</param>
+        /// <param name="description">Description of the group to insert.</param>
+        /// <returns></returns>
+        [Route("group")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateUserGroup(string name, string description)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await Repository.CreateGroupAsync(userId, name, description);
+
+            return Ok();
+        }
+
+        /// <summary>
         /// Gets all podcasts belonging to the specified group UID.
         /// </summary>
         /// <param name="groupUid">Group UID.</param>
@@ -75,6 +93,24 @@ namespace Ingest_API.Controllers
             });
 
             return Ok(podcastDTOs);
+        }
+
+        /// <summary>
+        /// Creates a podcast for the specified group using the provided podcast info.
+        /// </summary>
+        /// <param name="groupUid">Group UID to add to.</param>
+        /// <param name="podcast">Podcast to insert.</param>
+        /// <returns></returns>
+        [Route("podcast")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateGroupPodcast(Guid groupUid, string name)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await Repository.CreateGroupPodcastAsync(userId, groupUid, name);
+
+            return Ok();
         }
 
         /// <summary>
@@ -120,6 +156,47 @@ namespace Ingest_API.Controllers
                 return NotFound();
 
             return Ok(sessionGuid);
+        }
+
+        /// <summary>
+        /// Creates an invite link for the specififed group ID.
+        /// </summary>
+        /// <param name="groupUid">GUID to add.</param>
+        /// <returns></returns>
+        [Route("invite")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetInviteLink(Guid groupUid, DateTime? expiry = null)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var link = await Repository.CreateInviteLinkAsync(groupUid, userId, expiry);
+            if (link == null)
+                return Unauthorized();
+
+            else
+                return Ok(link);
+        }
+
+        /// <summary>
+        /// Accepts the specified invite link.
+        /// </summary>
+        /// <param name="inviteLink">GUID to accept.</param>
+        /// <returns></returns>
+        [Route("invite")]
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> AcceptInviteLink(Guid inviteLink)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var added = await Repository.AcceptInviteLinkAsync(inviteLink, userId);
+
+            if (added)
+                return Ok();
+            else
+                return Unauthorized();
+
         }
     }
 }
