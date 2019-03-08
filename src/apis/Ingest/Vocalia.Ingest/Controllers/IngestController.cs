@@ -25,107 +25,117 @@ namespace Ingest_API.Controllers
         public IngestController(IIngestRepository repository)
         {
             Repository = repository;
-        } 
-
-        /// <summary>
-        /// Gets all groups belonging to the authenticated user.
-        /// </summary>
-        /// <returns></returns>
-        [Route("group")]
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetUserGroups()
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var groups = await Repository.GetUserGroupsAsync(userId);
-            if (groups == null)
-                return NotFound();
-
-            var groupDTOs = groups.Select(x => new Vocalia.Ingest.DTOs.Group
-            {
-                UID = x.UID,
-                Description = x.Description,
-                Name = x.Name
-            });
-
-            return Ok(groupDTOs);
         }
 
-        /// <summary>
-        /// Creates a group for the specified user using the provided group info.
-        /// </summary>
-        /// <param name="name">Name of the group to insert.</param>
-        /// <param name="description">Description of the group to insert.</param>
-        /// <returns></returns>
-        [Route("group")]
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> CreateUserGroup(string name, string description)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        #region Podcast
 
-            await Repository.CreateGroupAsync(userId, name, description);
-
-            return Ok();
-        }
 
         /// <summary>
-        /// Gets all podcasts belonging to the specified group UID.
+        /// Gets all podcasts belonging to the user.
         /// </summary>
-        /// <param name="groupUid">Group UID.</param>
         /// <returns></returns>
         [Route("podcast")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetGroupPodcasts(Guid groupUid)
+        public async Task<IActionResult> GetPodcasts()
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var podcasts = await Repository.GetGroupPodcastsAsync(groupUid, userId);
+            var podcasts = await Repository.GetPodcastsAsync(userId);
             if (podcasts == null)
                 return NotFound();
 
             var podcastDTOs = podcasts.Select(x => new Vocalia.Ingest.DTOs.Podcast
             {
                 UID = x.UID,
-                Name = x.Name
+                Name = x.Name,
+                Description = x.Description,
+                ImageUrl = x.ImageUrl
             });
 
             return Ok(podcastDTOs);
         }
 
         /// <summary>
-        /// Creates a podcast for the specified group using the provided podcast info.
+        /// Creates a podcast, and assigns the user as the admin.
         /// </summary>
-        /// <param name="groupUid">Group UID to add to.</param>
         /// <param name="podcast">Podcast to insert.</param>
         /// <returns></returns>
         [Route("podcast")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateGroupPodcast(Guid groupUid, string name)
+        public async Task<IActionResult> CreatePodcast([FromBody] Vocalia.Ingest.DTOs.Podcast podcast)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await Repository.CreateGroupPodcastAsync(userId, groupUid, name);
+            var domainModel = new Vocalia.Ingest.DomainModels.Podcast
+            {
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl
+            };
 
+            await Repository.CreatePodcastAsync(userId, domainModel);
             return Ok();
         }
 
         /// <summary>
+        /// Updates the podcast entry provided.
+        /// </summary>
+        /// <param name="podcast">Podcast to update.</param>
+        /// <returns></returns>
+        [Route("podcast")]
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> EditPodcast([FromBody] Vocalia.Ingest.DTOs.Podcast podcast)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var domainModel = new Vocalia.Ingest.DomainModels.Podcast
+            {
+                UID = podcast.UID,
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl
+            };
+
+            await Repository.UpdatePodcastAsync(userId, domainModel);
+            return Ok();
+        }
+
+        /// <summary>
+        /// Deletes the specified podcast.
+        /// </summary>
+        /// <param name="podcastUid">Group UID to add to.</param>
+        /// <returns></returns>
+        [Route("podcast")]
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeletePodcast(Guid podcastUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await Repository.DeletePodcastAsync(podcastUid, userId);
+            return Ok();
+        }
+
+        #endregion
+
+        #region Session
+
+        /// <summary>
         /// Gets all sessions belonging to the specified podcast UID.
         /// </summary>
-        /// <param name="podcastUid">Podcast UID.</param>
+        /// <param name="podcastUid">Podcast UID to get sessions for.</param>
         /// <returns></returns>
         [Route("session")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetPodcastSessions(Guid podcastUid)
+        public async Task<IActionResult> GetSessions(Guid podcastUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var sessions = await Repository.GetPodcastSessionsAsync(podcastUid, userId);
+            var sessions = await Repository.GetSessionsAsync(podcastUid, userId);
             if (sessions == null)
                 return NotFound();
 
@@ -146,11 +156,11 @@ namespace Ingest_API.Controllers
         [Route("session")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreatePodcastSession(Guid podcastUid)
+        public async Task<IActionResult> CreateSession(Guid podcastUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var sessionGuid = await Repository.CreateNewSessionAsync(podcastUid, userId);
+            var sessionGuid = await Repository.CreateSessionAsync(podcastUid, userId);
             if (sessionGuid == null)
                 return NotFound();
 
@@ -158,18 +168,39 @@ namespace Ingest_API.Controllers
         }
 
         /// <summary>
+        /// Creates a new session for the specified podcast Uid.
+        /// </summary>
+        /// <param name="podcastUid">Podcast UID.</param>
+        /// <returns></returns>
+        [Route("session")]
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteSession(Guid sessionId)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await Repository.DeleteSessionAsync(sessionId, userId);
+
+            return Ok();
+        }
+
+        #endregion
+
+        #region Invite
+
+        /// <summary>
         /// Creates an invite link for the specififed group ID.
         /// </summary>
-        /// <param name="groupUid">GUID to add.</param>
+        /// <param name="podcastUid">GUID to add.</param>
         /// <returns></returns>
         [Route("invite")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetInviteLink(Guid groupUid, DateTime? expiry = null)
+        public async Task<IActionResult> GetInviteLink(Guid podcastUid, DateTime? expiry = null)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var link = await Repository.CreateInviteLinkAsync(groupUid, userId, expiry);
+            var link = await Repository.CreateInviteLinkAsync(podcastUid, userId, expiry);
             if (link == null)
                 return Unauthorized();
 
@@ -197,5 +228,9 @@ namespace Ingest_API.Controllers
                 return Unauthorized();
 
         }
+
+        #endregion
+
+
     }
 }

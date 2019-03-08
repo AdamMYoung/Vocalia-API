@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Ingest.DomainModels
 {
-    public class Group
+    public class PodcastUser
     {
         public int ID { get; set; }
-        public Guid UID { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public int PodcastID { get; set; }
+        public string UserUID { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

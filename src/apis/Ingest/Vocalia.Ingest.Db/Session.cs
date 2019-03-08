@@ -12,9 +12,10 @@ namespace Vocalia.Ingest.Db
         public virtual Guid UID { get; set; }
         public virtual int PodcastID { get; set; }
         public virtual bool InProgress { get; set; }
-
         public virtual DateTime Date { get; set; }
+
         public virtual Podcast Podcast { get; set; }
+        public virtual IEnumerable<SessionUser> Users { get; set; }
         
     }
 }
