@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Vocalia.Ingest.Db;
 using Microsoft.EntityFrameworkCore;
 using Vocalia.Ingest.DomainModels;
+using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -126,11 +129,13 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task CreatePodcastAsync(string userUID, DomainModels.Podcast podcast)
         {
+            var image = Image.Load(podcast.ImageUrl);
+            
             var dbPodcast = new Db.Podcast
             {
                 Name = podcast.Name,
                 Description = podcast.Description,
-                ImageUrl = podcast.ImageUrl
+                ImageUrl = await UploadToBlobStorage(image)
             };
 
             await DbContext.Podcasts.AddAsync(dbPodcast);
@@ -183,6 +188,16 @@ namespace Vocalia.Ingest.Repositories
                 DbContext.Podcasts.Remove(dbPodcast);
                 await DbContext.SaveChangesAsync();
             }
+        }
+
+        /// <summary>
+        /// Uploads the specified image to the Ingest blob storage, and returns the URL.
+        /// </summary>
+        /// <param name="image">Image to upload.</param>
+        /// <returns></returns>
+        private async Task<string> UploadToBlobStorage(Image<Rgba32> image)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
