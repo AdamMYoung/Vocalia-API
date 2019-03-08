@@ -29,7 +29,6 @@ namespace Ingest_API.Controllers
 
         #region Podcast
 
-
         /// <summary>
         /// Gets all podcasts belonging to the user.
         /// </summary>
@@ -175,11 +174,11 @@ namespace Ingest_API.Controllers
         [Route("session")]
         [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> DeleteSession(Guid sessionId)
+        public async Task<IActionResult> DeleteSession(Guid sessionUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await Repository.DeleteSessionAsync(sessionId, userId);
+            await Repository.DeleteSessionAsync(sessionUid, userId);
 
             return Ok();
         }
@@ -230,7 +229,5 @@ namespace Ingest_API.Controllers
         }
 
         #endregion
-
-
     }
 }

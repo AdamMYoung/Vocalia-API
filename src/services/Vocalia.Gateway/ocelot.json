@@ -49,7 +49,7 @@
         }
       ],
       "UpstreamPathTemplate": "/ingest/{anything}",
-      "UpstreamHttpMethod": [ "GET", "POST" ]
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     }
   ],
   "GlobalConfiguration": {
