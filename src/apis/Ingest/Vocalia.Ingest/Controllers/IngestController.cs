@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ using Vocalia.Ingest.Repositories;
 namespace Ingest_API.Controllers
 {
     [Route("api")]
-    [ApiController]
     public class IngestController : ControllerBase
     {
         /// <summary>
@@ -63,15 +63,17 @@ namespace Ingest_API.Controllers
         [Route("podcast")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreatePodcast([FromBody] Vocalia.Ingest.DTOs.Podcast podcast)
+        public async Task<IActionResult> CreatePodcast([FromBody] Vocalia.Ingest.DTOs.PodcastUpload podcast)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var domainModel = new Vocalia.Ingest.DomainModels.Podcast
+        
+            var domainModel = new Vocalia.Ingest.DomainModels.PodcastUpload
             {
                 Name = podcast.Name,
+                UID = podcast.UID,
                 Description = podcast.Description,
-                ImageUrl = podcast.ImageUrl
+                ImageData = podcast.ImageData,
+                FileType = podcast.FileType
             };
 
             await Repository.CreatePodcastAsync(userId, domainModel);
@@ -86,16 +88,17 @@ namespace Ingest_API.Controllers
         [Route("podcast")]
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> EditPodcast([FromBody] Vocalia.Ingest.DTOs.Podcast podcast)
+        public async Task<IActionResult> EditPodcast([FromBody] Vocalia.Ingest.DTOs.PodcastUpload podcast)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var domainModel = new Vocalia.Ingest.DomainModels.Podcast
+            var domainModel = new Vocalia.Ingest.DomainModels.PodcastUpload
             {
-                UID = podcast.UID,
                 Name = podcast.Name,
+                UID = podcast.UID,
                 Description = podcast.Description,
-                ImageUrl = podcast.ImageUrl
+                ImageData = podcast.ImageData,
+                FileType = podcast.FileType
             };
 
             await Repository.UpdatePodcastAsync(userId, domainModel);

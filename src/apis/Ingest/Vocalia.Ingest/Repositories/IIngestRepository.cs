@@ -19,8 +19,9 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="userUID">ID to create the podcast for.</param>
         /// <param name="podcast">Podcast info to add.</param>
+        /// <param name="fileType">File type of the image being uploaded.</param>
         /// <returns></returns>
-        Task CreatePodcastAsync(string userUID, DomainModels.Podcast podcast);
+        Task CreatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast);
 
         /// <summary>
         /// Updates the podcast with the specified info, if the user is an admin.
@@ -28,7 +29,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User performing the request.</param>
         /// <param name="podcast">Podcast info to update.</param>
         /// <returns></returns>
-        Task UpdatePodcastAsync(string userUID, DomainModels.Podcast podcast);
+        Task UpdatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast);
 
         /// <summary>
         /// Deletes the specified podcast if the user is an admin.

@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Vocalia.Ingest.Db;
 using Vocalia.Ingest.Hubs;
+using Vocalia.Ingest.ImageService;
 using Vocalia.Ingest.Repositories;
 
 namespace Vocalia.Ingest
@@ -50,6 +51,7 @@ namespace Vocalia.Ingest
                 options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
 
             services.AddScoped<IIngestRepository, IngestRepository>();
+            services.AddSingleton<IImageStorageService, ImageStorageService>();
             services.AddSignalR();
         }
 

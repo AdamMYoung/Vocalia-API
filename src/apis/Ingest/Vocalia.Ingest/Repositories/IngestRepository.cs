@@ -8,6 +8,8 @@ using Vocalia.Ingest.DomainModels;
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using Vocalia.Ingest.ImageService;
+using System.Text;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -19,12 +21,18 @@ namespace Vocalia.Ingest.Repositories
         private IngestContext DbContext { get; }
 
         /// <summary>
+        /// Blob storage library for image upload.
+        /// </summary>
+        private IImageStorageService ImageStorage { get; }
+
+        /// <summary>
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
-        public IngestRepository(IngestContext context)
+        public IngestRepository(IngestContext context, IImageStorageService imageStorage)
         {
             DbContext = context;
+            ImageStorage = imageStorage;
         }
 
         #region Session
@@ -117,7 +125,9 @@ namespace Vocalia.Ingest.Repositories
             {
                 ID = x.ID,
                 UID = x.UID,
-                Name = x.Name
+                Name = x.Name,
+                Description = x.Description,
+                ImageUrl = x.ImageUrl
             });
         }
 
@@ -126,16 +136,17 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="userUID">ID to create the podcast for.</param>
         /// <param name="podcast">Podcast info to add.</param>
+        /// <param name="fileType">File type of the image being uploaded.</param>
         /// <returns></returns>
-        public async Task CreatePodcastAsync(string userUID, DomainModels.Podcast podcast)
+        public async Task CreatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast)
         {
-            var image = Image.Load(podcast.ImageUrl);
-            
+            var imageDataByteArray = Convert.FromBase64String(podcast.ImageData);
+
             var dbPodcast = new Db.Podcast
             {
                 Name = podcast.Name,
                 Description = podcast.Description,
-                ImageUrl = await UploadToBlobStorage(image)
+                ImageUrl = await ImageStorage.UploadImageAsync(imageDataByteArray, podcast.FileType)
             };
 
             await DbContext.Podcasts.AddAsync(dbPodcast);
@@ -157,8 +168,10 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User performing the request.</param>
         /// <param name="podcast">Podcast info to update.</param>
         /// <returns></returns>
-        public async Task UpdatePodcastAsync(string userUID, DomainModels.Podcast podcast)
+        public async Task UpdatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast)
         {
+            var imageDataByteArray = Convert.FromBase64String(podcast.ImageData);
+
             var dbPodcast = await DbContext.Podcasts.FirstOrDefaultAsync(x => x.UID == podcast.UID &&
             x.Users.Any(c => c.UserUID == userUID && c.IsAdmin));
 
@@ -166,7 +179,7 @@ namespace Vocalia.Ingest.Repositories
             {
                 dbPodcast.Name = podcast.Name;
                 dbPodcast.Description = podcast.Description;
-                dbPodcast.ImageUrl = podcast.ImageUrl;
+                dbPodcast.ImageUrl = await ImageStorage.UploadImageAsync(imageDataByteArray, podcast.FileType);
 
                 await DbContext.SaveChangesAsync();
             }
@@ -188,16 +201,6 @@ namespace Vocalia.Ingest.Repositories
                 DbContext.Podcasts.Remove(dbPodcast);
                 await DbContext.SaveChangesAsync();
             }
-        }
-
-        /// <summary>
-        /// Uploads the specified image to the Ingest blob storage, and returns the URL.
-        /// </summary>
-        /// <param name="image">Image to upload.</param>
-        /// <returns></returns>
-        private async Task<string> UploadToBlobStorage(Image<Rgba32> image)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
