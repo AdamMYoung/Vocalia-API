@@ -12,5 +12,8 @@ namespace Vocalia.Ingest.DomainModels
         public string Name { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }
+
+        public IEnumerable<PodcastUser> Members { get; set; } = new List<PodcastUser>();
+        public IEnumerable<Session> Sessions { get; set; } = new List<Session>();
     }
 }

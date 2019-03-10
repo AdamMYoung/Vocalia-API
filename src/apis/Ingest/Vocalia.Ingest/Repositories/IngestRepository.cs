@@ -38,26 +38,6 @@ namespace Vocalia.Ingest.Repositories
         #region Session
 
         /// <summary>
-        /// Gets all sesions belonging to the specified podcast UID.
-        /// </summary>
-        /// <param name="podcastUID">UID of the podcast.</param>
-        /// <param name="userUID">User of the request.</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Session>> GetSessionsAsync(Guid podcastUID, string userUID)
-        {
-            var sessions = await DbContext.Sessions.Where(x => x.Podcast.UID == podcastUID &&
-                x.Users.Any(c => c.UserUID == userUID)).ToListAsync();
-
-            return sessions.Select(x => new DomainModels.Session
-            {
-                ID = x.ID,
-                UID = x.UID,
-                PodcastID = x.PodcastID,
-                Date = x.Date
-            });
-        }
-
-        /// <summary>
         /// Creates a new session for the specified podcast UID.
         /// </summary>
         /// <param name="podcastUID">UID of the podcast.</param>
@@ -119,7 +99,10 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.Podcast>> GetPodcastsAsync(string userUID)
         {
-            var podcasts = await DbContext.Podcasts.Where(x => x.Users.Any(c => c.UserUID == userUID)).ToListAsync();
+            var podcasts = await DbContext.Podcasts
+                .Include(x => x.Sessions)
+                .Include(x => x.Users)
+                .Where(x => x.Users.Any(c => c.UserUID == userUID)).ToListAsync();
 
             return podcasts.Select(x => new DomainModels.Podcast
             {
@@ -127,7 +110,22 @@ namespace Vocalia.Ingest.Repositories
                 UID = x.UID,
                 Name = x.Name,
                 Description = x.Description,
-                ImageUrl = x.ImageUrl
+                ImageUrl = x.ImageUrl,
+                Members = x.Users.Select(m => new DomainModels.PodcastUser
+                {
+                    ID = m.ID,
+                    UserUID = m.UserUID,
+                    IsAdmin = m.IsAdmin,
+                    PodcastID = m.PodcastID
+                }),
+                Sessions = x.Sessions.Select(s => new DomainModels.Session
+                {
+                    ID = s.ID,
+                    PodcastID = s.PodcastID,
+                    UID = s.UID,
+                    Date = s.Date,
+                    InProgress = s.InProgress
+                })
             });
         }
 

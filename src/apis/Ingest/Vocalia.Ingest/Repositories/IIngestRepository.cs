@@ -40,13 +40,6 @@ namespace Vocalia.Ingest.Repositories
         Task DeletePodcastAsync(Guid podcastUID, string userUID);
 
         /// <summary>
-        /// Gets all sesions belonging to the specified podcast UID.
-        /// </summary>
-        /// <param name="podcastUID">UID of the podcast.</param>
-        /// <returns></returns>
-        Task<IEnumerable<DomainModels.Session>> GetSessionsAsync(Guid podcastUID, string userUID);
-
-        /// <summary>
         /// Creates a new session for the specified podcast UID.
         /// </summary>
         /// <param name="podcastUID">UID of the podcast.</param>

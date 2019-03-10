@@ -49,7 +49,17 @@ namespace Ingest_API.Controllers
                 UID = x.UID,
                 Name = x.Name,
                 Description = x.Description,
-                ImageUrl = x.ImageUrl
+                ImageUrl = x.ImageUrl,
+                Members = x.Members.Select(m => new Vocalia.Ingest.DTOs.User
+                {
+                    UserUID = m.UserUID,
+                    IsAdmin = m.IsAdmin
+                }),
+                Sessions = x.Sessions.Select(s => new Vocalia.Ingest.DTOs.Session
+                {
+                    UID = s.UID,
+                    Date = s.Date
+                })
             });
 
             return Ok(podcastDTOs);
@@ -124,31 +134,6 @@ namespace Ingest_API.Controllers
         #endregion
 
         #region Session
-
-        /// <summary>
-        /// Gets all sessions belonging to the specified podcast UID.
-        /// </summary>
-        /// <param name="podcastUid">Podcast UID to get sessions for.</param>
-        /// <returns></returns>
-        [Route("session")]
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetSessions(Guid podcastUid)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var sessions = await Repository.GetSessionsAsync(podcastUid, userId);
-            if (sessions == null)
-                return NotFound();
-
-            var sessionDTOs = sessions.Select(x => new Vocalia.Ingest.DTOs.Session
-            {
-                UID = x.UID,
-                Date = x.Date
-            });
-
-            return Ok(sessionDTOs);
-        }
 
         /// <summary>
         /// Creates a new session for the specified podcast Uid.
