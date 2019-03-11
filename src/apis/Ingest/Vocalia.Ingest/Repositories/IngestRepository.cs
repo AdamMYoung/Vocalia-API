@@ -118,7 +118,8 @@ namespace Vocalia.Ingest.Repositories
                     IsAdmin = m.IsAdmin,
                     PodcastID = m.PodcastID
                 }),
-                Sessions = x.Sessions.Select(s => new DomainModels.Session
+                Sessions = x.Sessions.OrderByDescending(c => c.Date)
+                .Select(s => new DomainModels.Session
                 {
                     ID = s.ID,
                     PodcastID = s.PodcastID,
