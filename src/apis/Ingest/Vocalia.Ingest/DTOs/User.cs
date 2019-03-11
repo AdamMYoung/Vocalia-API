@@ -7,7 +7,7 @@ namespace Vocalia.Ingest.DTOs
 {
     public class User
     {
-        public string UserUID { get; set; }
+        public string UID { get; set; }
         public bool IsAdmin { get; set; }
     }
 }

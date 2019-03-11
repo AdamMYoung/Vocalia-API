@@ -16,8 +16,9 @@ namespace Vocalia.UserFacade
 
         public UserFacade()
         {
+            GetAccessToken();
             new Timer(
-                e => GetAccessToken().Wait(),
+                e => GetAccessToken(),
                 null,
                 TimeSpan.Zero,
                 TimeSpan.FromHours(18));
@@ -26,13 +27,13 @@ namespace Vocalia.UserFacade
         /// <summary>
         /// Sets the access token for the Auth service.
         /// </summary>
-        private static async Task GetAccessToken()
+        private static void GetAccessToken()
         {
             var client = new RestClient("https://vocalia.eu.auth0.com/oauth/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("content-type", "application/json");
             request.AddParameter("application/json", "{\"client_id\":\"LjokVu10MznuFJhXd9ZIJwiVERJl4wqP\",\"client_secret\":\"zgeLda4nK_sVQW2_MrNrrdi0OjRzcivkkcW4NfTTnizXrkocmjiAErpVBY-cCQHm\",\"audience\":\"https://vocalia.eu.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}", ParameterType.RequestBody);
-            var response = await client.ExecuteTaskAsync<Auth0TokenResponse>(request);
+            var response =  client.Execute<Auth0TokenResponse>(request);
 
             AccessToken = response.Data.access_token;
         }
@@ -54,17 +55,6 @@ namespace Vocalia.UserFacade
         }
 
         /// <summary>
-        /// Queries the Auth0 servers for a set of user info.
-        /// </summary>
-        /// <param name="userUIDs">IDs to get.</param>
-        /// <param name="accessToken">Authentication access token for the Vocalia endpoint.</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<User>> GetUserInfoAsync(IEnumerable<string> userUIDs)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Queries the Auth0 servers for the user search term.
         /// </summary>
         /// <param name="term">Term to search for.</param>
@@ -72,7 +62,7 @@ namespace Vocalia.UserFacade
         /// <returns></returns>
         public async Task<IEnumerable<User>> SearchUsersAsync(string term)
         {
-            var client = new RestClient($"https://YOUR_DOMAIN/api/v2/users?q=name%3A*{term}*&search_engine=v3");
+            var client = new RestClient($"https://vocalia.eu.auth0.com/api/v2/users?q=name%3A*{term}*&search_engine=v3");
             var request = new RestRequest(Method.GET);
             request.AddHeader("authorization", $"Bearer {AccessToken}");
             var response = await client.ExecuteGetTaskAsync<IEnumerable<User>>(request);

@@ -16,14 +16,6 @@ namespace Vocalia.UserFacade
         Task<User> GetUserInfoAsync(string userUID);
 
         /// <summary>
-        /// Queries the Auth0 servers for a set of user info.
-        /// </summary>
-        /// <param name="userUIDs">IDs to get.</param>
-        /// <param name="accessToken">Authentication access token for the Vocalia endpoint.</param>
-        /// <returns></returns>
-        Task<IEnumerable<User>> GetUserInfoAsync(IEnumerable<string> userUIDs);
-
-        /// <summary>
         /// Queries the Auth0 servers for the user search term.
         /// </summary>
         /// <param name="term">Term to search for.</param>

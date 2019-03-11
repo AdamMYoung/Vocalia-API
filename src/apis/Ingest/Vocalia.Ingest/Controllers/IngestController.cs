@@ -52,7 +52,7 @@ namespace Ingest_API.Controllers
                 ImageUrl = x.ImageUrl,
                 Members = x.Members.Select(m => new Vocalia.Ingest.DTOs.User
                 {
-                    UserUID = m.UserUID,
+                    UID = m.UID,
                     IsAdmin = m.IsAdmin
                 }),
                 Sessions = x.Sessions.Select(s => new Vocalia.Ingest.DTOs.Session
@@ -72,7 +72,7 @@ namespace Ingest_API.Controllers
         [Route("podcast")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetPodcasts(Guid podcastUid)
+        public async Task<IActionResult> GetPodcsatDetail(Guid podcastUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -88,7 +88,7 @@ namespace Ingest_API.Controllers
                 ImageUrl = podcast.ImageUrl,
                 Members = podcast.Members.Select(m => new Vocalia.Ingest.DTOs.User
                 {
-                    UserUID = m.UserUID,
+                    UID = m.UID,
                     IsAdmin = m.IsAdmin
                 }),
                 Sessions = podcast.Sessions.Select(s => new Vocalia.Ingest.DTOs.Session

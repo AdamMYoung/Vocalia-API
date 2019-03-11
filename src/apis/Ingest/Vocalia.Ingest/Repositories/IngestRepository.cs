@@ -136,7 +136,7 @@ namespace Vocalia.Ingest.Repositories
                 Members = podcast.Users.Select(m => new DomainModels.PodcastUser
                 {
                     ID = m.ID,
-                    UserUID = m.UserUID,
+                    UID = m.UserUID,
                     IsAdmin = m.IsAdmin,
                     PodcastID = m.PodcastID
                 }),
@@ -238,7 +238,9 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task<Guid?> CreateInviteLinkAsync(Guid podcastUID, string userUID, DateTime? expiry)
         {
-            var podcast = await DbContext.Podcasts.FirstOrDefaultAsync(x => x.UID == podcastUID);
+            var podcast = await DbContext.Podcasts.Include(x => x.Users)
+                .FirstOrDefaultAsync(x => x.UID == podcastUID);
+
             if (podcast.Users.Any(x => x.UserUID == userUID && x.IsAdmin))
             {
                 var invite = new Db.PodcastInvite
@@ -288,5 +290,4 @@ namespace Vocalia.Ingest.Repositories
 
         #endregion
     }
-    
 }
