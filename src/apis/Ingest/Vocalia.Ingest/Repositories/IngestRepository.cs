@@ -93,9 +93,9 @@ namespace Vocalia.Ingest.Repositories
         #region Podcast
 
         /// <summary>
-        /// Gets all podcasts belonging to the specified group UID.
+        /// Returns general information about all podcasts belonging to the specified user.
         /// </summary>
-        /// <param name="userUID">UID of the user.</param>
+        /// <param name="userUID">User to get podcasts for.</param>
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.Podcast>> GetPodcastsAsync(string userUID)
         {
@@ -109,16 +109,38 @@ namespace Vocalia.Ingest.Repositories
                 ID = x.ID,
                 UID = x.UID,
                 Name = x.Name,
-                Description = x.Description,
                 ImageUrl = x.ImageUrl,
-                Members = x.Users.Select(m => new DomainModels.PodcastUser
+            });
+        }
+
+        /// <summary>
+        /// Gets detailed podcast info for the specified podcast UID.
+        /// </summary>
+        /// <param name="userUID">UID of the user.</param>
+        /// <param name="podcastUid">UID of the podcast.</param>
+        /// <returns></returns>
+        public async Task<DomainModels.Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid)
+        {
+            var podcast = await DbContext.Podcasts
+                .Include(x => x.Sessions)
+                .Include(x => x.Users)
+                .FirstOrDefaultAsync(x => x.Users.Any(c => c.UserUID == userUID) && x.UID == podcastUid);
+
+            return new DomainModels.Podcast
+            {
+                ID = podcast.ID,
+                UID = podcast.UID,
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl,
+                Members = podcast.Users.Select(m => new DomainModels.PodcastUser
                 {
                     ID = m.ID,
                     UserUID = m.UserUID,
                     IsAdmin = m.IsAdmin,
                     PodcastID = m.PodcastID
                 }),
-                Sessions = x.Sessions.OrderByDescending(c => c.Date)
+                Sessions = podcast.Sessions.OrderByDescending(c => c.Date)
                 .Select(s => new DomainModels.Session
                 {
                     ID = s.ID,
@@ -127,8 +149,9 @@ namespace Vocalia.Ingest.Repositories
                     Date = s.Date,
                     InProgress = s.InProgress
                 })
-            });
+            };
         }
+
 
         /// <summary>
         /// Creates a new podcast for the specified user using the provided information.

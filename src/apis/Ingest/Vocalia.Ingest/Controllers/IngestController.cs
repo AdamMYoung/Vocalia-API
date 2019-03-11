@@ -30,10 +30,10 @@ namespace Ingest_API.Controllers
         #region Podcast
 
         /// <summary>
-        /// Gets all podcasts belonging to the user.
+        /// Gets general information about all podcasts belonging to the user.
         /// </summary>
         /// <returns></returns>
-        [Route("podcast")]
+        [Route("podcasts")]
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetPodcasts()
@@ -63,6 +63,42 @@ namespace Ingest_API.Controllers
             });
 
             return Ok(podcastDTOs);
+        }
+
+        /// <summary>
+        /// Gets detailed information about a specific podcast.
+        /// </summary>
+        /// <returns></returns>
+        [Route("podcast")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetPodcasts(Guid podcastUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var podcast = await Repository.GetPodcastDetailAsync(userId, podcastUid);
+            if (podcast == null)
+                return NotFound();
+
+            var podcastDTO = new Vocalia.Ingest.DTOs.Podcast
+            {
+                UID = podcast.UID,
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl,
+                Members = podcast.Members.Select(m => new Vocalia.Ingest.DTOs.User
+                {
+                    UserUID = m.UserUID,
+                    IsAdmin = m.IsAdmin
+                }),
+                Sessions = podcast.Sessions.Select(s => new Vocalia.Ingest.DTOs.Session
+                {
+                    UID = s.UID,
+                    Date = s.Date
+                })
+            };
+
+            return Ok(podcastDTO);
         }
 
         /// <summary>

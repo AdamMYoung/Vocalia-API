@@ -8,11 +8,19 @@ namespace Vocalia.Ingest.Repositories
     public interface IIngestRepository
     {
         /// <summary>
-        /// Returns all podcasts belonging to the specified user.
+        /// Returns general information about all podcasts belonging to the specified user.
         /// </summary>
         /// <param name="userUID">User to get podcasts for.</param>
         /// <returns></returns>
         Task<IEnumerable<DomainModels.Podcast>> GetPodcastsAsync(string userUID);
+
+        /// <summary>
+        /// Gets detailed podcast info for the specified podcast UID.
+        /// </summary>
+        /// <param name="userUID">UID of the user.</param>
+        /// <param name="podcastUid">UID of the podcast.</param>
+        /// <returns></returns>
+        Task<DomainModels.Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid);
 
         /// <summary>
         /// Creates a new podcast for the specified user using the provided information.
