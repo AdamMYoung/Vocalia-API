@@ -275,8 +275,11 @@ namespace Vocalia.Podcast.Repositories
             feedEntry.IsSubscribed = userUID != null ? await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == rssUrl && s.UserUID == userUID) : false;
             var listenHistory = userUID != null ? await DbContext.Listens.Where(c => c.UserUID == userUID && c.RssUrl == rssUrl).ToListAsync() : null;
 
-            foreach (var entry in feedEntry.Items)
-                entry.Time = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content)?.Time ?? 0;
+            foreach (var entry in feedEntry.Items) {
+                var listen = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content);
+                entry.Time = listen?.Time ?? 0;
+                entry.Duration = listen?.Duration ?? 0;
+            }
 
             return feedEntry;
         }
@@ -366,7 +369,8 @@ namespace Vocalia.Podcast.Repositories
                 RssUrl = entry.RssUrl,
                 EpisodeUrl = entry.EpisodeUrl,
                 Time = entry.Time,
-                UserUID = entry.UserUID
+                UserUID = entry.UserUID,
+                Duration = entry.Duration
             };
         }
 
@@ -390,7 +394,8 @@ namespace Vocalia.Podcast.Repositories
                     UserUID = listenInfo.UserUID,
                     IsCompleted = listenInfo.IsCompleted,
                     Time = listenInfo.Time,
-                    LastUpdated = DateTime.UtcNow
+                    LastUpdated = DateTime.UtcNow,
+                    Duration = listenInfo.Duration
                 };
                 await DbContext.Listens.AddAsync(newEntry);
             }
@@ -426,7 +431,8 @@ namespace Vocalia.Podcast.Repositories
                 Content = listen.EpisodeUrl,
                 IsCompleted = listen.IsCompleted,
                 Time = listen.Time,
-                ImageUrl = rssFeed.ImageUrl
+                ImageUrl = rssFeed.ImageUrl,
+                Duration = listen.Duration
             };
         }
 

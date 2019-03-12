@@ -41,5 +41,10 @@ namespace Vocalia.Podcast.DomainModels
         /// Current duration through the episode.
         /// </summary>
         public int Time { get; set; }
+
+        /// <summary>
+        /// Total duration through the episode.
+        /// </summary>
+        public int Duration { get; set; }
     }
 }

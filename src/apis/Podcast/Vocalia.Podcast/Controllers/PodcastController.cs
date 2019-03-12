@@ -154,7 +154,8 @@ namespace Vocalia.Podcast.Controllers
                     Id = i.Id,
                     Content = i.Content,
                     Time = i.Time,
-                    IsCompleted = i.IsCompleted
+                    IsCompleted = i.IsCompleted,
+                    Duration = i.Duration
                 })
             };
 
@@ -256,7 +257,8 @@ namespace Vocalia.Podcast.Controllers
                 EpisodeUrl = info.EpisodeUrl,
                 Time = info.Time,
                 EpisodeName = info.EpisodeName,
-                IsCompleted = info.IsCompleted
+                IsCompleted = info.IsCompleted,
+                Duration = info.Duration
             };
 
             return Ok(infoDTO);
@@ -279,7 +281,8 @@ namespace Vocalia.Podcast.Controllers
                 EpisodeName = listenInfo.EpisodeName,
                 UserUID = userId,
                 IsCompleted = listenInfo.IsCompleted,
-                Time = listenInfo.Time
+                Time = listenInfo.Time,
+                Duration = listenInfo.Duration
             };
 
             await Repository.SetListenInfoAsync(listen);

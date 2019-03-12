@@ -13,6 +13,7 @@ namespace Vocalia.Podcast.Db
         public virtual string EpisodeName { get; set; }
         public virtual bool IsCompleted { get; set; }
         public virtual int Time { get; set; }
+        public virtual int Duration { get; set; }
         public virtual DateTime LastUpdated { get; set; }
     }
 }

@@ -54,6 +54,11 @@ namespace Vocalia.Podcast.DomainModels
         public int Time { get; internal set; } = 0;
 
         /// <summary>
+        /// Duration of the episode.
+        /// </summary>
+        public int Duration { get; internal set; } = 0;
+
+        /// <summary>
         /// Indicates if the podcast has been completed previously.
         /// </summary>
         public bool IsCompleted { get; internal set;  } = false;

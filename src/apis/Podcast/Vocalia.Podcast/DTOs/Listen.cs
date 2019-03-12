@@ -31,5 +31,10 @@ namespace Vocalia.Podcast.DTOs
         /// Current duration through the episode.
         /// </summary>
         public int Time { get; set; }
+
+        /// <summary>
+        /// Total duration of the episode.
+        /// </summary>
+        public int Duration { get; set; }
     }
 }
