@@ -63,6 +63,13 @@ namespace Vocalia.Ingest.Repositories
         Task DeleteSessionAsync(Guid sessionUID, string userUID);
 
         /// <summary>
+        /// Returns the podcast assigned to the invite link.
+        /// </summary>
+        /// <param name="inviteLink">Invite GUID to check.</param>
+        /// <returns></returns>
+        Task<DomainModels.Podcast> GetInviteInfoAsync(Guid inviteLink);
+
+        /// <summary>
         /// Creates an invite link for the specified podcastUID.
         /// </summary>
         /// <param name="podcastUID">Podcast to create link for.</param>

@@ -230,6 +230,30 @@ namespace Vocalia.Ingest.Repositories
         #region Invite
 
         /// <summary>
+        /// Returns the podcast assigned to the invite link.
+        /// </summary>
+        /// <param name="inviteLink">Invite GUID to check.</param>
+        /// <returns></returns>
+        public async Task<DomainModels.Podcast> GetInviteInfoAsync(Guid inviteLink)
+        {
+            var invite = await DbContext.PodcastInvites.Include(x => x.Podcast)
+                .FirstOrDefaultAsync(x => x.InviteUID == inviteLink && ( x.Expiry == null || x.Expiry > DateTime.Now));
+
+            if (invite == null)
+                return null;
+
+            var podcast = invite.Podcast;
+
+            return new DomainModels.Podcast
+            {
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl,
+                UID = podcast.UID
+            };
+        }
+
+        /// <summary>
         /// Creates an invite link for the specified podcastUID.
         /// </summary>
         /// <param name="podcastUID">Podcast to create link for.</param>
@@ -266,17 +290,18 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task<bool> AcceptInviteLinkAsync(Guid inviteLink, string userUID)
         {
-            var link = await DbContext.PodcastInvites.FirstOrDefaultAsync(x => x.InviteUID == inviteLink);
+            var link = await DbContext.PodcastInvites.Include(x => x.Podcast)
+                .ThenInclude(x => x.Users).FirstOrDefaultAsync(x => x.InviteUID == inviteLink);
+
             if (link != null && (link.Expiry == null || link.Expiry > DateTime.Now))
             {
-                var podcast = await DbContext.Podcasts.FindAsync(link.PodcastID);
-                if (podcast.Users.Any(x => x.UserUID == userUID))
+                if (link.Podcast.Users.Any(x => x.UserUID == userUID))
                     return false;
 
                 var podcastUser = new Db.PodcastUser
                 {
                     UserUID = userUID,
-                    PodcastID = podcast.ID,
+                    PodcastID = link.PodcastID,
                     IsAdmin = false
                 };
 

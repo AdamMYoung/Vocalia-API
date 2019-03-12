@@ -212,6 +212,32 @@ namespace Ingest_API.Controllers
         #region Invite
 
         /// <summary>
+        /// Returns the podcast info belonging to the provided invite.
+        /// </summary>
+        /// <param name="inviteLink"></param>
+        /// <returns></returns>
+        [Route("invite/info")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetInvitePodcastInfo(Guid inviteLink)
+        {
+            var podcast = await Repository.GetInviteInfoAsync(inviteLink);
+
+            if (podcast == null)
+                return NotFound();
+
+            var podcastDto = new Vocalia.Ingest.DTOs.Podcast
+            {
+                UID = podcast.UID,
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl
+            };
+
+            return Ok(podcastDto);
+        }
+
+        /// <summary>
         /// Creates an invite link for the specififed group ID.
         /// </summary>
         /// <param name="podcastUid">GUID to add.</param>
