@@ -129,6 +129,7 @@ namespace Vocalia.Podcast.Repositories
                 podcasts = await QueryTopPodcastsAsync(limit, categoryId, allowExplicit, countryCode);
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
+                podcasts.Select(x => ReplaceHttpWithHttps(x.ImageUrl));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }
 
