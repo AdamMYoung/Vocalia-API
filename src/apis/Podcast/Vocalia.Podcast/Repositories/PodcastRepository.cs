@@ -360,7 +360,10 @@ namespace Vocalia.Podcast.Repositories
         /// <returns></returns>
         public async Task<DomainModels.Listen> GetListenInfoAsync(string rssUrl, string userUID)
         {
-            var entry = await DbContext.Listens.FirstOrDefaultAsync(l => l.RssUrl == rssUrl && l.UserUID == userUID);
+            var entry = await DbContext.Listens.FirstOrDefaultAsync(l => l.EpisodeUrl == rssUrl && l.UserUID == userUID);
+
+            if (entry == null)
+                return null;
 
             return new DomainModels.Listen
             {
