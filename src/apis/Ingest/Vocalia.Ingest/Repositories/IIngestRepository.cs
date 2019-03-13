@@ -23,6 +23,13 @@ namespace Vocalia.Ingest.Repositories
         Task<DomainModels.Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid);
 
         /// <summary>
+        /// Gets general podcast info for the specified podcast UID.
+        /// </summary>
+        /// <param name="podcastUid">UID of the podcast.</param>
+        /// <returns></returns>
+        Task<DomainModels.Podcast> GetPodcastOverviewAsync(Guid podcastUid);
+
+        /// <summary>
         /// Creates a new podcast for the specified user using the provided information.
         /// </summary>
         /// <param name="userUID">ID to create the podcast for.</param>

@@ -49,17 +49,7 @@ namespace Ingest_API.Controllers
                 UID = x.UID,
                 Name = x.Name,
                 Description = x.Description,
-                ImageUrl = x.ImageUrl,
-                Members = x.Members.Select(m => new Vocalia.Ingest.DTOs.User
-                {
-                    UID = m.UID,
-                    IsAdmin = m.IsAdmin
-                }),
-                Sessions = x.Sessions.Select(s => new Vocalia.Ingest.DTOs.Session
-                {
-                    UID = s.UID,
-                    Date = s.Date
-                })
+                ImageUrl = x.ImageUrl
             });
 
             return Ok(podcastDTOs);
@@ -72,13 +62,17 @@ namespace Ingest_API.Controllers
         [Route("podcast")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetPodcsatDetail(Guid podcastUid)
+        public async Task<IActionResult> GetPodcastDetail(Guid podcastUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var podcast = await Repository.GetPodcastDetailAsync(userId, podcastUid);
             if (podcast == null)
-                return NotFound();
+            {
+                podcast = await Repository.GetPodcastOverviewAsync(podcastUid);
+                if (podcast == null)
+                    return null;
+            }
 
             var podcastDTO = new Vocalia.Ingest.DTOs.Podcast
             {

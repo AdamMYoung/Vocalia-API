@@ -152,6 +152,28 @@ namespace Vocalia.Ingest.Repositories
             };
         }
 
+        /// <summary>
+        /// Gets general podcast info for the specified podcast UID.
+        /// </summary>
+        /// <param name="podcastUid">UID of the podcast.</param>
+        /// <returns></returns>
+        public async Task<DomainModels.Podcast> GetPodcastOverviewAsync(Guid podcastUid)
+        {
+            var podcast = await DbContext.Podcasts
+               .FirstOrDefaultAsync(x => x.UID == podcastUid);
+
+            if (podcast == null)
+                return null;
+
+            return new DomainModels.Podcast
+            {
+                ID = podcast.ID,
+                UID = podcast.UID,
+                Name = podcast.Name,
+                Description = podcast.Description,
+                ImageUrl = podcast.ImageUrl
+            };
+        }
 
         /// <summary>
         /// Creates a new podcast for the specified user using the provided information.
