@@ -280,6 +280,7 @@ namespace Vocalia.Podcast.Repositories
                 var listen = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content);
                 entry.Time = listen?.Time ?? 0;
                 entry.Duration = listen?.Duration ?? 0;
+                entry.IsCompleted = listen?.IsCompleted ?? false;
             }
 
             return feedEntry;
