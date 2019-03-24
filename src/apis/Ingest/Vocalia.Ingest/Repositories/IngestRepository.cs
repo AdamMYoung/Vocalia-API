@@ -126,6 +126,9 @@ namespace Vocalia.Ingest.Repositories
                 .Include(x => x.Users)
                 .FirstOrDefaultAsync(x => x.Users.Any(c => c.UserUID == userUID) && x.UID == podcastUid);
 
+            if (podcast == null)
+                return null;
+
             return new DomainModels.Podcast
             {
                 ID = podcast.ID,
