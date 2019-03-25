@@ -35,7 +35,10 @@ namespace Vocalia.UserFacade
             request.AddParameter("application/json", "{\"client_id\":\"LjokVu10MznuFJhXd9ZIJwiVERJl4wqP\",\"client_secret\":\"zgeLda4nK_sVQW2_MrNrrdi0OjRzcivkkcW4NfTTnizXrkocmjiAErpVBY-cCQHm\",\"audience\":\"https://vocalia.eu.auth0.com/api/v2/\",\"grant_type\":\"client_credentials\"}", ParameterType.RequestBody);
             var response =  client.Execute<Auth0TokenResponse>(request);
 
+            Console.WriteLine("Recieved response", response);
+
             AccessToken = response.Data.access_token;
+
         }
 
         /// <summary>
