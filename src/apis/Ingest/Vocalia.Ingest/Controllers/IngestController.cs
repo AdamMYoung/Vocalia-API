@@ -5,7 +5,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Vocalia.Ingest.DTOs;
 using Vocalia.Ingest.Repositories;
 
 namespace Ingest_API.Controllers
@@ -128,7 +130,7 @@ namespace Ingest_API.Controllers
         [Route("podcast")]
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> EditPodcast([FromBody] Vocalia.Ingest.DTOs.PodcastUpload podcast)
+        public async Task<IActionResult> EditPodcast([FromBody] PodcastUpload podcast)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -270,6 +272,35 @@ namespace Ingest_API.Controllers
             else
                 return Unauthorized();
 
+        }
+
+        #endregion
+
+        #region Ingestion
+
+        /// <summary>
+        /// Uploads a media blob to the database.
+        /// </summary>
+        /// <param name="upload">Data to upload.</param>
+        /// <returns></returns>
+        [Route("record")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> PostBlob([FromBody] BlobUpload upload)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var uploadDM = new Vocalia.Ingest.DomainModels.BlobUpload
+            {
+                UserUID = userId,
+                SessionUID = upload.SessionUID,
+                Timestamp = upload.Timestamp,
+                Data = upload.Data
+            };
+
+            await Repository.PostMediaBlobAsync(uploadDM);
+
+            return Ok();
         }
 
         #endregion

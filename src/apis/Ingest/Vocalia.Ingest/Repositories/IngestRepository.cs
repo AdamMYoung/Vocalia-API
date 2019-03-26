@@ -10,6 +10,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Vocalia.Ingest.ImageService;
 using System.Text;
+using Vocalia.Ingest.MediaService;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -26,13 +27,20 @@ namespace Vocalia.Ingest.Repositories
         private IImageStorageService ImageStorage { get; }
 
         /// <summary>
+        /// Blob storage library for media upload.
+        /// </summary>
+        private IMediaStorageService MediaStorage { get; }
+
+        /// <summary>
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
-        public IngestRepository(IngestContext context, IImageStorageService imageStorage)
+        public IngestRepository(IngestContext context, IImageStorageService imageStorage, 
+            IMediaStorageService mediaStorage)
         {
             DbContext = context;
             ImageStorage = imageStorage;
+            MediaStorage = mediaStorage;
         }
 
         #region Session
@@ -336,6 +344,35 @@ namespace Vocalia.Ingest.Repositories
             }
 
             return false;
+        }
+
+        #endregion
+
+        #region Ingestion
+
+        /// <summary>
+        /// Posts a blob to the blob storage and adds a reference to the database.
+        /// </summary>
+        /// <param name="blob">Blob to upload.</param>
+        /// <returns></returns>
+        public async Task PostMediaBlobAsync(BlobUpload blob)
+        {
+            var url = await MediaStorage.UploadMediaAsync(blob);
+            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == blob.SessionUID);
+
+            if (session != null)
+            {
+                var entry = new SessionMedia
+                {
+                    SessionID = session.ID,
+                    UserUID = blob.UserUID,
+                    Timestamp = blob.Timestamp,
+                    MediaUrl = url
+                };
+
+                await DbContext.SessionMedia.AddAsync(entry); 
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         #endregion

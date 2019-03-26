@@ -17,6 +17,21 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.UID).IsRequired();
                 builder.Property(c => c.PodcastID).IsRequired();
                 builder.Property(c => c.InProgress).IsRequired();
+
+                builder.HasMany(c => c.MediaEntries)
+                   .WithOne(c => c.Session);
+            }
+        }
+
+        internal class SessionMediaEntityTypeConfiguration : IEntityTypeConfiguration<SessionMedia>
+        {
+            public void Configure(EntityTypeBuilder<SessionMedia> builder)
+            {
+                builder.Property(c => c.ID).IsRequired();
+                builder.Property(c => c.SessionID).IsRequired();
+                builder.Property(c => c.UserUID).IsRequired();
+                builder.Property(c => c.Timestamp).IsRequired();
+                builder.Property(c => c.MediaUrl).IsRequired();
             }
         }
 
@@ -75,6 +90,7 @@ namespace Vocalia.Ingest.Db
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SessionUser> SessionUsers { get; set; }
+        public DbSet<SessionMedia> SessionMedia { get; set; }
         public DbSet<PodcastUser> PodcastUsers { get; set; }
         public DbSet<PodcastInvite> PodcastInvites { get; set; }
 
@@ -87,9 +103,10 @@ namespace Vocalia.Ingest.Db
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new PodcastUserEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new SessionUserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new SessionMediaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new SessionUserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastInviteEntityTypeConfiguration());
         }
     }

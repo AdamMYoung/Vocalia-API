@@ -25,7 +25,7 @@ namespace Vocalia.Ingest.ImageService
         public async Task<string> UploadImageAsync(byte[] image, string imageType)
         {
             var fileName = Guid.NewGuid().ToString();
-            var url = string.Concat(Config["BlobStorage:URL"], fileName, imageType);
+            var url = string.Concat(Config["BlobStorage:ImageURL"], fileName, imageType);
 
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var blob = new CloudBlockBlob(new Uri(url), creds);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -91,5 +92,12 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User accepting the invite.</param>
         /// <returns></returns>
         Task<bool> AcceptInviteLinkAsync(Guid inviteLink, string userUID);
+
+        /// <summary>
+        /// Posts a blob to the blob storage database.
+        /// </summary>
+        /// <param name="blob">Blob to upload.</param>
+        /// <returns></returns>
+        Task PostMediaBlobAsync(DomainModels.BlobUpload blob);
     }
 }
