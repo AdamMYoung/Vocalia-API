@@ -286,7 +286,7 @@ namespace Ingest_API.Controllers
         [Route("record")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> PostBlob([FromBody] BlobUpload upload)
+        public async Task<IActionResult> PostBlob(BlobUpload upload)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
