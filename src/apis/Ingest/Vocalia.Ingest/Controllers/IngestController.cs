@@ -108,7 +108,7 @@ namespace Ingest_API.Controllers
         public async Task<IActionResult> CreatePodcast([FromBody] Vocalia.Ingest.DTOs.PodcastUpload podcast)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
             var domainModel = new Vocalia.Ingest.DomainModels.PodcastUpload
             {
                 Name = podcast.Name,
@@ -286,7 +286,7 @@ namespace Ingest_API.Controllers
         [Route("record")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> PostBlob(BlobUpload upload)
+        public async Task<IActionResult> PostBlob([FromForm] BlobUpload upload)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -294,7 +294,7 @@ namespace Ingest_API.Controllers
             {
                 UserUID = userId,
                 SessionUID = upload.SessionUID,
-                Timestamp = upload.Timestamp,
+                Timestamp = int.Parse(upload.Timestamp),
                 Data = upload.Data
             };
 

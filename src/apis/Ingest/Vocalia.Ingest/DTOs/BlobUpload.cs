@@ -8,7 +8,7 @@ namespace Vocalia.Ingest.DTOs
 {
     public class BlobUpload
     {
-        public DateTime Timestamp { get; set; }
+        public string Timestamp { get; set; }
         public Guid SessionUID { get; set; }
         public IFormFile Data { get; set; }
     }
