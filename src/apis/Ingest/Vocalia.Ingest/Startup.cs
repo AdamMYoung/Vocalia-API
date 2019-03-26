@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Vocalia.Ingest.Db;
 using Vocalia.Ingest.Hubs;
 using Vocalia.Ingest.ImageService;
+using Vocalia.Ingest.MediaService;
 using Vocalia.Ingest.Repositories;
 
 namespace Vocalia.Ingest
@@ -52,6 +53,7 @@ namespace Vocalia.Ingest
 
             services.AddScoped<IIngestRepository, IngestRepository>();
             services.AddSingleton<IImageStorageService, ImageStorageService>();
+            services.AddSingleton<IMediaStorageService, MediaStorageService>();
             services.AddSignalR();
         }
 
