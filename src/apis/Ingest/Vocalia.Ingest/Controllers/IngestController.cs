@@ -290,11 +290,13 @@ namespace Ingest_API.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            int.TryParse(upload.Timestamp, out int value);
+
             var uploadDM = new Vocalia.Ingest.DomainModels.BlobUpload
             {
                 UserUID = userId,
                 SessionUID = upload.SessionUID,
-                Timestamp = int.Parse(upload.Timestamp),
+                Timestamp = value,
                 Data = upload.Data
             };
 
