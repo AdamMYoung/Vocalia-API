@@ -33,9 +33,8 @@ namespace Vocalia.Ingest.MediaService
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var newBlob = new CloudBlockBlob(new Uri(url), creds);
 
-            using(var stream = new MemoryStream())
+            using (var stream = blob.Data.OpenReadStream())
             {
-                await blob.Data.CopyToAsync(stream);
                 await newBlob.UploadFromStreamAsync(stream);
             }
 
