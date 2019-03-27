@@ -58,6 +58,7 @@ namespace Vocalia.Ingest.Hubs
 
             }
             await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
+            await PushInitialSessionInfo();
         }
 
         /// <summary>
@@ -155,6 +156,19 @@ namespace Vocalia.Ingest.Hubs
             session.IsPaused = isPaused;
             await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
                 .SendAsync("onPauseChanged", isPaused);
+        }
+
+        /// <summary>
+        /// Updates the joining client with the current session information.
+        /// </summary>
+        /// <returns></returns>
+        private async Task PushInitialSessionInfo()
+        {
+            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            var session = Sessions.FirstOrDefault(x => x.SessionUID == user.CurrentSessionId);
+
+            await Clients.Client(user.ConnectionId).SendAsync("onPauseChanged", session.IsPaused);
+            await Clients.Client(user.ConnectionId).SendAsync("onRecordingChanged", session.IsRecording);
         }
     }
 }
