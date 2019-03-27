@@ -38,20 +38,23 @@ namespace Vocalia.Ingest.DomainModels
             }
         }
         public Timer SessionTimer { get; } = new Timer(1000);
-        private HubConnection _hubContext;
+        private IHubContext<VocaliaHub> HubContext { get; }
 
-        public SignalRSession()
+        public SignalRSession(IHubContext<VocaliaHub> hub)
         {
-            _hubContext = new HubConnectionBuilder().WithUrl("http://vocalia.gateway:80/ingest/voice").Build();
-            _hubContext.StartAsync().Wait();
+            HubContext = hub;
             SessionTimer.Elapsed += SessionTimer_Elapsed;
         }
 
         private void SessionTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("Timer Elapsed");
-            Duration++;
-            _hubContext.InvokeAsync("UpdateDurationInterval", SessionUID, Duration);
+            Duration++;           
+            Task.Run(async () =>
+            {
+                var sessionUsers = VocaliaHub.Users.Where(x => x.CurrentSessionId == SessionUID);
+                await HubContext.Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
+             .SendAsync("onTimeChanged", Duration);
+            });
         }
 
         /// <summary>

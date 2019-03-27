@@ -20,6 +20,13 @@ namespace Vocalia.Ingest.Hubs
         /// </summary>
         public static List<DomainModels.SignalRSession> Sessions { get; } = new List<DomainModels.SignalRSession>();
 
+        private IHubContext<VocaliaHub> HubContext { get; }
+
+        public VocaliaHub(IHubContext<VocaliaHub> hubContext)
+        {
+            HubContext = hubContext;
+        }
+
         /// <summary>
         /// Assigns the connecting user to the specified group.
         /// </summary>
@@ -43,7 +50,8 @@ namespace Vocalia.Ingest.Hubs
 
             if (!Sessions.Any(x => x.SessionUID == sessionId))
             {
-                Sessions.Add(new DomainModels.SignalRSession
+          
+                Sessions.Add(new DomainModels.SignalRSession(HubContext)
                 {
                     SessionUID = sessionId
                 });
@@ -147,19 +155,6 @@ namespace Vocalia.Ingest.Hubs
             session.IsPaused = isPaused;
             await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
                 .SendAsync("onPauseChanged", isPaused);
-        }
-
-        /// <summary>
-        /// Updates the recorded interval in all clients.
-        /// </summary>
-        /// <param name="session">Session to update.</param>
-        /// <returns></returns>
-        public async Task UpdateDurationInterval(string sessionId, int duration)
-        {
-            var sessionUsers = Users.Where(x => x.CurrentSessionId == sessionId);
-
-            await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
-               .SendAsync("onRecordingChanged", duration);
         }
     }
 }
