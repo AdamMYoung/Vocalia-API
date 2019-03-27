@@ -13,30 +13,43 @@ namespace Vocalia.Ingest.Hubs
         /// <summary>
         /// Collection of current users in a call.
         /// </summary>
-        private static List<DomainModels.SignalRUser> Users { get; } = new List<DomainModels.SignalRUser>();
+        public static List<DomainModels.SignalRUser> Users { get; } = new List<DomainModels.SignalRUser>();
+
+        /// <summary>
+        /// Collection of active sessions.
+        /// </summary>
+        public static List<DomainModels.SignalRSession> Sessions { get; } = new List<DomainModels.SignalRSession>();
 
         /// <summary>
         /// Assigns the connecting user to the specified group.
         /// </summary>
         /// <param name="groupId">GUID of the group.</param>
         /// <returns></returns>
-        public async Task JoinGroup(string userTag, string groupId)
+        public async Task JoinGroup(string userTag, string sessionId)
         {
             DomainModels.SignalRUser user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
             {
-                await Groups.RemoveFromGroupAsync(user.ConnectionId, user.CurrentGroupId);
+                await Groups.RemoveFromGroupAsync(user.ConnectionId, user.CurrentSessionId);
                 Users.RemoveAll(x => x.ConnectionId == Context.ConnectionId);
             }
 
             Users.Add(new DomainModels.SignalRUser
             {
                 UserTag = userTag,
-                CurrentGroupId = groupId,
+                CurrentSessionId = sessionId,
                 ConnectionId = Context.ConnectionId
             });
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+            if (!Sessions.Any(x => x.SessionUID == sessionId))
+            {
+                Sessions.Add(new DomainModels.SignalRSession
+                {
+                    SessionUID = sessionId
+                });
+
+            }
+            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
         }
 
         /// <summary>
@@ -46,7 +59,7 @@ namespace Vocalia.Ingest.Hubs
         public async Task QueryGroupMembers()
         {
             var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
-            var users = Users.Where(x => x.CurrentGroupId == user.CurrentGroupId).Where(x => x.ConnectionId != Context.ConnectionId);
+            var users = Users.Where(x => x.CurrentSessionId == user.CurrentSessionId).Where(x => x.ConnectionId != Context.ConnectionId);
 
             await Clients.Client(user.ConnectionId)
                 .SendAsync("onMembersAcquired", users.Select(x => 
@@ -100,6 +113,53 @@ namespace Vocalia.Ingest.Hubs
             var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (user != null)
                 await Clients.Client(targetId).SendAsync("onCandidate", candidate, user.ConnectionId);
+        }
+
+        /// <summary>
+        /// Called when the recoding status has changed in a session.
+        /// </summary>
+        /// <param name="isRecording">Recording status.</param>
+        /// <returns></returns>
+        public async Task SetRecording(bool isRecording)
+        {
+            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            var session = Sessions.FirstOrDefault(x => x.SessionUID == user.CurrentSessionId);
+
+            var sessionUsers = Users.Where(x => x.CurrentSessionId == session.SessionUID);
+
+            session.IsRecording = isRecording;
+            var clients = Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList());
+            await clients.SendAsync("onRecordingChanged", isRecording);
+        }
+
+        /// <summary>
+        /// Called when the paused status has changed in a session.
+        /// </summary>
+        /// <param name="isPaused">Paused status.</param>
+        /// <returns></returns>
+        public async Task SetPaused(bool isPaused)
+        {
+            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            var session = Sessions.FirstOrDefault(x => x.SessionUID == user.CurrentSessionId);
+
+            var sessionUsers = Users.Where(x => x.CurrentSessionId == session.SessionUID);
+
+            session.IsPaused = isPaused;
+            await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
+                .SendAsync("onPauseChanged", isPaused);
+        }
+
+        /// <summary>
+        /// Updates the recorded interval in all clients.
+        /// </summary>
+        /// <param name="session">Session to update.</param>
+        /// <returns></returns>
+        public async Task UpdateDurationInterval(string sessionId, int duration)
+        {
+            var sessionUsers = Users.Where(x => x.CurrentSessionId == sessionId);
+
+            await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
+               .SendAsync("onRecordingChanged", duration);
         }
     }
 }
