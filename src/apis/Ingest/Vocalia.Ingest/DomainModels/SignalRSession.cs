@@ -47,10 +47,10 @@ namespace Vocalia.Ingest.DomainModels
         }
 
         private void SessionTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Duration++;           
+        {          
             Task.Run(async () =>
             {
+                Duration++;
                 var sessionUsers = VocaliaHub.Users.Where(x => x.CurrentSessionId == SessionUID);
                 await HubContext.Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
              .SendAsync("onTimeChanged", Duration);
@@ -63,14 +63,10 @@ namespace Vocalia.Ingest.DomainModels
         /// <param name="isPaused">Paused status.</param>
         private void OnPausedChanged(bool isPaused)
         {
-            if (isPaused)
-            {
+            if (isPaused)   
                 SessionTimer.Stop();
-            }
-            else
-            {
+            else          
                 SessionTimer.Start();
-            }
         }
 
         /// <summary>
