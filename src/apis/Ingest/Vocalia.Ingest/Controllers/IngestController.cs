@@ -305,6 +305,19 @@ namespace Ingest_API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Gets all session data from the database.
+        /// </summary>
+        /// <param name="sessionId">Session ID to fetch.</param>
+        /// <returns></returns>
+        [Route("record")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetSessionBlobData(string sessionId)
+        {
+
+        }
+
         #endregion
     }
 }
