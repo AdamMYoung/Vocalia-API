@@ -315,6 +315,8 @@ namespace Ingest_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetSessionBlobData(string sessionId)
         {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
 
         }
 

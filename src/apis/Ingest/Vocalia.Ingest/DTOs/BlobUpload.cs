@@ -11,6 +11,5 @@ namespace Vocalia.Ingest.DTOs
         public string Timestamp { get; set; }
         public Guid SessionUID { get; set; }
         public IFormFile Data { get; set; }
-        public string BlobUrl { get; set; }
     }
 }

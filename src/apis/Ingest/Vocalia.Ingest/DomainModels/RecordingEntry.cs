@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Ingest.DomainModels
 {
-    public class SessionUser
+    public class RecordingEntry
     {
         public int ID { get; set; }
         public int SessionID { get; set; }
         public string UserUID { get; set; }
+        public IEnumerable<BlobEntry> Blobs = new List<BlobEntry>();
     }
 }
