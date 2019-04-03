@@ -375,6 +375,42 @@ namespace Vocalia.Ingest.Repositories
             }
         }
 
+        /// <summary>
+        /// Gets all user media blobs belonging to the session if authorized.
+        /// </summary>
+        /// <param name="sessionUID">UID of the session.</param>
+        /// <param name="userUID">UID of the user.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID)
+        {
+            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID);
+
+            //Check if the user is an admin of the podcast.
+            if (!session.Podcast.Users.Any(x => x.UserUID == userUID && x.IsAdmin))
+                return null;
+
+            var userUids = session.MediaEntries.Select(x => x.UserUID).Distinct();
+            var recordingEntries = new List<RecordingEntry>();
+
+            foreach(var user in userUids)
+            {
+                recordingEntries.Add(new RecordingEntry
+                {
+                    UserUID = user,
+                    SessionUID = sessionUID,
+                    Blobs = session.MediaEntries.Where(x => x.UserUID == user).Select(c => new BlobEntry()
+                    {
+                        ID = c.ID,
+                        SessionUID = sessionUID,
+                        Timestamp = c.Timestamp,
+                        Url = c.MediaUrl
+                    })
+                });
+            }
+
+            return recordingEntries;
+        }
+
         #endregion
     }
 }

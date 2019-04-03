@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vocalia.Ingest.DomainModels;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -99,5 +100,13 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="blob">Blob to upload.</param>
         /// <returns></returns>
         Task PostMediaBlobAsync(DomainModels.BlobUpload blob);
+
+        /// <summary>
+        /// Gets all user media blobs belonging to the session if authorized.
+        /// </summary>
+        /// <param name="sessionUID">UID of the session.</param>
+        /// <param name="userUID">UID of the user.</param>
+        /// <returns></returns>
+        Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID);
     }
 }
