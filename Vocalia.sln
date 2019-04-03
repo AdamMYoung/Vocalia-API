@@ -45,6 +45,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Ingest.Db", "src\ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.UserFacade", "src\services\Vocalia.UserFacade\Vocalia.UserFacade.csproj", "{A3808A82-3CF6-4D42-BFD3-90C4018B4EE4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocalia.Editor.Db", "src\apis\Editor\Vocalia.Editor.Db\Vocalia.Editor.Db.csproj", "{3992AEFE-7DF0-41E7-A9F6-431B838C6875}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,10 @@ Global
 		{A3808A82-3CF6-4D42-BFD3-90C4018B4EE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3808A82-3CF6-4D42-BFD3-90C4018B4EE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3808A82-3CF6-4D42-BFD3-90C4018B4EE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3992AEFE-7DF0-41E7-A9F6-431B838C6875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3992AEFE-7DF0-41E7-A9F6-431B838C6875}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3992AEFE-7DF0-41E7-A9F6-431B838C6875}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3992AEFE-7DF0-41E7-A9F6-431B838C6875}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +132,7 @@ Global
 		{0711B44F-A7A3-4C88-B881-2A4EB91A4BD5} = {36865A5E-81E8-4DAB-9F98-A2E8E8F9CA76}
 		{3C9BC0D2-CC9D-49F4-A97A-E03DCA316646} = {41CA2CB7-F1AA-4924-BF09-C4DE79A39EC9}
 		{A3808A82-3CF6-4D42-BFD3-90C4018B4EE4} = {AD4B28E6-1083-4900-BC40-516C6CDADC2F}
+		{3992AEFE-7DF0-41E7-A9F6-431B838C6875} = {15F20602-B799-4AB3-BAEB-2B1FF8ED4EC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2E66940E-EE88-47BF-A341-FE68D979D8F9}

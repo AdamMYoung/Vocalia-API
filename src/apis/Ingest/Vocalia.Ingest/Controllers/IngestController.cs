@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Vocalia.Ingest.DTOs;
 using Vocalia.Ingest.Repositories;
 
@@ -44,7 +41,9 @@ namespace Ingest_API.Controllers
 
             var podcasts = await Repository.GetPodcastsAsync(userId);
             if (podcasts == null)
+            {
                 return NotFound();
+            }
 
             var podcastDTOs = podcasts.Select(x => new Vocalia.Ingest.DTOs.Podcast
             {
@@ -73,21 +72,23 @@ namespace Ingest_API.Controllers
             {
                 podcast = await Repository.GetPodcastOverviewAsync(podcastUid);
                 if (podcast == null)
+                {
                     return null;
+                }
             }
 
-            var podcastDTO = new Vocalia.Ingest.DTOs.Podcast
+            var podcastDTO = new Podcast
             {
                 UID = podcast.UID,
                 Name = podcast.Name,
                 Description = podcast.Description,
                 ImageUrl = podcast.ImageUrl,
-                Members = podcast.Members.Select(m => new Vocalia.Ingest.DTOs.User
+                Members = podcast.Members.Select(m => new User
                 {
                     UID = m.UID,
                     IsAdmin = m.IsAdmin
                 }),
-                Sessions = podcast.Sessions.Select(s => new Vocalia.Ingest.DTOs.Session
+                Sessions = podcast.Sessions.Select(s => new Session
                 {
                     UID = s.UID,
                     Date = s.Date
@@ -181,7 +182,9 @@ namespace Ingest_API.Controllers
 
             var sessionGuid = await Repository.CreateSessionAsync(podcastUid, userId);
             if (sessionGuid == null)
+            {
                 return NotFound();
+            }
 
             return Ok();
         }
@@ -198,9 +201,34 @@ namespace Ingest_API.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await Repository.DeleteSessionAsync(sessionUid, userId);
+            var completed = await Repository.DeleteSessionAsync(sessionUid, userId);
+            if (!completed)
+            {
+                return Unauthorized();
+            }
+            else
+            {
+                return Ok();
+            }
+        }
 
-            return Ok();
+        [Route("session/complete")]
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> CompleteSession(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var completed = await Repository.CompleteSessionAsync(sessionUid, userId);
+
+            if (!completed)
+            {
+                return Unauthorized();
+            }
+            else
+            {
+                return Ok();
+            }
         }
 
         #endregion
@@ -220,7 +248,9 @@ namespace Ingest_API.Controllers
             var podcast = await Repository.GetInviteInfoAsync(inviteLink);
 
             if (podcast == null)
+            {
                 return NotFound();
+            }
 
             var podcastDto = new Vocalia.Ingest.DTOs.Podcast
             {
@@ -247,10 +277,13 @@ namespace Ingest_API.Controllers
 
             var link = await Repository.CreateInviteLinkAsync(podcastUid, userId, expiry);
             if (link == null)
+            {
                 return Unauthorized();
-
+            }
             else
+            {
                 return Ok(link);
+            }
         }
 
         /// <summary>
@@ -268,10 +301,13 @@ namespace Ingest_API.Controllers
             var added = await Repository.AcceptInviteLinkAsync(inviteLink, userId);
 
             if (added)
+            {
                 return Ok();
+            }
             else
+            {
                 return Unauthorized();
-
+            }
         }
 
         #endregion
@@ -304,39 +340,6 @@ namespace Ingest_API.Controllers
 
             return Ok();
         }
-
-        /// <summary>
-        /// Gets all session data from the database.
-        /// </summary>
-        /// <param name="sessionId">Session ID to fetch.</param>
-        /// <returns></returns>
-        [Route("record")]
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetSessionBlobData(Guid sessionUid)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var recordingEntries = await Repository.GetSessionBlobsAsync(sessionUid, userId);
-
-            if (recordingEntries == null)
-                return NotFound();
-
-            var recordingDtos = recordingEntries.Select(x => new RecordingEntry
-            {
-                SessionUID = x.SessionUID,
-                UserUID = x.UserUID,
-                Blobs = x.Blobs.Select(c => new BlobEntry
-                {
-                    SessionUID = c.SessionUID,
-                    Timestamp = c.Timestamp,
-                    Url = c.Url
-                })
-            });
-
-            return Ok(recordingDtos);
-        }
-
         #endregion
     }
 }

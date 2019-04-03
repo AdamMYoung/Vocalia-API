@@ -1,14 +1,13 @@
-﻿using System;
+﻿using CodeHollow.FeedReader;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Facades.GPodder;
 using Vocalia.Podcast.Db;
-using Microsoft.EntityFrameworkCore;
 using Vocalia.Podcast.Facades.iTunes;
-using CodeHollow.FeedReader;
-using Microsoft.Extensions.Caching.Memory;
-using Vocalia.Podcast.DomainModels;
 
 namespace Vocalia.Podcast.Repositories
 {
@@ -97,7 +96,7 @@ namespace Vocalia.Podcast.Repositories
                 var fetchedPodcasts = new List<DomainModels.Podcast>();
                 var iTunes = await ITunesService.SearchPodcastsAsync(query, limit, countryCode, alowExplicit);
 
-                podcasts =  iTunes.Select(p => new DomainModels.Podcast
+                podcasts = iTunes.Select(p => new DomainModels.Podcast
                 {
                     Title = p.Name,
                     RssUrl = p.RssUrl,
@@ -149,7 +148,9 @@ namespace Vocalia.Podcast.Repositories
             Db.Category category = null;
 
             if (categoryId.HasValue)
+            {
                 category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
+            }
 
             var fetchedPodcasts = new List<DomainModels.Podcast>();
 
@@ -158,9 +159,11 @@ namespace Vocalia.Podcast.Repositories
 
             //GPodder can't filter explicit data so only queries if allowExplicit is true.
             if (allowExplicit && fetchedPodcasts.Count < limit)
+            {
                 fetchedPodcasts.AddRange(await GetGPodderPodcastsAsync(limit, category?.GpodderTag));
+            }
 
-           return fetchedPodcasts.Where(p => p.RssUrl != null).Distinct(new PodcastEqualityComparator()).Take(limit);
+            return fetchedPodcasts.Where(p => p.RssUrl != null).Distinct(new PodcastEqualityComparator()).Take(limit);
         }
 
         /// <summary>
@@ -174,10 +177,14 @@ namespace Vocalia.Podcast.Repositories
         {
             var vocaliaPodcasts = DbContext.Podcasts.Where(x => x.Language.ISOCode == isoCountryCode).AsQueryable();
             if (categoryId.HasValue)
+            {
                 vocaliaPodcasts = vocaliaPodcasts.Where(x => x.CategoryID == categoryId.Value);
+            }
 
             if (allowExplicit == false)
+            {
                 vocaliaPodcasts = vocaliaPodcasts.Where(x => x.IsExplicit == false);
+            }
 
             return await vocaliaPodcasts.OrderByDescending(x => x.Subscribers).Take(count).Select(p => new DomainModels.Podcast()
             {
@@ -240,9 +247,11 @@ namespace Vocalia.Podcast.Repositories
             if (!Cache.TryGetValue(cacheTerm, out DomainModels.Feed feedEntry))
             {
                 var feed = await FeedReader.ReadAsync(rssUrl);
-                
+
                 if (feed == null)
+                {
                     return null;
+                }
 
                 feedEntry = new DomainModels.Feed()
                 {
@@ -252,7 +261,7 @@ namespace Vocalia.Podcast.Repositories
                     Copyright = feed.Copyright,
                     IsSubscribed = false,
                     ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed.Element.Element("{" + ITunesNamespace + "}image")?.Attribute("href")?.Value ?? feed.ImageUrl),
-                    
+
                 };
 
                 feedEntry.Items = feed.Items.Select(i => new DomainModels.FeedItem()
@@ -276,7 +285,8 @@ namespace Vocalia.Podcast.Repositories
             feedEntry.IsSubscribed = userUID != null ? await DbContext.Subscriptions.AnyAsync(s => s.RssUrl == rssUrl && s.UserUID == userUID) : false;
             var listenHistory = userUID != null ? await DbContext.Listens.Where(c => c.UserUID == userUID && c.RssUrl == rssUrl).ToListAsync() : null;
 
-            foreach (var entry in feedEntry.Items) {
+            foreach (var entry in feedEntry.Items)
+            {
                 var listen = listenHistory?.FirstOrDefault(c => c.EpisodeUrl == entry.Content);
                 entry.Time = listen?.Time ?? 0;
                 entry.Duration = listen?.Duration ?? 0;
@@ -338,7 +348,8 @@ namespace Vocalia.Podcast.Repositories
         /// </summary>
         /// <param name="subscription">Subscription to add</param>
         /// <returns></returns>
-        public async Task AddSubscriptionAsync(DomainModels.Subscription subscription) {
+        public async Task AddSubscriptionAsync(DomainModels.Subscription subscription)
+        {
             await DbContext.Subscriptions.AddAsync(new Db.Subscription
             {
                 Name = subscription.Name,
@@ -364,7 +375,9 @@ namespace Vocalia.Podcast.Repositories
             var entry = await DbContext.Listens.FirstOrDefaultAsync(l => l.EpisodeUrl == rssUrl && l.UserUID == userUID);
 
             if (entry == null)
+            {
                 return null;
+            }
 
             return new DomainModels.Listen
             {
@@ -425,6 +438,7 @@ namespace Vocalia.Podcast.Repositories
 
             if (listen == null)
                 return null;
+
 
             var rssFeed = await GetFeedFromUrlAsync(listen.RssUrl, userUID);
 

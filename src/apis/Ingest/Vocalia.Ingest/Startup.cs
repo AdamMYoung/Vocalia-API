@@ -47,7 +47,7 @@ namespace Vocalia.Ingest
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 
-            //Configure catalog database context.
+            //Configure ingest database context.
             services.AddDbContext<IngestContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
 
