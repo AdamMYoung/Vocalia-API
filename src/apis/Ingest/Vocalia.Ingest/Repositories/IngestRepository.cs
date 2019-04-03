@@ -35,7 +35,7 @@ namespace Vocalia.Ingest.Repositories
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
-        public IngestRepository(IngestContext context, IImageStorageService imageStorage, 
+        public IngestRepository(IngestContext context, IImageStorageService imageStorage,
             IMediaStorageService mediaStorage)
         {
             DbContext = context;
@@ -58,17 +58,17 @@ namespace Vocalia.Ingest.Repositories
 
             if (podcast != null)
             {
-                var inProgress = await DbContext.Sessions.Where(x => x.Podcast.UID == podcastUID && x.InProgress)
+                var inProgress = await DbContext.Sessions.Where(x => x.Podcast.UID == podcastUID && !x.IsFinished)
                     .ToListAsync();
 
-                inProgress.ForEach(x => x.InProgress = false);
+                inProgress.ForEach(x => x.IsFinished = true);
                 await DbContext.SaveChangesAsync();
 
                 var session = new Db.Session
                 {
                     Date = DateTime.Now,
                     PodcastID = podcast.ID,
-                    InProgress = true
+                    IsFinished = false
                 };
 
                 await DbContext.Sessions.AddAsync(session);
@@ -84,16 +84,46 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="sessionUID">Session to delete.</param>
         /// <param name="userUID">UID of the user.</param>
         /// <returns></returns>
-        public async Task DeleteSessionAsync(Guid sessionUID, string userUID)
+        public async Task<bool> DeleteSessionAsync(Guid sessionUID, string userUID)
         {
             var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID &&
             x.Podcast.Users.Any(c => c.UserUID == userUID && c.IsAdmin));
 
-            if (session != null)
+            if (session == null)
+            {
+                return false;
+            }
+            else
             {
                 DbContext.Sessions.Remove(session);
                 await DbContext.SaveChangesAsync();
+                return true;
             }
+        }
+
+        /// <summary>
+        /// Completes the specified session in the database, if the user is an admin.
+        /// </summary>
+        /// <param name="sessionUID">Session to complete.</param>
+        /// <param name="userUID">UID of the user.</param>
+        /// <returns></returns>
+        public async Task<bool> CompleteSessionAsync(Guid sessionUID, string userUID)
+        {
+            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID &&
+            x.Podcast.Users.Any(c => c.UserUID == userUID && c.IsAdmin));
+
+            if (session == null)
+            {
+                return false;
+            }
+            else
+            {
+                session.IsFinished = true;
+                await DbContext.SaveChangesAsync();
+                await Task.Run(() => { return BuildMedia(sessionUID); });
+                return true;
+            }
+
         }
 
         #endregion
@@ -117,7 +147,7 @@ namespace Vocalia.Ingest.Repositories
                 ID = x.ID,
                 UID = x.UID,
                 Name = x.Name,
-                ImageUrl = x.ImageUrl,
+                ImageUrl = x.ImageUrl
             });
         }
 
@@ -151,14 +181,15 @@ namespace Vocalia.Ingest.Repositories
                     IsAdmin = m.IsAdmin,
                     PodcastID = m.PodcastID
                 }),
-                Sessions = podcast.Sessions.OrderByDescending(c => c.Date)
+                Sessions = podcast.Sessions.Where(x => !x.IsFinished)
+                .OrderByDescending(c => c.Date)
                 .Select(s => new DomainModels.Session
                 {
                     ID = s.ID,
                     PodcastID = s.PodcastID,
                     UID = s.UID,
                     Date = s.Date,
-                    InProgress = s.InProgress
+                    IsFinished = s.IsFinished
                 })
             };
         }
@@ -193,7 +224,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="podcast">Podcast info to add.</param>
         /// <param name="fileType">File type of the image being uploaded.</param>
         /// <returns></returns>
-        public async Task CreatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast)
+        public async Task CreatePodcastAsync(string userUID, PodcastUpload podcast)
         {
             var imageDataByteArray = Convert.FromBase64String(podcast.ImageData);
 
@@ -223,7 +254,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User performing the request.</param>
         /// <param name="podcast">Podcast info to update.</param>
         /// <returns></returns>
-        public async Task UpdatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast)
+        public async Task UpdatePodcastAsync(string userUID, PodcastUpload podcast)
         {
             var imageDataByteArray = Convert.FromBase64String(podcast.ImageData);
 
@@ -270,7 +301,7 @@ namespace Vocalia.Ingest.Repositories
         public async Task<DomainModels.Podcast> GetInviteInfoAsync(Guid inviteLink)
         {
             var invite = await DbContext.PodcastInvites.Include(x => x.Podcast)
-                .FirstOrDefaultAsync(x => x.InviteUID == inviteLink && ( x.Expiry == null || x.Expiry > DateTime.Now));
+                .FirstOrDefaultAsync(x => x.InviteUID == inviteLink && (x.Expiry == null || x.Expiry > DateTime.Now));
 
             if (invite == null)
                 return null;
@@ -370,9 +401,19 @@ namespace Vocalia.Ingest.Repositories
                     MediaUrl = url
                 };
 
-                await DbContext.SessionMedia.AddAsync(entry); 
+                await DbContext.SessionMedia.AddAsync(entry);
                 await DbContext.SaveChangesAsync();
             }
+        }
+
+        /// <summary>
+        /// Builds the session media files from stored media.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session to proces</param>
+        /// <returns></returns>
+        private async Task BuildMedia(Guid sessionUid)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -381,7 +422,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="sessionUID">UID of the session.</param>
         /// <param name="userUID">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID)
+        private async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID)
         {
             var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID);
 
@@ -392,7 +433,7 @@ namespace Vocalia.Ingest.Repositories
             var userUids = session.MediaEntries.Select(x => x.UserUID).Distinct();
             var recordingEntries = new List<RecordingEntry>();
 
-            foreach(var user in userUids)
+            foreach (var user in userUids)
             {
                 recordingEntries.Add(new RecordingEntry
                 {

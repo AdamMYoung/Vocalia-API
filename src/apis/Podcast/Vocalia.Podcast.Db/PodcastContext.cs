@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Vocalia.Podcast.Db
 {
@@ -87,7 +84,7 @@ namespace Vocalia.Podcast.Db
             builder.Property(i => i.UserUID).IsRequired();
             builder.Property(i => i.RssUrl).IsRequired();
             builder.Property(i => i.EpisodeUrl).IsRequired();
-            builder.Property(i => i.EpisodeName).IsRequired();  
+            builder.Property(i => i.EpisodeName).IsRequired();
             builder.Property(i => i.Time).IsRequired();
             builder.Property(i => i.IsCompleted).IsRequired();
             builder.Property(i => i.Duration).IsRequired();

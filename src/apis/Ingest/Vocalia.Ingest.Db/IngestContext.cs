@@ -16,7 +16,7 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.ID).IsRequired();
                 builder.Property(c => c.UID).IsRequired();
                 builder.Property(c => c.PodcastID).IsRequired();
-                builder.Property(c => c.InProgress).IsRequired();
+                builder.Property(c => c.IsFinished).IsRequired();
 
                 builder.HasMany(c => c.MediaEntries)
                    .WithOne(c => c.Session);

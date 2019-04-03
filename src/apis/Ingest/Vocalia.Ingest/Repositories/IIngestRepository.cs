@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Ingest.DomainModels;
 
@@ -14,7 +12,7 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="userUID">User to get podcasts for.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Podcast>> GetPodcastsAsync(string userUID);
+        Task<IEnumerable<Podcast>> GetPodcastsAsync(string userUID);
 
         /// <summary>
         /// Gets detailed podcast info for the specified podcast UID.
@@ -22,14 +20,14 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">UID of the user.</param>
         /// <param name="podcastUid">UID of the podcast.</param>
         /// <returns></returns>
-        Task<DomainModels.Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid);
+        Task<Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid);
 
         /// <summary>
         /// Gets general podcast info for the specified podcast UID.
         /// </summary>
         /// <param name="podcastUid">UID of the podcast.</param>
         /// <returns></returns>
-        Task<DomainModels.Podcast> GetPodcastOverviewAsync(Guid podcastUid);
+        Task<Podcast> GetPodcastOverviewAsync(Guid podcastUid);
 
         /// <summary>
         /// Creates a new podcast for the specified user using the provided information.
@@ -38,7 +36,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="podcast">Podcast info to add.</param>
         /// <param name="fileType">File type of the image being uploaded.</param>
         /// <returns></returns>
-        Task CreatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast);
+        Task CreatePodcastAsync(string userUID, PodcastUpload podcast);
 
         /// <summary>
         /// Updates the podcast with the specified info, if the user is an admin.
@@ -46,7 +44,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User performing the request.</param>
         /// <param name="podcast">Podcast info to update.</param>
         /// <returns></returns>
-        Task UpdatePodcastAsync(string userUID, DomainModels.PodcastUpload podcast);
+        Task UpdatePodcastAsync(string userUID, PodcastUpload podcast);
 
         /// <summary>
         /// Deletes the specified podcast if the user is an admin.
@@ -69,14 +67,22 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="sessionUID">Session to delete.</param>
         /// <param name="userUID">UID of the user.</param>
         /// <returns></returns>
-        Task DeleteSessionAsync(Guid sessionUID, string userUID);
+        Task<bool> DeleteSessionAsync(Guid sessionUID, string userUID);
+
+        /// <summary>
+        /// Completes the specified session in the database, if the user is an admin.
+        /// </summary>
+        /// <param name="sessionUID">Session to complete.</param>
+        /// <param name="userUID">UID of the user.</param>
+        /// <returns></returns>
+        Task<bool> CompleteSessionAsync(Guid sessionUID, string userUID);
 
         /// <summary>
         /// Returns the podcast assigned to the invite link.
         /// </summary>
         /// <param name="inviteLink">Invite GUID to check.</param>
         /// <returns></returns>
-        Task<DomainModels.Podcast> GetInviteInfoAsync(Guid inviteLink);
+        Task<Podcast> GetInviteInfoAsync(Guid inviteLink);
 
         /// <summary>
         /// Creates an invite link for the specified podcastUID.
@@ -99,14 +105,6 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="blob">Blob to upload.</param>
         /// <returns></returns>
-        Task PostMediaBlobAsync(DomainModels.BlobUpload blob);
-
-        /// <summary>
-        /// Gets all user media blobs belonging to the session if authorized.
-        /// </summary>
-        /// <param name="sessionUID">UID of the session.</param>
-        /// <param name="userUID">UID of the user.</param>
-        /// <returns></returns>
-        Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID);
+        Task PostMediaBlobAsync(BlobUpload blob);
     }
 }

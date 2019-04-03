@@ -39,7 +39,7 @@ namespace Vocalia.Podcast
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            //Configure catalog database context.
+            //Configure podcast database context.
             services.AddDbContext<PodcastContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("PodcastDatabase")));
 
@@ -60,7 +60,7 @@ namespace Vocalia.Podcast
             {
                 app.UseHsts();
             }
-            
+
             app.UseAuthentication();
             app.UseMvc();
         }

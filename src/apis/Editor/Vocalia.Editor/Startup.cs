@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Vocalia.Editor.Db;
+using Vocalia.Editor.Repository;
 
 namespace Vocalia.Editor
 {
@@ -41,10 +35,11 @@ namespace Vocalia.Editor
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            //Configure catalog database context.
+            //Configure editor database context.
             services.AddDbContext<EditorContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("EditorDatabase")));
 
+            services.AddScoped<IEditorRepository, EditorRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
