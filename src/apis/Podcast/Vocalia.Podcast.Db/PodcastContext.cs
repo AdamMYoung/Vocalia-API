@@ -80,7 +80,7 @@ namespace Vocalia.Podcast.Db
         }
     }
 
-    internal class ListenTypeEntityTypeConfiguration : IEntityTypeConfiguration<Listen>
+    internal class ListenEntityTypeConfiguration : IEntityTypeConfiguration<Listen>
     {
         public void Configure(EntityTypeBuilder<Listen> builder)
         {
@@ -132,7 +132,7 @@ namespace Vocalia.Podcast.Db
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastIntegrationEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SubscriptionTypeEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new ListenTypeEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ListenEntityTypeConfiguration());
         }
     }
 }
