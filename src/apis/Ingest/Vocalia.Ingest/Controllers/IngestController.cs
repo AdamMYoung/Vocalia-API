@@ -313,11 +313,28 @@ namespace Ingest_API.Controllers
         [Route("record")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetSessionBlobData(string sessionId)
+        public async Task<IActionResult> GetSessionBlobData(Guid sessionUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            var recordingEntries = await Repository.GetSessionBlobsAsync(sessionUid, userId);
 
+            if (recordingEntries == null)
+                return NotFound();
+
+            var recordingDtos = recordingEntries.Select(x => new RecordingEntry
+            {
+                SessionUID = x.SessionUID,
+                UserUID = x.UserUID,
+                Blobs = x.Blobs.Select(c => new BlobEntry
+                {
+                    SessionUID = c.SessionUID,
+                    Timestamp = c.Timestamp,
+                    Url = c.Url
+                })
+            });
+
+            return Ok(recordingDtos);
         }
 
         #endregion

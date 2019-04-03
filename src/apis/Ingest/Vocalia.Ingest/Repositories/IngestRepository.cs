@@ -384,12 +384,31 @@ namespace Vocalia.Ingest.Repositories
         public async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID)
         {
             var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID);
+
+            //Check if the user is an admin of the podcast.
             if (!session.Podcast.Users.Any(x => x.UserUID == userUID && x.IsAdmin))
                 return null;
 
-            foreach(var user in session.MediaEntries.GroupBy(x => x.UserUID)){
+            var userUids = session.MediaEntries.Select(x => x.UserUID).Distinct();
+            var recordingEntries = new List<RecordingEntry>();
 
+            foreach(var user in userUids)
+            {
+                recordingEntries.Add(new RecordingEntry
+                {
+                    UserUID = user,
+                    SessionUID = sessionUID,
+                    Blobs = session.MediaEntries.Where(x => x.UserUID == user).Select(c => new BlobEntry()
+                    {
+                        ID = c.ID,
+                        SessionUID = sessionUID,
+                        Timestamp = c.Timestamp,
+                        Url = c.MediaUrl
+                    })
+                });
             }
+
+            return recordingEntries;
         }
 
         #endregion
