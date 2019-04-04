@@ -422,8 +422,6 @@ namespace Vocalia.Ingest.Repositories
 
             foreach(var entry in entries)
                userStreams.Add(entry.UserUID, await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url)));
-
-            throw new NotImplementedException();
         }
 
         /// <summary>

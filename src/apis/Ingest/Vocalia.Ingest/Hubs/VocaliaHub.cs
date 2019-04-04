@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Vocalia.Ingest.Hubs
@@ -50,7 +47,7 @@ namespace Vocalia.Ingest.Hubs
 
             if (!Sessions.Any(x => x.SessionUID == sessionId))
             {
-          
+
                 Sessions.Add(new DomainModels.SignalRSession(HubContext)
                 {
                     SessionUID = sessionId
@@ -71,7 +68,7 @@ namespace Vocalia.Ingest.Hubs
             var users = Users.Where(x => x.CurrentSessionId == user.CurrentSessionId).Where(x => x.ConnectionId != Context.ConnectionId);
 
             await Clients.Client(user.ConnectionId)
-                .SendAsync("onMembersAcquired", users.Select(x => 
+                .SendAsync("onMembersAcquired", users.Select(x =>
                 new DTOs.SignalRUser { ID = x.ConnectionId, Tag = x.UserTag }));
         }
 
@@ -95,8 +92,10 @@ namespace Vocalia.Ingest.Hubs
         {
             var sender = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (sender != null)
-                await Clients.Client(targetId).SendAsync("onOffer", offer, 
-                    new DTOs.SignalRUser { ID = sender.ConnectionId, Tag = sender.UserTag});
+            {
+                await Clients.Client(targetId).SendAsync("onOffer", offer,
+                    new DTOs.SignalRUser { ID = sender.ConnectionId, Tag = sender.UserTag });
+            }
         }
 
         /// <summary>
