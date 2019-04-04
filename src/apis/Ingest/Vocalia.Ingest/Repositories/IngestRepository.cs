@@ -1,15 +1,11 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Ingest.Db;
-using Microsoft.EntityFrameworkCore;
 using Vocalia.Ingest.DomainModels;
-using System.IO;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using Vocalia.Ingest.ImageService;
-using System.Text;
 using Vocalia.Ingest.MediaService;
 
 namespace Vocalia.Ingest.Repositories
@@ -120,7 +116,7 @@ namespace Vocalia.Ingest.Repositories
             {
                 session.IsFinished = true;
                 await DbContext.SaveChangesAsync();
-                await Task.Run(() => { return BuildMedia(sessionUID); });
+                _ = Task.Run(() => { return BuildMedia(sessionUID); });
                 return true;
             }
 
@@ -414,6 +410,10 @@ namespace Vocalia.Ingest.Repositories
         private async Task BuildMedia(Guid sessionUid)
         {
             throw new NotImplementedException();
+
+            //Gets all blobs for the session.
+            //TODO move audio builder into new library.
+            var blobs = GetSessionBlobsAsync(sessionUid);
         }
 
         /// <summary>
@@ -422,13 +422,9 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="sessionUID">UID of the session.</param>
         /// <param name="userUID">UID of the user.</param>
         /// <returns></returns>
-        private async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID)
+        private async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID)
         {
             var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID);
-
-            //Check if the user is an admin of the podcast.
-            if (!session.Podcast.Users.Any(x => x.UserUID == userUID && x.IsAdmin))
-                return null;
 
             var userUids = session.MediaEntries.Select(x => x.UserUID).Distinct();
             var recordingEntries = new List<RecordingEntry>();
