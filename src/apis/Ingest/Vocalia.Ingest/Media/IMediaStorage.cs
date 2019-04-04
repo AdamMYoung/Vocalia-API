@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Ingest.DomainModels;
 
-namespace Vocalia.Ingest.MediaService
+namespace Vocalia.Ingest.Media
 {
-    public interface IMediaStorageService
+    public interface IMediaStorage
     {
         /// <summary>
         /// Uploads a media blob to the database.

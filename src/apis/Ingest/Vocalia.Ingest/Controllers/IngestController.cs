@@ -182,9 +182,7 @@ namespace Ingest_API.Controllers
 
             var sessionGuid = await Repository.CreateSessionAsync(podcastUid, userId);
             if (sessionGuid == null)
-            {
-                return NotFound();
-            }
+                return NotFound();          
 
             return Ok();
         }
@@ -201,15 +199,12 @@ namespace Ingest_API.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var completed = await Repository.DeleteSessionAsync(sessionUid, userId);
-            if (!completed)
-            {
+            var isCompleted = await Repository.DeleteSessionAsync(sessionUid, userId);
+            if (!isCompleted)
                 return Unauthorized();
-            }
-            else
-            {
-                return Ok();
-            }
+
+            return Ok();
+            
         }
 
         [Route("session/complete")]
@@ -219,16 +214,11 @@ namespace Ingest_API.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var completed = await Repository.CompleteSessionAsync(sessionUid, userId);
-
-            if (!completed)
-            {
+            var isCompleted = await Repository.CompleteSessionAsync(sessionUid, userId);
+            if (!isCompleted)
                 return Unauthorized();
-            }
-            else
-            {
-                return Ok();
-            }
+  
+            return Ok();
         }
 
         #endregion
@@ -337,7 +327,6 @@ namespace Ingest_API.Controllers
             };
 
             await Repository.PostMediaBlobAsync(uploadDM);
-
             return Ok();
         }
         #endregion

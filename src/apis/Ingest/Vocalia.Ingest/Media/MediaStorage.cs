@@ -8,13 +8,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Ingest.DomainModels;
 
-namespace Vocalia.Ingest.MediaService
+namespace Vocalia.Ingest.Media
 {
-    public class MediaStorageService : IMediaStorageService
+    public class MediaStorage : IMediaStorage
     {
         private IConfiguration Config { get; }
 
-        public MediaStorageService(IConfiguration config)
+        public MediaStorage(IConfiguration config)
         {
             Config = config;
         }

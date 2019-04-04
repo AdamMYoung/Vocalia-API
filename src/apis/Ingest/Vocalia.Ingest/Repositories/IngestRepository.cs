@@ -20,23 +20,29 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Blob storage library for image upload.
         /// </summary>
-        private IImageStorageService ImageStorage { get; }
+        private IImageStorage ImageStorage { get; }
 
         /// <summary>
         /// Blob storage library for media upload.
         /// </summary>
-        private IMediaStorageService MediaStorage { get; }
+        private IMediaStorage MediaStorage { get; }
+
+        /// <summary>
+        /// Library for parsing media files into streams.
+        /// </summary>
+        private IStreamBuilder StreamBuilder { get; }
 
         /// <summary>
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
-        public IngestRepository(IngestContext context, IImageStorageService imageStorage,
-            IMediaStorageService mediaStorage)
+        public IngestRepository(IngestContext context, IImageStorage imageStorage,
+            IMediaStorage mediaStorage, IStreamBuilder streamBuilder)
         {
             DbContext = context;
             ImageStorage = imageStorage;
             MediaStorage = mediaStorage;
+            StreamBuilder = streamBuilder;
         }
 
         #region Session
@@ -409,6 +415,12 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         private async Task BuildMedia(Guid sessionUid)
         {
+            var userStreams = new Dictionary<string, MemoryStream>();
+            var entries = await GetSessionBlobsAsync(sessionUid);
+
+            foreach(var entry in entries)
+               userStreams.Add(entry.UserUID, await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url)));
+
             throw new NotImplementedException();
 
             //Gets all blobs for the session.
@@ -424,7 +436,8 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         private async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID)
         {
-            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID);
+            var session = await DbContext.Sessions.Include(c => c.MediaEntries)
+                .FirstOrDefaultAsync(x => x.UID == sessionUID);
 
             var userUids = session.MediaEntries.Select(x => x.UserUID).Distinct();
             var recordingEntries = new List<RecordingEntry>();
@@ -435,7 +448,7 @@ namespace Vocalia.Ingest.Repositories
                 {
                     UserUID = user,
                     SessionUID = sessionUID,
-                    Blobs = session.MediaEntries.Where(x => x.UserUID == user).Select(c => new BlobEntry()
+                    Blobs = session.MediaEntries.OrderBy(c => c.Timestamp).Where(x => x.UserUID == user).Select(c => new BlobEntry()
                     {
                         ID = c.ID,
                         SessionUID = sessionUID,
