@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Ingest.Db;
 using Vocalia.Ingest.DomainModels;
-using Vocalia.Ingest.ImageService;
-using Vocalia.Ingest.MediaService;
+using Vocalia.Ingest.Image;
+using Vocalia.Ingest.Media;
+using Vocalia.Ingest.Streams;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -68,7 +70,7 @@ namespace Vocalia.Ingest.Repositories
 
                 var session = new Db.Session
                 {
-                    Date = DateTime.Now,
+                    Date = DateTime.UtcNow,
                     PodcastID = podcast.ID,
                     IsFinished = false
                 };
@@ -422,10 +424,6 @@ namespace Vocalia.Ingest.Repositories
                userStreams.Add(entry.UserUID, await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url)));
 
             throw new NotImplementedException();
-
-            //Gets all blobs for the session.
-            //TODO move audio builder into new library.
-            var blobs = GetSessionBlobsAsync(sessionUid);
         }
 
         /// <summary>
