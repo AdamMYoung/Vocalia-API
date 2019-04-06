@@ -124,7 +124,7 @@ namespace Vocalia.Ingest.Repositories
             {
                 session.IsFinished = true;
                 await DbContext.SaveChangesAsync();
-                _ = Task.Run(() => { return BuildMedia(sessionUID); });
+                await BuildMedia(sessionUID);
                 return true;
             }
 
@@ -392,7 +392,7 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task PostMediaBlobAsync(BlobUpload blob)
         {
-            var url = await MediaStorage.UploadMediaAsync(blob);
+            var url = await MediaStorage.UploadBlobAsync(blob);
             var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == blob.SessionUID);
 
             if (session != null)
@@ -417,11 +417,29 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         private async Task BuildMedia(Guid sessionUid)
         {
-            var userStreams = new Dictionary<string, MemoryStream>();
             var entries = await GetSessionBlobsAsync(sessionUid);
 
-            foreach(var entry in entries)
-               userStreams.Add(entry.UserUID, await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url)));
+            foreach (var entry in entries)
+            {
+                var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid);
+
+                var stream =  await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url));
+                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
+                var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
+
+                DbContext.SessionMedia.RemoveRange(currentEntries);
+                /*
+                await DbContext.SessionMedia.AddAsync(new SessionMedia
+                {
+                    SessionID = session.ID,
+                    MediaUrl = url,
+                    Timestamp = (await currentEntries.OrderBy(x => x.Timestamp).FirstOrDefaultAsync()).Timestamp,
+                    UserUID = entry.UserUID
+                });
+                */
+
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         /// <summary>
@@ -444,7 +462,9 @@ namespace Vocalia.Ingest.Repositories
                 {
                     UserUID = user,
                     SessionUID = sessionUID,
-                    Blobs = session.MediaEntries.OrderBy(c => c.Timestamp).Where(x => x.UserUID == user).Select(c => new BlobEntry()
+                    Blobs = session.MediaEntries.OrderBy(c => c.Timestamp)
+                    .Where(x => x.UserUID == user && x.Session.UID == sessionUID)
+                    .Select(c => new BlobEntry()
                     {
                         ID = c.ID,
                         SessionUID = sessionUID,

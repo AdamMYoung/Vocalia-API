@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
@@ -24,7 +25,7 @@ namespace Vocalia.Ingest.Media
         /// </summary>
         /// <param name="blob">Blob to upload.</param>
         /// <returns></returns>
-        public async Task<string> UploadMediaAsync(BlobUpload blob)
+        public async Task<string> UploadBlobAsync(BlobUpload blob)
         {
             var fileName = Guid.NewGuid().ToString();
             var url = string.Concat(Config["BlobStorage:MediaURL"], blob.SessionUID,"/",
@@ -37,6 +38,29 @@ namespace Vocalia.Ingest.Media
             {
                 await newBlob.UploadFromStreamAsync(stream);
             }
+
+            return url;
+        }
+
+        /// <summary>
+        /// Uploads a media stream to the database.
+        /// </summary>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="stream">Stream to upload.</param>
+        /// <returns></returns>
+        public async Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Stream stream)
+        {
+            var fileName = Guid.NewGuid().ToString() + ".webm";
+            var url = string.Concat(Config["BlobStorage:CompiledURL"], sessionUid, "/",
+                userUid, "/", fileName);
+
+            var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
+            var newBlob = new CloudBlockBlob(new Uri(url), creds);
+
+            stream.Position = 0;
+            await newBlob.UploadFromStreamAsync(stream);
+            stream.Dispose();
 
             return url;
         }
