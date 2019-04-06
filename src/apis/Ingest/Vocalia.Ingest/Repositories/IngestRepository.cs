@@ -427,7 +427,6 @@ namespace Vocalia.Ingest.Repositories
                 var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
                 var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
 
-                DbContext.SessionMedia.RemoveRange(currentEntries);
                 /*
                 await DbContext.SessionMedia.AddAsync(new SessionMedia
                 {
