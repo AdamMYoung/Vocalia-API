@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace Vocalia.Ingest.ImageService
+namespace Vocalia.Ingest.Image
 {
-    public interface IImageStorageService
+    public interface IImageStorage
     {
         /// <summary>
         /// Uploads the provided byte array to the Ingest blob storage account,

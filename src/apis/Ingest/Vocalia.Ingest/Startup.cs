@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Vocalia.Ingest.Db;
 using Vocalia.Ingest.Hubs;
-using Vocalia.Ingest.ImageService;
-using Vocalia.Ingest.MediaService;
+using Vocalia.Ingest.Image;
+using Vocalia.Ingest.Media;
 using Vocalia.Ingest.Repositories;
+using Vocalia.Ingest.Streams;
 
 namespace Vocalia.Ingest
 {
@@ -52,8 +45,9 @@ namespace Vocalia.Ingest
                 options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
 
             services.AddScoped<IIngestRepository, IngestRepository>();
-            services.AddSingleton<IImageStorageService, ImageStorageService>();
-            services.AddSingleton<IMediaStorageService, MediaStorageService>();
+            services.AddSingleton<IImageStorage, ImageStorage>();
+            services.AddSingleton<IMediaStorage, MediaStorage>();
+            services.AddSingleton<IStreamBuilder, StreamBuilder>();
             services.AddSignalR();
         }
 

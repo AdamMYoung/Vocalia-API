@@ -1,16 +1,14 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Ingest.Db;
-using Microsoft.EntityFrameworkCore;
 using Vocalia.Ingest.DomainModels;
-using System.IO;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using Vocalia.Ingest.ImageService;
-using System.Text;
-using Vocalia.Ingest.MediaService;
+using Vocalia.Ingest.Image;
+using Vocalia.Ingest.Media;
+using Vocalia.Ingest.Streams;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -24,23 +22,29 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Blob storage library for image upload.
         /// </summary>
-        private IImageStorageService ImageStorage { get; }
+        private IImageStorage ImageStorage { get; }
 
         /// <summary>
         /// Blob storage library for media upload.
         /// </summary>
-        private IMediaStorageService MediaStorage { get; }
+        private IMediaStorage MediaStorage { get; }
+
+        /// <summary>
+        /// Library for parsing media files into streams.
+        /// </summary>
+        private IStreamBuilder StreamBuilder { get; }
 
         /// <summary>
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
-        public IngestRepository(IngestContext context, IImageStorageService imageStorage,
-            IMediaStorageService mediaStorage)
+        public IngestRepository(IngestContext context, IImageStorage imageStorage,
+            IMediaStorage mediaStorage, IStreamBuilder streamBuilder)
         {
             DbContext = context;
             ImageStorage = imageStorage;
             MediaStorage = mediaStorage;
+            StreamBuilder = streamBuilder;
         }
 
         #region Session
@@ -66,7 +70,7 @@ namespace Vocalia.Ingest.Repositories
 
                 var session = new Db.Session
                 {
-                    Date = DateTime.Now,
+                    Date = DateTime.UtcNow,
                     PodcastID = podcast.ID,
                     IsFinished = false
                 };
@@ -120,7 +124,7 @@ namespace Vocalia.Ingest.Repositories
             {
                 session.IsFinished = true;
                 await DbContext.SaveChangesAsync();
-                await Task.Run(() => { return BuildMedia(sessionUID); });
+                await BuildMedia(sessionUID);
                 return true;
             }
 
@@ -388,7 +392,7 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task PostMediaBlobAsync(BlobUpload blob)
         {
-            var url = await MediaStorage.UploadMediaAsync(blob);
+            var url = await MediaStorage.UploadBlobAsync(blob);
             var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == blob.SessionUID);
 
             if (session != null)
@@ -413,7 +417,29 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         private async Task BuildMedia(Guid sessionUid)
         {
-            throw new NotImplementedException();
+            var entries = await GetSessionBlobsAsync(sessionUid);
+
+            foreach (var entry in entries)
+            {
+                var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid);
+
+                var stream =  await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url));
+                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
+                var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
+
+                DbContext.SessionMedia.RemoveRange(currentEntries);
+                /*
+                await DbContext.SessionMedia.AddAsync(new SessionMedia
+                {
+                    SessionID = session.ID,
+                    MediaUrl = url,
+                    Timestamp = (await currentEntries.OrderBy(x => x.Timestamp).FirstOrDefaultAsync()).Timestamp,
+                    UserUID = entry.UserUID
+                });
+                */
+
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         /// <summary>
@@ -422,13 +448,10 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="sessionUID">UID of the session.</param>
         /// <param name="userUID">UID of the user.</param>
         /// <returns></returns>
-        private async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID, string userUID)
+        private async Task<IEnumerable<RecordingEntry>> GetSessionBlobsAsync(Guid sessionUID)
         {
-            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUID);
-
-            //Check if the user is an admin of the podcast.
-            if (!session.Podcast.Users.Any(x => x.UserUID == userUID && x.IsAdmin))
-                return null;
+            var session = await DbContext.Sessions.Include(c => c.MediaEntries)
+                .FirstOrDefaultAsync(x => x.UID == sessionUID);
 
             var userUids = session.MediaEntries.Select(x => x.UserUID).Distinct();
             var recordingEntries = new List<RecordingEntry>();
@@ -439,7 +462,9 @@ namespace Vocalia.Ingest.Repositories
                 {
                     UserUID = user,
                     SessionUID = sessionUID,
-                    Blobs = session.MediaEntries.Where(x => x.UserUID == user).Select(c => new BlobEntry()
+                    Blobs = session.MediaEntries.OrderBy(c => c.Timestamp)
+                    .Where(x => x.UserUID == user && x.Session.UID == sessionUID)
+                    .Select(c => new BlobEntry()
                     {
                         ID = c.ID,
                         SessionUID = sessionUID,

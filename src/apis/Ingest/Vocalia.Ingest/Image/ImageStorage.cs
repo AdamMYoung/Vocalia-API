@@ -4,13 +4,13 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Threading.Tasks;
 
-namespace Vocalia.Ingest.ImageService
+namespace Vocalia.Ingest.Image
 {
-    public class ImageStorageService: IImageStorageService
+    public class ImageStorage: IImageStorage
     {
         private IConfiguration Config { get; }
 
-        public ImageStorageService(IConfiguration config)
+        public ImageStorage(IConfiguration config)
         {
             Config = config;
         }
