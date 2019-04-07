@@ -52,8 +52,7 @@ namespace Vocalia.Ingest
 
             services.AddScoped<IIngestRepository, IngestRepository>();
             services.AddSingleton<IImageStorage, ImageStorage>();
-            services.AddSingleton<IMediaStorage, MediaStorage>();
-            services.AddSingleton<IStreamBuilder, StreamBuilder>();
+            services.AddSingleton<IMediaStorage, MediaStorage>();   
             services.AddSignalR();
         }
 

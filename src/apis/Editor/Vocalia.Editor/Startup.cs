@@ -9,6 +9,7 @@ using ObjectBus.Extensions;
 using System.Collections.Generic;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.Repository;
+using Vocalia.Editor.Streams;
 using Vocalia.ServiceBus.Types;
 using Vocalia.UserFacade;
 
@@ -48,6 +49,7 @@ namespace Vocalia.Editor
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
             services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
+            services.AddSingleton<IStreamBuilder, StreamBuilder>();
             services.AddScoped<IEditorRepository, EditorRepository>();
         }
 

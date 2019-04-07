@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Vocalia.Ingest.Streams
+namespace Vocalia.Editor.Streams
 {
     public class StreamBuilder : IStreamBuilder
     {

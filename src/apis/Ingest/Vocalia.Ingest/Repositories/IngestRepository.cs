@@ -11,8 +11,6 @@ using Vocalia.Ingest.Db;
 using Vocalia.Ingest.DomainModels;
 using Vocalia.Ingest.Image;
 using Vocalia.Ingest.Media;
-using Vocalia.Ingest.Streams;
-using Vocalia.ServiceBus;
 using Vocalia.ServiceBus.Types;
 
 namespace Vocalia.Ingest.Repositories
@@ -34,10 +32,6 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         private IMediaStorage MediaStorage { get; }
 
-        /// <summary>
-        /// Library for parsing media files into streams.
-        /// </summary>
-        private IStreamBuilder StreamBuilder { get; }
 
         /// <summary>
         /// Message bus for sending message blobs to the editor.
@@ -49,12 +43,11 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="context"></param>
         public IngestRepository(IngestContext context, IImageStorage imageStorage,
-            IMediaStorage mediaStorage, IStreamBuilder streamBuilder, IObjectBus<RecordingChunk> editorBus)
+            IMediaStorage mediaStorage, IObjectBus<RecordingChunk> editorBus)
         {
             DbContext = context;
             ImageStorage = imageStorage;
             MediaStorage = mediaStorage;
-            StreamBuilder = streamBuilder;
             EditorMessageBus = editorBus;
         }
 
@@ -433,13 +426,10 @@ namespace Vocalia.Ingest.Repositories
             foreach (var entry in entries)
             {
                 var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid);
-
-                var stream =  await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url));
-                //var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
                 var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
 
                 await currentEntries
-                    .Select(x => new RecordingChunk(x.Session.UID, x.UserUID, x.MediaUrl, x.Timestamp))
+                    .Select(x => new RecordingChunk(x.Session.UID, x.Session.Podcast.UID, x.UserUID, x.MediaUrl, x.Timestamp))
                     .ForEachAsync(async x => await EditorMessageBus.SendAsync(x));
             }
         }
