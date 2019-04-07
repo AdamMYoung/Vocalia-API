@@ -1,14 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using ObjectBus;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vocalia.Ingest.Db;
 using Vocalia.Ingest.DomainModels;
 using Vocalia.Ingest.Image;
 using Vocalia.Ingest.Media;
 using Vocalia.Ingest.Streams;
+using Vocalia.ServiceBus;
+using Vocalia.ServiceBus.Types;
 
 namespace Vocalia.Ingest.Repositories
 {
@@ -35,16 +40,22 @@ namespace Vocalia.Ingest.Repositories
         private IStreamBuilder StreamBuilder { get; }
 
         /// <summary>
+        /// Message bus for sending message blobs to the editor.
+        /// </summary>
+        private IObjectBus<RecordingChunk> EditorMessageBus { get; }
+
+        /// <summary>
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
         public IngestRepository(IngestContext context, IImageStorage imageStorage,
-            IMediaStorage mediaStorage, IStreamBuilder streamBuilder)
+            IMediaStorage mediaStorage, IStreamBuilder streamBuilder, IObjectBus<RecordingChunk> editorBus)
         {
             DbContext = context;
             ImageStorage = imageStorage;
             MediaStorage = mediaStorage;
             StreamBuilder = streamBuilder;
+            EditorMessageBus = editorBus;
         }
 
         #region Session
@@ -427,15 +438,11 @@ namespace Vocalia.Ingest.Repositories
                 var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
                 var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
 
-                /*
-                await DbContext.SessionMedia.AddAsync(new SessionMedia
+                await currentEntries.ForEachAsync(currentEntry =>
                 {
-                    SessionID = session.ID,
-                    MediaUrl = url,
-                    Timestamp = (await currentEntries.OrderBy(x => x.Timestamp).FirstOrDefaultAsync()).Timestamp,
-                    UserUID = entry.UserUID
+                    RecordingChunk chunk = new RecordingChunk(currentEntry.SessionID, currentEntry.UserUID, currentEntry.MediaUrl, currentEntry.Timestamp);
+                    _ = EditorMessageBus.SendAsync(chunk);
                 });
-                */
 
                 await DbContext.SaveChangesAsync();
             }
