@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Vocalia.Ingest.DomainModels;
 
-namespace Vocalia.Ingest.Media
+
+namespace Vocalia.Editor.Media
 {
     public class MediaStorage : IMediaStorage
     {
@@ -21,23 +21,23 @@ namespace Vocalia.Ingest.Media
         }
 
         /// <summary>
-        /// Uploads a media blob to the database.
+        /// Uploads a media stream to the database.
         /// </summary>
-        /// <param name="blob">Blob to upload.</param>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="stream">Stream to upload.</param>
         /// <returns></returns>
-        public async Task<string> UploadBlobAsync(BlobUpload blob)
+        public async Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Stream stream)
         {
-            var fileName = Guid.NewGuid().ToString();
-            var url = string.Concat(Config["BlobStorage:MediaURL"], blob.SessionUID,"/",
-                blob.UserUID, "/", fileName);
+            var url = string.Concat(Config["BlobStorage:CompiledURL"], sessionUid, "/",
+                userUid, ".webm");
 
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var newBlob = new CloudBlockBlob(new Uri(url), creds);
 
-            using (var stream = blob.Data.OpenReadStream())
-            {
-                await newBlob.UploadFromStreamAsync(stream);
-            }
+            stream.Position = 0;
+            await newBlob.UploadFromStreamAsync(stream);
+            stream.Dispose();
 
             return url;
         }

@@ -54,6 +54,18 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.Name).IsRequired();
 
             builder.HasMany(x => x.Edits).WithOne(x => x.User);
+            builder.HasMany(x => x.Media).WithOne(x => x.User);
+        }
+    }
+
+    internal class UserMediaEntityTypeConfiguration : IEntityTypeConfiguration<UserMedia>
+    {
+        public void Configure(EntityTypeBuilder<UserMedia> builder)
+        {
+            builder.Property(x => x.ID).IsRequired();
+            builder.Property(x => x.UserID).IsRequired();
+            builder.Property(x => x.Timestamp).IsRequired();
+            builder.Property(x => x.MediaUrl).IsRequired();
         }
     }
 
@@ -90,6 +102,7 @@ namespace Vocalia.Editor.Db
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserMedia> UserMedia { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -106,6 +119,7 @@ namespace Vocalia.Editor.Db
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UserMediaEntityTypeConfiguration());
         }
     }
 

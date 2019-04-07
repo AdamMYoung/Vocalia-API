@@ -435,16 +435,12 @@ namespace Vocalia.Ingest.Repositories
                 var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid);
 
                 var stream =  await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url));
-                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
+                //var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
                 var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
 
-                await currentEntries.ForEachAsync(currentEntry =>
-                {
-                    RecordingChunk chunk = new RecordingChunk(currentEntry.SessionID, currentEntry.UserUID, currentEntry.MediaUrl, currentEntry.Timestamp);
-                    _ = EditorMessageBus.SendAsync(chunk);
-                });
-
-                await DbContext.SaveChangesAsync();
+                await currentEntries
+                    .Select(x => new RecordingChunk(x.Session.UID, x.UserUID, x.MediaUrl, x.Timestamp))
+                    .ForEachAsync(async x => await EditorMessageBus.SendAsync(x));
             }
         }
 

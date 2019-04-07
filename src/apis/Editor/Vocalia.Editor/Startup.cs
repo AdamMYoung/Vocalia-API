@@ -5,8 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ObjectBus.Extensions;
+using System.Collections.Generic;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.Repository;
+using Vocalia.ServiceBus.Types;
+using Vocalia.UserFacade;
 
 namespace Vocalia.Editor
 {
@@ -39,6 +43,11 @@ namespace Vocalia.Editor
             services.AddDbContext<EditorContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("EditorDatabase")));
 
+            //Configure service bus for objects.
+            services.CreateObjectBus<RecordingChunk>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
+
+            services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
             services.AddScoped<IEditorRepository, EditorRepository>();
         }
 

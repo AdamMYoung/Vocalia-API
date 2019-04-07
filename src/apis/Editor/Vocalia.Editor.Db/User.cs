@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Vocalia.Editor.Db
 {
@@ -12,6 +10,7 @@ namespace Vocalia.Editor.Db
         public virtual string Name { get; set; }
 
         public virtual IEnumerable<Edit> Edits { get; set; }
+        public virtual IEnumerable<UserMedia> Media { get; set; }
         public virtual Session Session { get; set; }
     }
 }

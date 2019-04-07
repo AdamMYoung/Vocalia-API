@@ -9,7 +9,7 @@ namespace Vocalia.ServiceBus.Types
         /// <summary>
         /// ID of the session.
         /// </summary>
-        public int SessionID { get; private set; }
+        public Guid SessionUID { get; private set; }
 
         /// <summary>
         /// UID of the user.
@@ -29,9 +29,9 @@ namespace Vocalia.ServiceBus.Types
         /// <summary>
         /// Instantaites a new RecordingChunk.
         /// </summary>
-        public RecordingChunk(int sessionId, string userUid, string mediaUrl, int timestamp)
+        public RecordingChunk(Guid sessionUid, string userUid, string mediaUrl, int timestamp)
         {
-            SessionID = sessionId;
+            SessionUID = sessionUid;
             UserUID = userUid;
             MediaUrl = mediaUrl;
             Timestamp = timestamp;
