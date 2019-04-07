@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\..\services\Vocalia.ServiceBus.Types\Vocalia.ServiceBus.Types.csproj" />
     <ProjectReference Include="..\..\Ingest\Vocalia.Ingest.StreamBuilder\Vocalia.Ingest.Streams.csproj" />
     <ProjectReference Include="..\Vocalia.Editor.Db\Vocalia.Editor.Db.csproj" />
+    <ProjectReference Include="..\Vocalia.Editor.Streams\Vocalia.Editor.Streams.csproj" />
   </ItemGroup>
 
   <ItemGroup>

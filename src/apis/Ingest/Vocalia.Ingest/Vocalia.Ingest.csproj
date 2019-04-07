@@ -23,7 +23,6 @@
     <ProjectReference Include="..\..\..\..\..\ObjectBus\ObjectBus.csproj" />
     <ProjectReference Include="..\..\..\services\Vocalia.ServiceBus.Types\Vocalia.ServiceBus.Types.csproj" />
     <ProjectReference Include="..\Vocalia.Ingest.Db\Vocalia.Ingest.Db.csproj" />
-    <ProjectReference Include="..\Vocalia.Ingest.StreamBuilder\Vocalia.Ingest.Streams.csproj" />
   </ItemGroup>
 
 </Project>
