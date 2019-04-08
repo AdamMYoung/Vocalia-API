@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.Media;
 using Vocalia.Editor.Streams;
-using Vocalia.Ingest.Streams;
 using Vocalia.ServiceBus.Types;
 using Vocalia.UserFacade;
 
@@ -17,9 +16,14 @@ namespace Vocalia.Editor.Repository
     public class EditorRepository : IEditorRepository
     {
         /// <summary>
-        /// ObjectBus to handle editor data.
+        /// ObjectBus to handle recording chunk data.
         /// </summary>
-        private IObjectBus<RecordingChunk> EditorBus { get; }
+        private IObjectBus<RecordingChunk> RecordingChunkBus { get; }
+
+        /// <summary>
+        /// ObjectBus to handle podcast data.
+        /// </summary>
+        private IObjectBus<ServiceBus.Types.Podcast> PodcastBus { get; }
 
         /// <summary>
         /// Handles the storage of media stream to blob storage.
@@ -44,17 +48,19 @@ namespace Vocalia.Editor.Repository
         /// <summary>
         /// Instantiates a new EditorRepository.
         /// </summary>
-        public EditorRepository(IObjectBus<RecordingChunk> editorBus, IMediaStorage mediaStorage, 
-            EditorContext editorDb, IUserFacade userFacade, IStreamBuilder streamBuilder)
+        public EditorRepository(IObjectBus<RecordingChunk> chunkBus, IObjectBus<ServiceBus.Types.Podcast> podcastBus,
+            IMediaStorage mediaStorage, EditorContext editorDb, IUserFacade userFacade, IStreamBuilder streamBuilder)
         {
-            EditorBus = editorBus;
+            RecordingChunkBus = chunkBus;
+            PodcastBus = podcastBus;
             MediaStorage = mediaStorage;
             DbContext = editorDb;
             UserFacade = userFacade;
             StreamBuilder = streamBuilder;
-            EditorBus.MessageRecieved += OnRecordingChunkRecieved;
-        }
 
+            RecordingChunkBus.MessageRecieved += OnRecordingChunkRecieved;
+            PodcastBus.MessageRecieved += OnPodcastRecieved;
+        }
         /// <summary>
         /// Applies the specified edit to the audio stream attached to the sessionUID and userUID
         /// </summary>
@@ -68,32 +74,61 @@ namespace Vocalia.Editor.Repository
         }
 
         /// <summary>
-        /// Gets an audio stream with the current edits applied.
-        /// </summary>
-        /// <param name="sessionUid">UID of the session.</param>
-        /// <param name="userUid">UID of the user.</param>
-        /// <returns></returns>
-        public async Task<string> GetEditStreamAsync(Guid sessionUid, string userUid)
-        {
-            var audioStream = await GetAudioStreamAsync(sessionUid, userUid);
-            //Apply editing adjustments.
-            return audioStream;
-        }
-
-        /// <summary>
         /// Builds an audio stream from the recieved stream chunks.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        private async Task<string> GetAudioStreamAsync(Guid sessionUid, string userUid)
+        public async Task<IEnumerable<string>> GetStreamsAsync(Guid sessionUid, string userUid)
         {
-            var user = await DbContext.Users.SingleOrDefaultAsync(x => x.UserUID == userUid && x.Session.UID == sessionUid);
-            var media = user.Media.OrderBy(x => x.Timestamp).Select(c => c.MediaUrl);
+            var session = await DbContext.Sessions
+                .Include(x => x.Users).ThenInclude(x => x.Media)
+                .Include(x => x.Podcast).ThenInclude(x => x.Members)
+                .FirstOrDefaultAsync(x => x.UID == sessionUid);
 
-            var stream = await StreamBuilder.ConcatenateUrlMediaAsync(media);
-            return await MediaStorage.UploadStreamAsync(userUid, sessionUid, stream);
+            if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
+            {
+                var audioStreams = new List<string>();
+
+                foreach (var user in session.Users)
+                {
+                    var media = user.Media.OrderBy(x => x.Timestamp).Select(c => c.MediaUrl);
+                    var stream = await StreamBuilder.ConcatenateUrlMediaAsync(media);
+                    var url = await MediaStorage.UploadStreamAsync(userUid, sessionUid, stream);
+                    audioStreams.Add(url);
+                }
+
+                return audioStreams;
+            }
+
+            return null;
         }
+
+        #region Podcast
+
+        /// <summary>
+        /// Called when a new podcast has been recieved.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void OnPodcastRecieved(object sender, MessageEventArgs<ServiceBus.Types.Podcast> e)
+        {
+            var podcast = e.Object;
+
+            if (!await DbContext.Podcasts.AnyAsync(x => x.UID == podcast.UID))
+            {
+                DbContext.Podcasts.Add(new Db.Podcast
+                {
+                    Name = podcast.Name,
+                    ImageUrl = podcast.ImageUrl,
+                    UID = podcast.UID
+                });
+
+                await DbContext.SaveChangesAsync();
+            }
+        }
+
+        #endregion
 
         #region Service Bus
 
@@ -123,7 +158,7 @@ namespace Vocalia.Editor.Repository
             }
 
             //Adds the recieved media to the user entry.
-            await DbContext.UserMedia.AddAsync(new UserMedia
+            DbContext.UserMedia.Add(new UserMedia
             {
                 UserID = user.ID,
                 MediaUrl = message.MediaUrl,
@@ -148,7 +183,7 @@ namespace Vocalia.Editor.Repository
                 SessionID = sessionId
             };
 
-            await DbContext.Users.AddAsync(user);
+            DbContext.Users.Add(user);
             await DbContext.SaveChangesAsync();
 
             return user.ID;
@@ -161,15 +196,15 @@ namespace Vocalia.Editor.Repository
         /// <returns></returns>
         private async Task<int> CreateSessionAsync(RecordingChunk recordingChunk)
         {
-            var podcastRef = DbContext.Podcasts.FirstOrDefaultAsync(x => x.UID == recordingChunk.PodcastUID);
+            var podcastRef = await DbContext.Podcasts.FirstOrDefaultAsync(x => x.UID == recordingChunk.PodcastUID);
             var session = new Session()
             {
                 IsFinishedEditing = false,
-                PodcastID = podcastRef.Id,
+                PodcastID = podcastRef.ID,
                 UID = recordingChunk.SessionUID
             };
 
-            await DbContext.Sessions.AddAsync(session);
+            DbContext.Sessions.Add(session);
             await DbContext.SaveChangesAsync();
 
             return session.ID;

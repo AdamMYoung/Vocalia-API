@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ObjectBus.Extensions;
 using System.Collections.Generic;
 using Vocalia.Editor.Db;
+using Vocalia.Editor.Media;
 using Vocalia.Editor.Repository;
 using Vocalia.Editor.Streams;
 using Vocalia.ServiceBus.Types;
@@ -48,8 +49,12 @@ namespace Vocalia.Editor
             services.CreateObjectBus<RecordingChunk>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
+            services.CreateObjectBus<ServiceBus.Types.Podcast>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
+
             services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
             services.AddSingleton<IStreamBuilder, StreamBuilder>();
+            services.AddSingleton<IMediaStorage, MediaStorage>();
             services.AddScoped<IEditorRepository, EditorRepository>();
         }
 

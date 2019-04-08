@@ -25,3 +25,8 @@ services:
       context: .
       dockerfile: src/apis/Ingest/Vocalia.Ingest/Dockerfile
 
+  vocalia.editor:
+    image: ${DOCKER_REGISTRY-}vocaliaeditor
+    build:
+      context: .
+      dockerfile: src/apis/Editor/Vocalia.Editor/Dockerfile

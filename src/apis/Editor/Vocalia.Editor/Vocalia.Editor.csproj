@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <UserSecretsId>aad9b86f-5685-4ca4-be6b-9c9496865807</UserSecretsId>
   </PropertyGroup>
 
@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\ObjectBus\ObjectBus.csproj" />
     <ProjectReference Include="..\..\..\services\Vocalia.ServiceBus.Types\Vocalia.ServiceBus.Types.csproj" />
-    <ProjectReference Include="..\..\Ingest\Vocalia.Ingest.StreamBuilder\Vocalia.Ingest.Streams.csproj" />
     <ProjectReference Include="..\Vocalia.Editor.Db\Vocalia.Editor.Db.csproj" />
     <ProjectReference Include="..\Vocalia.Editor.Streams\Vocalia.Editor.Streams.csproj" />
   </ItemGroup>

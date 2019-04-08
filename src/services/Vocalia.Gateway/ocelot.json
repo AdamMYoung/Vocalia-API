@@ -50,6 +50,18 @@
       ],
       "UpstreamPathTemplate": "/ingest/{anything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/{anything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "vocalia.editor",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/editor/{anything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     }
   ],
   "GlobalConfiguration": {

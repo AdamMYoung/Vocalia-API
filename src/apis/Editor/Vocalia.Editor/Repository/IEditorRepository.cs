@@ -24,6 +24,6 @@ namespace Vocalia.Editor.Repository
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        Task<string> GetEditStreamAsync(Guid sessionUid, string userUid);
+        Task<IEnumerable<string>> GetStreamsAsync(Guid sessionUid, string userUid);
     }
 }

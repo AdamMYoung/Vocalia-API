@@ -36,19 +36,25 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Message bus for sending message blobs to the editor.
         /// </summary>
-        private IObjectBus<RecordingChunk> EditorMessageBus { get; }
+        private IObjectBus<RecordingChunk> RecordingChunkBus { get; }
+
+        /// <summary>
+        /// Message bus for sending new podcasts to listeners.
+        /// </summary>
+        private IObjectBus<ServiceBus.Types.Podcast> PodcastBus { get; }
 
         /// <summary>
         /// Repository for ingest data.
         /// </summary>
         /// <param name="context"></param>
         public IngestRepository(IngestContext context, IImageStorage imageStorage,
-            IMediaStorage mediaStorage, IObjectBus<RecordingChunk> editorBus)
+            IMediaStorage mediaStorage, IObjectBus<RecordingChunk> chunkBus, IObjectBus<ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = context;
             ImageStorage = imageStorage;
             MediaStorage = mediaStorage;
-            EditorMessageBus = editorBus;
+            RecordingChunkBus = chunkBus;
+            PodcastBus = podcastBus;
         }
 
         #region Session
@@ -254,6 +260,13 @@ namespace Vocalia.Ingest.Repositories
 
             await DbContext.PodcastUsers.AddAsync(dbPodcastUsers);
             await DbContext.SaveChangesAsync();
+
+            _ = PodcastBus.SendAsync(new ServiceBus.Types.Podcast
+            {
+                Name = dbPodcast.Name,
+                UID = dbPodcast.UID,
+                ImageUrl = dbPodcast.ImageUrl
+            });
         }
 
         /// <summary>
@@ -430,7 +443,7 @@ namespace Vocalia.Ingest.Repositories
 
                 await currentEntries
                     .Select(x => new RecordingChunk(x.Session.UID, x.Session.Podcast.UID, x.UserUID, x.MediaUrl, x.Timestamp))
-                    .ForEachAsync(async x => await EditorMessageBus.SendAsync(x));
+                    .ForEachAsync(async x => await RecordingChunkBus.SendAsync(x));
             }
         }
 
