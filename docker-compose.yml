@@ -6,6 +6,11 @@ services:
     build:
       context: .
       dockerfile: src/services/Vocalia.Gateway/Dockerfile
+    depends_on:
+      - vocalia.podcast
+      - vocalia.social
+      - vocalia.ingest
+      - vocalia.editor
 
   vocalia.podcast:
     image: ${DOCKER_REGISTRY-}vocaliapodcast
