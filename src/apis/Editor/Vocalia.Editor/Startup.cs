@@ -6,10 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ObjectBus.Extensions;
+using ObjectBus.Options;
 using System.Collections.Generic;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.Media;
 using Vocalia.Editor.Repository;
+using Vocalia.Editor.ServiceBus;
 using Vocalia.Editor.Streams;
 using Vocalia.ServiceBus.Types;
 using Vocalia.UserFacade;
@@ -46,10 +48,10 @@ namespace Vocalia.Editor
                 options.UseSqlServer(Configuration.GetConnectionString("EditorDatabase")));
 
             //Configure service bus for objects.
-            services.CreateObjectBus<RecordingChunk>(p =>
+            services.CreateObjectBus<RecordingChunk, RecordingChunkServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
-            services.CreateObjectBus<ServiceBus.Types.Podcast>(p =>
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast, PodcastServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
             services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
