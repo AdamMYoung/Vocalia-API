@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Vocalia.Editor.Repository;
@@ -31,6 +33,7 @@ namespace Vocalia.Editor.Controllers
         /// <returns></returns>
         [Route("streams")]
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetStream(Guid sessionUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -39,8 +42,16 @@ namespace Vocalia.Editor.Controllers
 
             if (streams != null)
                 return Unauthorized();
-            else
-                return Ok(streams);
+
+            var streamsDTOs = streams.Select(x => new DTOs.EditStream
+            {
+                UserUID = x.UserUID,
+                SessionUID = x.SessionUID,
+                MediaUrl = x.MediaUrl,
+                UserName = x.UserName
+            });
+
+            return Ok(streamsDTOs);
         }
     }
 }
