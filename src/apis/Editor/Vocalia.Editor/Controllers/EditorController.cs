@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Vocalia.Editor.Repository;
 
 namespace Vocalia.Editor.Controllers
@@ -28,9 +24,13 @@ namespace Vocalia.Editor.Controllers
             Repository = editorRepo;
         }
 
+        /// <summary>
+        /// Gets all streams belonging to the session UID.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <returns></returns>
         [Route("streams")]
         [HttpGet]
-
         public async Task<IActionResult> GetStream(Guid sessionUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

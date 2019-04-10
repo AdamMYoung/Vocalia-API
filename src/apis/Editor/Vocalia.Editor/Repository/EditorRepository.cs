@@ -2,14 +2,12 @@
 using ObjectBus;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.Media;
 using Vocalia.Editor.Streams;
 using Vocalia.ServiceBus.Types;
-using Vocalia.UserFacade;
 
 namespace Vocalia.Editor.Repository
 {
@@ -33,8 +31,8 @@ namespace Vocalia.Editor.Repository
         /// <summary>
         /// Instantiates a new EditorRepository.
         /// </summary>
-        public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb, 
-             IStreamBuilder streamBuilder, IObjectBus<RecordingChunk> recordBus, 
+        public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
+             IStreamBuilder streamBuilder, IObjectBus<RecordingChunk> recordBus,
              IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = editorDb;
@@ -66,27 +64,24 @@ namespace Vocalia.Editor.Repository
         /// <returns></returns>
         public async Task<IEnumerable<string>> GetStreamsAsync(Guid sessionUid, string userUid)
         {
-            if (userUid != null)
+            var session = await DbContext.Sessions
+                .Include(x => x.Users).ThenInclude(x => x.Media)
+                .Include(x => x.Podcast).ThenInclude(x => x.Members)
+                .FirstOrDefaultAsync(x => x.UID == sessionUid);
+
+            if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
-                var session = await DbContext.Sessions
-                    .Include(x => x.Users).ThenInclude(x => x.Media)
-                    .Include(x => x.Podcast).ThenInclude(x => x.Members)
-                    .FirstOrDefaultAsync(x => x.UID == sessionUid);
+                var audioStreams = new List<string>();
 
-                if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
+                foreach (var user in session.Users)
                 {
-                    var audioStreams = new List<string>();
-
-                    foreach (var user in session.Users)
-                    {
-                        var media = user.Media.OrderBy(x => x.Timestamp).Select(c => c.MediaUrl);
-                        var stream = await StreamBuilder.ConcatenateUrlMediaAsync(media);
-                        var url = await MediaStorage.UploadStreamAsync(userUid, sessionUid, stream);
-                        audioStreams.Add(url);
-                    }
-
-                    return audioStreams;
+                    var media = user.Media.OrderBy(x => x.Timestamp).Select(c => c.MediaUrl);
+                    var stream = await StreamBuilder.ConcatenateUrlMediaAsync(media);
+                    var url = await MediaStorage.UploadStreamAsync(userUid, sessionUid, stream);
+                    audioStreams.Add(url);
                 }
+
+                return audioStreams;
             }
 
             return null;
