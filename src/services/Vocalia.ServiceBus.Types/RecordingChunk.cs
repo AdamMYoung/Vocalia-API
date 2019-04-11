@@ -22,6 +22,11 @@ namespace Vocalia.ServiceBus.Types
         public string UserUID { get; private set; }
 
         /// <summary>
+        /// Date of the recording chunk.
+        /// </summary>
+        public DateTime Date { get; private set; }
+
+        /// <summary>
         /// URL to the media chunk.
         /// </summary>
         public string MediaUrl { get; private set; }
@@ -34,12 +39,13 @@ namespace Vocalia.ServiceBus.Types
         /// <summary>
         /// Instantaites a new RecordingChunk.
         /// </summary>
-        public RecordingChunk(Guid sessionUid, Guid podcastUid, string userUid, string mediaUrl, int timestamp)
+        public RecordingChunk(Guid sessionUid, Guid podcastUid, string userUid, string mediaUrl, int timestamp, DateTime date)
         {
             SessionUID = sessionUid;
             PodcastUID = podcastUid;
             UserUID = userUid;
             MediaUrl = mediaUrl;
+            Date = date;
             Timestamp = timestamp;
         }
     }

@@ -94,5 +94,73 @@ namespace Vocalia.Editor.Repository
 
             return null;
         }
+
+        #region Podcast
+
+        /// <summary>
+        /// Returns all podcasts editable by the user.
+        /// </summary>
+        /// <param name="userUID">User to get podcasts for.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Podcast>> GetPodcastsAsync(string userUID)
+        {
+            var podcasts = await DbContext.Podcasts
+                .Include(x => x.Members)
+                .Include(x => x.Sessions)
+                .Where(x => x.Members.Any(c => c.UserUID == userUID && c.IsAdmin) && x.Sessions.Any(s => !s.IsFinishedEditing))
+                .ToListAsync();
+
+            if (podcasts == null)
+                return null;
+
+            return podcasts.Select(x => new DomainModels.Podcast
+            {
+                ID = x.ID,
+                UID = x.UID,
+                Name = x.Name,
+                ImageUrl = x.ImageUrl,
+                Sessions = x.Sessions.Select(c => new DomainModels.Session
+                {
+                    ID = c.ID,
+                    UID = c.UID,
+                    PodcastID = c.PodcastID,
+                    Date = c.Date
+                })
+            });
+        }
+
+        /// <summary>
+        /// Gets podcast info about the specified podcastUID if the user is an admin.
+        /// </summary>
+        /// <param name="userUID">UID of the user.</param>
+        /// <param name="podcastUid">UID of the podcast.</param>
+        /// <returns></returns>
+        public async Task<DomainModels.Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid)
+        {
+            var podcast = await DbContext.Podcasts
+                .Include(x => x.Members)
+                .Include(x => x.Sessions)
+                .FirstOrDefaultAsync(x => x.Members.Any(c => c.UserUID == userUID && c.IsAdmin) && x.UID == podcastUid);
+
+            if (podcast == null)
+                return null;
+
+            return new DomainModels.Podcast
+            {
+                ID = podcast.ID,
+                UID = podcast.UID,
+                Name = podcast.Name,
+                ImageUrl = podcast.ImageUrl,
+                Sessions = podcast.Sessions.Select(c => new DomainModels.Session
+                {
+                    ID = c.ID,
+                    UID = c.UID,
+                    PodcastID = c.PodcastID,
+                    Date = c.Date
+                })
+            };
+        }
+
+        #endregion
     }
 }

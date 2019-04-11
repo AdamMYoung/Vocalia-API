@@ -442,7 +442,7 @@ namespace Vocalia.Ingest.Repositories
                 var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
 
                 await currentEntries
-                    .Select(x => new RecordingChunk(x.Session.UID, x.Session.Podcast.UID, x.UserUID, x.MediaUrl, x.Timestamp))
+                    .Select(x => new RecordingChunk(x.Session.UID, x.Session.Podcast.UID, x.UserUID, x.MediaUrl, x.Timestamp, session.Date))
                     .ForEachAsync(async x => await RecordingChunkBus.SendAsync(x));
             }
         }

@@ -38,6 +38,7 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.ID).IsRequired();
             builder.Property(x => x.UID).IsRequired();
             builder.Property(x => x.PodcastID).IsRequired();
+            builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.IsFinishedEditing).IsRequired();
 
             builder.HasMany(x => x.Users).WithOne(x => x.Session);

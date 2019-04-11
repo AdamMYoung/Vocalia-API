@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Vocalia.Editor.DTOs;
 using Vocalia.Editor.Repository;
 
 namespace Vocalia.Editor.Controllers
@@ -25,6 +26,67 @@ namespace Vocalia.Editor.Controllers
         {
             Repository = editorRepo;
         }
+
+        #region Podcast
+
+        /// <summary>
+        /// Gets general information about all podcasts belonging to the user.
+        /// </summary>
+        /// <returns></returns>
+        [Route("podcasts")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetPodcasts()
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var podcasts = await Repository.GetPodcastsAsync(userId);
+            if (podcasts == null)
+            {
+                return NotFound();
+            }
+
+            var podcastDTOs = podcasts.Select(x => new Podcast
+            {
+                UID = x.UID,
+                Name = x.Name,
+                ImageUrl = x.ImageUrl
+            });
+
+            return Ok(podcastDTOs);
+        }
+
+        /// <summary>
+        /// Gets detailed information about a specific podcast.
+        /// </summary>
+        /// <returns></returns>
+        [Route("podcast")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetPodcastDetail(Guid podcastUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var podcast = await Repository.GetPodcastDetailAsync(userId, podcastUid);
+            if (podcast == null)
+                return null;   
+
+            var podcastDTO = new Podcast
+            {
+                UID = podcast.UID,
+                Name = podcast.Name,
+                ImageUrl = podcast.ImageUrl,
+                Sessions = podcast.Sessions.Select(s => new Session
+                {
+                    UID = s.UID,
+                    Date = s.Date
+                })
+            };
+
+            return Ok(podcastDTO);
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets all streams belonging to the session UID.

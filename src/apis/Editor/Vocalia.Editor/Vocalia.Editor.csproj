@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Vocalia.Editor.Streams\Vocalia.Editor.Streams.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\" />
-  </ItemGroup>
-
 </Project>
