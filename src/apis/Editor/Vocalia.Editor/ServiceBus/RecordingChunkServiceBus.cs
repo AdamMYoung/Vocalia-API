@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Editor.ServiceBus
 {
-    public class RecordingChunkServiceBus : ObjectBus<RecordingChunk>
+    public class RecordingChunkServiceBus : ObjectBus<IEnumerable<RecordingChunk>>
     {
         /// <summary>
         /// Facade for handling Auth0 user info.
@@ -29,34 +29,36 @@ namespace Vocalia.Editor.ServiceBus
             ServiceScope = serviceScope;
         }
 
-        public async override Task HandleMessageAsync(RecordingChunk message)
+        public async override Task HandleMessageAsync(IEnumerable<RecordingChunk> messages)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
             {
-                //Gets the specified session, or creates it if not available.
-                var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == message.SessionUID);
-                if (session == null)
-                {
-                    var sessionId = await CreateSessionAsync(message);
-                    session = await DbContext.Sessions.FindAsync(sessionId);
-                }
+                foreach (var message in messages) { 
+                    //Gets the specified session, or creates it if not available.
+                    var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == message.SessionUID);
+                    if (session == null)
+                    {
+                        var sessionId = await CreateSessionAsync(message);
+                        session = await DbContext.Sessions.FindAsync(sessionId);
+                    }
 
-                //Gets the specificed user, or creates it if not available.
-                Db.User user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == message.UserUID && x.Session.UID == message.SessionUID);
-                if (user == null)
-                {
-                    var userId = await CreateUserAsync(message, session.ID);
-                    user = await DbContext.Users.FindAsync(userId);
-                }
+                    //Gets the specificed user, or creates it if not available.
+                    Db.User user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == message.UserUID && x.Session.UID == message.SessionUID);
+                    if (user == null)
+                    {
+                        var userId = await CreateUserAsync(message, session.ID);
+                        user = await DbContext.Users.FindAsync(userId);
+                    }
 
-                //Adds the recieved media to the user entry.
-                DbContext.UserMedia.Add(new UserMedia
-                {
-                    UserID = user.ID,
-                    MediaUrl = message.MediaUrl,
-                    Timestamp = message.Timestamp
-                });
+                    //Adds the recieved media to the user entry.
+                    DbContext.UserMedia.Add(new UserMedia
+                    {
+                        UserID = user.ID,
+                        MediaUrl = message.MediaUrl,
+                        Timestamp = message.Timestamp
+                    });
+                }
 
                 await DbContext.SaveChangesAsync();
             }

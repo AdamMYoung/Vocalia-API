@@ -36,7 +36,7 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Message bus for sending message blobs to the editor.
         /// </summary>
-        private IObjectBus<RecordingChunk> RecordingChunkBus { get; }
+        private IObjectBus<IEnumerable<RecordingChunk>> RecordingChunkBus { get; }
 
         /// <summary>
         /// Message bus for sending new podcasts to listeners.
@@ -48,7 +48,8 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="context"></param>
         public IngestRepository(IngestContext context, IImageStorage imageStorage,
-            IMediaStorage mediaStorage, IObjectBus<RecordingChunk> chunkBus, IObjectBus<ServiceBus.Types.Podcast> podcastBus)
+            IMediaStorage mediaStorage, IObjectBus<IEnumerable<RecordingChunk>> chunkBus, 
+            IObjectBus<ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = context;
             ImageStorage = imageStorage;
@@ -265,7 +266,8 @@ namespace Vocalia.Ingest.Repositories
             {
                 Name = dbPodcast.Name,
                 UID = dbPodcast.UID,
-                ImageUrl = dbPodcast.ImageUrl
+                ImageUrl = dbPodcast.ImageUrl,
+                Members = new List<Member>() { new Member() { IsAdmin = true, UserUID = userUID }}
             });
         }
 
@@ -441,9 +443,10 @@ namespace Vocalia.Ingest.Repositories
                 var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid);
                 var currentEntries = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid && x.UserUID == entry.UserUID);
 
-                await currentEntries
-                    .Select(x => new RecordingChunk(x.Session.UID, x.Session.Podcast.UID, x.UserUID, x.MediaUrl, x.Timestamp, session.Date))
-                    .ForEachAsync(async x => await RecordingChunkBus.SendAsync(x));
+                var busObjects = currentEntries
+                    .Select(x => new RecordingChunk(x.Session.UID, x.Session.Podcast.UID, x.UserUID, x.MediaUrl, x.Timestamp, session.Date));
+
+                await RecordingChunkBus.SendAsync(busObjects);
             }
         }
 

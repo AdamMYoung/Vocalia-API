@@ -33,7 +33,7 @@ namespace Vocalia.Editor.Repository
         /// Instantiates a new EditorRepository.
         /// </summary>
         public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
-             IStreamBuilder streamBuilder, IObjectBus<RecordingChunk> recordBus,
+             IStreamBuilder streamBuilder, IObjectBus<IEnumerable<RecordingChunk>> recordBus,
              IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = editorDb;

@@ -8,7 +8,6 @@ namespace Vocalia.Editor.DTOs
     public class Session
     {
         public Guid UID { get; set; }
-        public int PodcastID { get; set; }
         public DateTime Date { get; set; }
     }
 }

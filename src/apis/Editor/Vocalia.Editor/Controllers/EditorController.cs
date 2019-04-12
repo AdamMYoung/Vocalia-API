@@ -42,9 +42,7 @@ namespace Vocalia.Editor.Controllers
 
             var podcasts = await Repository.GetPodcastsAsync(userId);
             if (podcasts == null)
-            {
                 return NotFound();
-            }
 
             var podcastDTOs = podcasts.Select(x => new Podcast
             {
@@ -69,7 +67,7 @@ namespace Vocalia.Editor.Controllers
 
             var podcast = await Repository.GetPodcastDetailAsync(userId, podcastUid);
             if (podcast == null)
-                return null;   
+                return null;
 
             var podcastDTO = new Podcast
             {

@@ -48,7 +48,7 @@ namespace Vocalia.Editor
                 options.UseSqlServer(Configuration.GetConnectionString("EditorDatabase")));
 
             //Configure service bus for objects.
-            services.CreateObjectBus<RecordingChunk, RecordingChunkServiceBus>(p =>
+            services.CreateObjectBus<IEnumerable<RecordingChunk>, RecordingChunkServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
             services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast, PodcastServiceBus>(p =>
@@ -72,7 +72,9 @@ namespace Vocalia.Editor
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
             app.UseMvc();
         }
     }

@@ -26,12 +26,23 @@ namespace Vocalia.Editor.ServiceBus
             {
                 if (!DbContext.Podcasts.Any(x => x.UID == message.UID))
                 {
-                    DbContext.Podcasts.Add(new Db.Podcast
+                    var podcast = new Db.Podcast
                     {
                         Name = message.Name,
                         ImageUrl = message.ImageUrl,
                         UID = message.UID
+                    };
+
+                    DbContext.Podcasts.Add(podcast);
+
+                    var members = message.Members.Select(x => new Member
+                    {
+                        PodcastID = podcast.ID,
+                        IsAdmin = x.IsAdmin,
+                        UserUID = x.UserUID
                     });
+
+                    DbContext.Members.AddRange(members);
 
                     await DbContext.SaveChangesAsync();
                 }

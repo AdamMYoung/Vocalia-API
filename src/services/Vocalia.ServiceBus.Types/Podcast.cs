@@ -9,5 +9,6 @@ namespace Vocalia.ServiceBus.Types
         public Guid UID { get; set; }
         public string Name { get; set; }
         public string ImageUrl { get; set; }
+        public IList<Member> Members { get; set; } = new List<Member>();
     }
 }
