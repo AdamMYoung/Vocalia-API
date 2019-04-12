@@ -91,6 +91,30 @@ namespace Vocalia.Editor.Controllers
 
         #endregion
 
+        #region Session
+
+        /// <summary>
+        /// Deletes the specified session from the database.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <returns></returns>
+        [Route("session")]
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteSession(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var streams = await Repository.DeleteSessionAsync(userId, sessionUid);
+
+            if (streams)
+                return Ok();
+            else
+                return NotFound();
+        }
+
+        #endregion
+
         /// <summary>
         /// Gets all streams belonging to the session UID.
         /// </summary>
@@ -99,7 +123,7 @@ namespace Vocalia.Editor.Controllers
         [Route("streams")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetStream(Guid sessionUid)
+        public async Task<IActionResult> GetStreams(Guid sessionUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

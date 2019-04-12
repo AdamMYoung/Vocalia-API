@@ -11,6 +11,7 @@ namespace Vocalia.Editor.Db
         public virtual int PodcastID { get; set; }
         public virtual DateTime Date { get; set; }
         public virtual bool IsFinishedEditing { get; set; }
+        public virtual bool IsActive { get; set; } = true;
 
         public virtual IEnumerable<User> Users { get; set; }
         public virtual Podcast Podcast { get; set; }

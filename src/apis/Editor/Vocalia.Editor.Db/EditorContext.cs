@@ -26,8 +26,8 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.ImageUrl).IsRequired();
 
-            builder.HasMany(x => x.Sessions).WithOne(x => x.Podcast);
-            builder.HasMany(x => x.Members).WithOne(x => x.Podcast);
+            builder.HasMany(x => x.Sessions).WithOne(x => x.Podcast).IsRequired();
+            builder.HasMany(x => x.Members).WithOne(x => x.Podcast).IsRequired();
         }
     }
 
@@ -40,8 +40,6 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.PodcastID).IsRequired();
             builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.IsFinishedEditing).IsRequired();
-
-            builder.HasMany(x => x.Users).WithOne(x => x.Session);
         }
     }
 
@@ -54,8 +52,10 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.UserUID).IsRequired();
             builder.Property(x => x.Name).IsRequired();
 
-            builder.HasMany(x => x.Edits).WithOne(x => x.User);
-            builder.HasMany(x => x.Media).WithOne(x => x.User);
+            builder.HasOne(x => x.Session).WithMany(x => x.Users).IsRequired();
+
+            builder.HasMany(x => x.Edits).WithOne(x => x.User).IsRequired();
+            builder.HasMany(x => x.Media).WithOne(x => x.User).IsRequired();
         }
     }
 
@@ -89,7 +89,7 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.EndTimestamp).IsRequired();
             builder.Property(x => x.EditTypeID).IsRequired();
 
-            builder.HasOne(x => x.EditType).WithMany(x => x.Edits);
+            builder.HasOne(x => x.EditType).WithMany(x => x.Edits).IsRequired();
         }
     }
 

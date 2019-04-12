@@ -68,7 +68,7 @@ namespace Vocalia.Editor.Repository
             var session = await DbContext.Sessions
                 .Include(x => x.Users).ThenInclude(x => x.Media)
                 .Include(x => x.Podcast).ThenInclude(x => x.Members)
-                .FirstOrDefaultAsync(x => x.UID == sessionUid);
+                .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
@@ -107,7 +107,7 @@ namespace Vocalia.Editor.Repository
             var podcasts = await DbContext.Podcasts
                 .Include(x => x.Members)
                 .Include(x => x.Sessions)
-                .Where(x => x.Members.Any(c => c.UserUID == userUID && c.IsAdmin) && x.Sessions.Any(s => !s.IsFinishedEditing))
+                .Where(x => x.Members.Any(c => c.UserUID == userUID && c.IsAdmin) && x.Sessions.Any(s => !s.IsFinishedEditing && s.IsActive))
                 .ToListAsync();
 
             if (podcasts == null)
@@ -151,7 +151,7 @@ namespace Vocalia.Editor.Repository
                 UID = podcast.UID,
                 Name = podcast.Name,
                 ImageUrl = podcast.ImageUrl,
-                Sessions = podcast.Sessions.Select(c => new DomainModels.Session
+                Sessions = podcast.Sessions.Where(x => x.IsActive).Select(c => new DomainModels.Session
                 {
                     ID = c.ID,
                     UID = c.UID,
@@ -159,6 +159,29 @@ namespace Vocalia.Editor.Repository
                     Date = c.Date
                 })
             };
+        }
+
+        #endregion
+
+        #region Session
+
+        /// <summary>
+        /// Deletes the specified session from the database.
+        /// </summary>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <returns></returns>
+        public async Task<bool> DeleteSessionAsync(string userUid, Guid sessionUid)
+        {
+            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid && 
+                x.Podcast.Members.Any(c => c.UserUID == userUid && c.IsAdmin));
+
+            if (session == null)
+                return false;
+
+            session.IsActive = false;
+            await DbContext.SaveChangesAsync();
+            return true;
         }
 
         #endregion

@@ -26,6 +26,14 @@ namespace Vocalia.Editor.Repository
         Task<DomainModels.Podcast> GetPodcastDetailAsync(string userUID, Guid podcastUid);
 
         /// <summary>
+        /// Deletes the specified session from the database.
+        /// </summary>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <returns></returns>
+        Task<bool> DeleteSessionAsync(string userUid, Guid sessionUid);
+
+        /// <summary>
         /// Applies the specified edit to the audio stream attached to the sessionUID and userUID
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
