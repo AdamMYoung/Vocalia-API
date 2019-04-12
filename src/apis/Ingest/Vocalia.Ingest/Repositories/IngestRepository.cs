@@ -262,7 +262,7 @@ namespace Vocalia.Ingest.Repositories
             await DbContext.PodcastUsers.AddAsync(dbPodcastUsers);
             await DbContext.SaveChangesAsync();
 
-            _ = PodcastBus.SendAsync(new ServiceBus.Types.Podcast
+            await PodcastBus.SendAsync(new ServiceBus.Types.Podcast
             {
                 Name = dbPodcast.Name,
                 UID = dbPodcast.UID,

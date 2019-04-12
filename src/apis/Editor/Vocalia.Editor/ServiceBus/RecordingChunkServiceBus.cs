@@ -104,7 +104,8 @@ namespace Vocalia.Editor.ServiceBus
                 {
                     IsFinishedEditing = false,
                     PodcastID = podcastRef.ID,
-                    UID = recordingChunk.SessionUID
+                    UID = recordingChunk.SessionUID,
+                    Date = recordingChunk.Date
                 };
 
                 DbContext.Sessions.Add(session);

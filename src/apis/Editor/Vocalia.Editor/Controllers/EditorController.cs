@@ -48,7 +48,12 @@ namespace Vocalia.Editor.Controllers
             {
                 UID = x.UID,
                 Name = x.Name,
-                ImageUrl = x.ImageUrl
+                ImageUrl = x.ImageUrl,
+                Sessions = x.Sessions.Select(c => new Session
+                {
+                    UID = c.UID,
+                    Date = c.Date
+                })
             });
 
             return Ok(podcastDTOs);
