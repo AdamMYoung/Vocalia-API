@@ -129,7 +129,7 @@ namespace Vocalia.Editor.Controllers
 
             var streams = await Repository.GetStreamsAsync(sessionUid, userId);
 
-            if (streams != null)
+            if (streams == null)
                 return Unauthorized();
 
             var streamsDTOs = streams.Select(x => new DTOs.EditStream

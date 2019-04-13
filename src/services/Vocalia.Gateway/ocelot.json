@@ -51,6 +51,7 @@
       "UpstreamPathTemplate": "/ingest/{anything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
     },
+    //Editor
     {
       "DownstreamPathTemplate": "/api/{anything}",
       "DownstreamScheme": "http",

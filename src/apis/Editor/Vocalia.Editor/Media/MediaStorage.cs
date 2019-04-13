@@ -29,7 +29,7 @@ namespace Vocalia.Editor.Media
         /// <returns></returns>
         public async Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Stream stream)
         {
-            var url = string.Concat(Config["BlobStorage:CompiledURL"], sessionUid, "/",
+            var url = string.Concat(Config["BlobStorage:StreamURL"], sessionUid, "/",
                 userUid, ".webm");
 
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);

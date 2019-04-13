@@ -119,7 +119,7 @@ namespace Vocalia.Editor.Repository
                 UID = x.UID,
                 Name = x.Name,
                 ImageUrl = x.ImageUrl,
-                Sessions = x.Sessions.Select(c => new DomainModels.Session
+                Sessions = x.Sessions.Where(c => c.IsActive && !c.IsFinishedEditing).Select(c => new DomainModels.Session
                 {
                     ID = c.ID,
                     UID = c.UID,
