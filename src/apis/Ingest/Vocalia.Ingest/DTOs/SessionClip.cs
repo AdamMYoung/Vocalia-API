@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Vocalia.Editor.DomainModels
+namespace Vocalia.Ingest.DTOs
 {
-    public class EditStream
+    public class SessionClip
     {
-        public int ID { get; set; }
-        public Guid SessionUID { get; set; }
+        public Guid UID { get; set; }
         public string UserUID { get; set; }
-        public string UserName { get; set; }
+        public long Size { get; set; }
         public string MediaUrl { get; set; }
+        public DateTime Time { get; set; }
     }
 }

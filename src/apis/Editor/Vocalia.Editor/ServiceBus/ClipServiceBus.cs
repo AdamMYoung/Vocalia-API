@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Editor.ServiceBus
 {
-    public class RecordingChunkServiceBus : ObjectBus<IEnumerable<RecordingChunk>>
+    public class ClipServiceBus : ObjectBus<IEnumerable<Clip>>
     {
         /// <summary>
         /// Facade for handling Auth0 user info.
@@ -22,14 +22,14 @@ namespace Vocalia.Editor.ServiceBus
 
         private IServiceScopeFactory ServiceScope { get; }
 
-        public RecordingChunkServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope,
+        public ClipServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope,
             IUserFacade userFacade) : base(options)
         {
             UserFacade = userFacade;
             ServiceScope = serviceScope;
         }
 
-        public async override Task HandleMessageAsync(IEnumerable<RecordingChunk> messages)
+        public async override Task HandleMessageAsync(IEnumerable<Clip> messages)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
@@ -56,7 +56,8 @@ namespace Vocalia.Editor.ServiceBus
                     {
                         UserID = user.ID,
                         MediaUrl = message.MediaUrl,
-                        Timestamp = message.Timestamp
+                        Date = message.Date,
+                        UID = message.UID
                     });
                 }
 
@@ -69,7 +70,7 @@ namespace Vocalia.Editor.ServiceBus
         /// </summary>
         /// <param name="recordingChunk">Recording chunk recieved.</param>
         /// <returns></returns>
-        private async Task<int> CreateUserAsync(RecordingChunk recordingChunk, int sessionId)
+        private async Task<int> CreateUserAsync(Clip recordingChunk, int sessionId)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
@@ -94,7 +95,7 @@ namespace Vocalia.Editor.ServiceBus
         /// </summary>
         /// <param name="recordingChunk">Recording chunk recieved.</param>
         /// <returns></returns>
-        private async Task<int> CreateSessionAsync(RecordingChunk recordingChunk)
+        private async Task<int> CreateSessionAsync(Clip recordingChunk)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())

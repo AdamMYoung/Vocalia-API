@@ -204,9 +204,13 @@ namespace Ingest_API.Controllers
                 return Unauthorized();
 
             return Ok();
-            
         }
 
+        /// <summary>
+        /// Finishes the session's recording, and passes the info onto editing.
+        /// </summary>
+        /// <param name="sessionUid">Session UID to finish.</param>
+        /// <returns></returns>
         [Route("session/complete")]
         [HttpPut]
         [Authorize]
@@ -218,6 +222,75 @@ namespace Ingest_API.Controllers
             if (!isCompleted)
                 return Unauthorized();
   
+            return Ok();
+        }
+
+        /// <summary>
+        /// Gets all clips belonging to the specified sessionUID.
+        /// </summary>
+        /// <param name="sessionUid">Session to get clips for.</param>
+        /// <returns></returns>
+        [Route("clip")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetClips(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var clips = await Repository.GetClipsAsync(sessionUid, userId);
+
+            var clipDTOs = clips.Select(c => new SessionClip
+            {
+                MediaUrl = c.MediaUrl,
+                Size = c.Size,
+                UID = c.UID,
+                UserUID = c.UserUID,
+                Time = c.Time
+            });
+
+            if (clips == null)
+                return NotFound();
+
+            return Ok(clipDTOs);
+        }
+
+        /// <summary>
+        /// Deletes the specified clip from the database.
+        /// </summary>
+        /// <param name="clipUid">Clip to delete.</param>
+        /// <returns></returns>
+        [Route("clip")]
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteClip(Guid clipUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var isDeleted = await Repository.DeleteClipAsync(clipUid, userId);
+
+            if (!isDeleted)
+                return Unauthorized();
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Finishes the current clip.
+        /// </summary>
+        /// <param name="sessionUid">Session to finish the clip of.</param>
+        /// <returns></returns>
+        [Route("clip")]
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> FinishClip(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var isCompleted = await Repository.FinishClipAsync(sessionUid, userId);
+
+            if (!isCompleted)
+                return Unauthorized();
+
             return Ok();
         }
 

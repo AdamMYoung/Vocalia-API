@@ -18,8 +18,11 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.PodcastID).IsRequired();
                 builder.Property(c => c.IsFinished).IsRequired();
 
-                builder.HasMany(c => c.MediaEntries)
+                builder.HasMany(c => c.SessionMedia)
                    .WithOne(c => c.Session);
+
+                builder.HasMany(c => c.SessionClips)
+                    .WithOne(c => c.Session);
             }
         }
 
@@ -32,6 +35,20 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.UserUID).IsRequired();
                 builder.Property(c => c.Timestamp).IsRequired();
                 builder.Property(c => c.MediaUrl).IsRequired();
+            }
+        }
+
+        internal class SessionClipEntityTypeConfiguration : IEntityTypeConfiguration<SessionClip>
+        {
+            public void Configure(EntityTypeBuilder<SessionClip> builder)
+            {
+                builder.Property(c => c.ID).IsRequired();
+                builder.Property(c => c.UID).IsRequired();
+                builder.Property(c => c.SessionID).IsRequired();
+                builder.Property(c => c.UserUID).IsRequired();
+                builder.Property(c => c.Size).IsRequired();
+                builder.Property(c => c.MediaUrl).IsRequired();
+                builder.Property(c => c.Time).IsRequired();
             }
         }
 
@@ -91,6 +108,7 @@ namespace Vocalia.Ingest.Db
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SessionUser> SessionUsers { get; set; }
         public DbSet<SessionMedia> SessionMedia { get; set; }
+        public DbSet<SessionClip> SessionClips { get; set; }
         public DbSet<PodcastUser> PodcastUsers { get; set; }
         public DbSet<PodcastInvite> PodcastInvites { get; set; }
 
@@ -108,6 +126,7 @@ namespace Vocalia.Ingest.Db
             modelBuilder.ApplyConfiguration(new SessionMediaEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionUserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastInviteEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new SessionClipEntityTypeConfiguration());
         }
     }
 }

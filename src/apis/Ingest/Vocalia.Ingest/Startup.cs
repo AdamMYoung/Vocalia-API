@@ -13,6 +13,7 @@ using Vocalia.Ingest.Repositories;
 using Vocalia.ServiceBus.Types;
 using ObjectBus.Extensions;
 using System.Collections.Generic;
+using Vocalia.Streams;
 
 namespace Vocalia.Ingest
 {
@@ -46,7 +47,7 @@ namespace Vocalia.Ingest
             services.AddDbContext<IngestContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
 
-            services.CreateObjectBus<IEnumerable<RecordingChunk>>(p =>
+            services.CreateObjectBus<IEnumerable<Clip>>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Sender));
 
             services.CreateObjectBus<ServiceBus.Types.Podcast>(p =>
@@ -55,6 +56,7 @@ namespace Vocalia.Ingest
             services.AddScoped<IIngestRepository, IngestRepository>();
             services.AddSingleton<IImageStorage, ImageStorage>();
             services.AddSingleton<IMediaStorage, MediaStorage>();
+            services.AddSingleton<IStreamBuilder, StreamBuilder>();
             services.AddSignalR();
         }
 

@@ -78,6 +78,29 @@ namespace Vocalia.Ingest.Repositories
         Task<bool> CompleteSessionAsync(Guid sessionUID, string userUID);
 
         /// <summary>
+        /// Deletes the specified clip from the database.
+        /// </summary>
+        /// <param name="clipUid">Clip to delete.</param>
+        /// <param name="userUid">User UID requesting the deletion.</param>
+        /// <returns></returns>
+        Task<bool> DeleteClipAsync(Guid clipUid, string userUid);
+
+        /// <summary>
+        /// Gets all clips belonging to the specified sessionUID.
+        /// </summary>
+        /// <param name="sessionUid">UID to get session information for. </param>
+        /// <param name="userUid">User UID requesting the info.</param>
+        /// <returns></returns>
+        Task<IEnumerable<DomainModels.SessionClip>> GetClipsAsync(Guid sessionUid, string userUid);
+
+        /// <summary>
+        /// Builds the current clips stored into a single stream, then removes the clips.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session to proces</param>
+        /// <returns></returns>
+        Task<bool> FinishClipAsync(Guid sessionUid, string userUid);
+
+        /// <summary>
         /// Returns the podcast assigned to the invite link.
         /// </summary>
         /// <param name="inviteLink">Invite GUID to check.</param>

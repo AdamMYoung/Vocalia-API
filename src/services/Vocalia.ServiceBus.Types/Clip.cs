@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Vocalia.ServiceBus.Types
 {
-    public class RecordingChunk
+    public class Clip
     {
         /// <summary>
         /// UID of the session.
@@ -22,6 +22,11 @@ namespace Vocalia.ServiceBus.Types
         public string UserUID { get; private set; }
 
         /// <summary>
+        /// UID of the clip.
+        /// </summary>
+        public Guid UID { get; private set; }
+
+        /// <summary>
         /// Date of the recording chunk.
         /// </summary>
         public DateTime Date { get; private set; }
@@ -30,23 +35,18 @@ namespace Vocalia.ServiceBus.Types
         /// URL to the media chunk.
         /// </summary>
         public string MediaUrl { get; private set; }
-
-        /// <summary>
-        /// Time of the recording chunk.
-        /// </summary>
-        public int Timestamp { get; private set; }
         
         /// <summary>
         /// Instantaites a new RecordingChunk.
         /// </summary>
-        public RecordingChunk(Guid sessionUid, Guid podcastUid, string userUid, string mediaUrl, int timestamp, DateTime date)
+        public Clip(Guid sessionUid, Guid podcastUid, string userUid, string mediaUrl, DateTime date, Guid uid)
         {
             SessionUID = sessionUid;
             PodcastUID = podcastUid;
             UserUID = userUid;
+            UID = uid;
             MediaUrl = mediaUrl;
             Date = date;
-            Timestamp = timestamp;
         }
     }
 }

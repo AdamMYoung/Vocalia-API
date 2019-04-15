@@ -132,12 +132,16 @@ namespace Vocalia.Editor.Controllers
             if (streams == null)
                 return Unauthorized();
 
-            var streamsDTOs = streams.Select(x => new DTOs.EditStream
+            var streamsDTOs = streams.Select(x => new UserTrack
             {
-                UserUID = x.UserUID,
-                SessionUID = x.SessionUID,
-                MediaUrl = x.MediaUrl,
-                UserName = x.UserName
+                UserUid = x.UserUid,
+                SessionUid = x.SessionUid,
+                UserName = x.UserName,
+                Entries = x.Entries.Select(c => new AudioEntry
+                {
+                    UID = c.UID,
+                    Url = c.Url
+                })
             });
 
             return Ok(streamsDTOs);

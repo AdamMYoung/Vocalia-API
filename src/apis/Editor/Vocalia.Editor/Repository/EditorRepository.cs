@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.DomainModels;
 using Vocalia.Editor.Media;
-using Vocalia.Editor.Streams;
 using Vocalia.ServiceBus.Types;
+using Vocalia.Streams;
 
 namespace Vocalia.Editor.Repository
 {
@@ -33,7 +33,7 @@ namespace Vocalia.Editor.Repository
         /// Instantiates a new EditorRepository.
         /// </summary>
         public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
-             IStreamBuilder streamBuilder, IObjectBus<IEnumerable<RecordingChunk>> recordBus,
+             IStreamBuilder streamBuilder, IObjectBus<IEnumerable<Clip>> recordBus,
              IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = editorDb;
@@ -63,7 +63,7 @@ namespace Vocalia.Editor.Repository
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<EditStream>> GetStreamsAsync(Guid sessionUid, string userUid)
+        public async Task<IEnumerable<UserTrack>> GetStreamsAsync(Guid sessionUid, string userUid)
         {
             var session = await DbContext.Sessions
                 .Include(x => x.Users).ThenInclude(x => x.Media)
@@ -72,22 +72,18 @@ namespace Vocalia.Editor.Repository
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
-                var audioStreams = new List<EditStream>();
-
-                foreach (var user in session.Users)
+                var audioStreams = session.Users.Select(x => new UserTrack
                 {
-                    var media = user.Media.OrderBy(x => x.Timestamp).Select(c => c.MediaUrl);
-                    var stream = await StreamBuilder.ConcatenateUrlMediaAsync(media);
-                    var url = await MediaStorage.UploadStreamAsync(userUid, sessionUid, stream);
-                    audioStreams.Add(new EditStream
+                    UserUid = x.UserUID,
+                    SessionUid = x.Session.UID,
+                    ID = x.ID,
+                    UserName = x.Name,
+                    Entries = x.Media.Select(c => new AudioEntry
                     {
-                        ID = user.ID,
-                        SessionUID = session.UID,
-                        UserUID = user.UserUID,
-                        UserName = user.Name,
-                        MediaUrl = url
-                    });
-                }
+                        ID = c.ID,
+                        UID = c.UID
+                    })
+                });
 
                 return audioStreams;
             }

@@ -16,7 +16,8 @@ namespace Vocalia.Ingest.Db
 
         public virtual Podcast Podcast { get; set; }
         public virtual IEnumerable<SessionUser> Users { get; set; }
-        public virtual IEnumerable<SessionMedia> MediaEntries { get; set; }
+        public virtual IEnumerable<SessionMedia> SessionMedia { get; set; }
+        public virtual IEnumerable<SessionClip> SessionClips { get; set; }
 
     }
 }

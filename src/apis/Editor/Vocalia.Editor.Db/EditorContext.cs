@@ -65,8 +65,9 @@ namespace Vocalia.Editor.Db
         {
             builder.Property(x => x.ID).IsRequired();
             builder.Property(x => x.UserID).IsRequired();
-            builder.Property(x => x.Timestamp).IsRequired();
+            builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.MediaUrl).IsRequired();
+            builder.Property(x => x.UID).IsRequired();
         }
     }
 
