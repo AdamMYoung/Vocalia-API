@@ -41,7 +41,7 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Message bus for sending message blobs to the editor.
         /// </summary>
-        private IObjectBus<IEnumerable<Clip>> ClipBus { get; }
+        private IObjectBus<Clip> ClipBus { get; }
 
         /// <summary>
         /// Message bus for sending new podcasts to listeners.
@@ -54,7 +54,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="context"></param>
         public IngestRepository(IngestContext context, IImageStorage imageStorage,
             IMediaStorage mediaStorage, IStreamBuilder streamBuilder,
-            IObjectBus<IEnumerable<Clip>> clipBus, 
+            IObjectBus<Clip> clipBus, 
             IObjectBus<ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = context;
@@ -180,7 +180,8 @@ namespace Vocalia.Ingest.Repositories
                 UID = c.UID,
                 MediaUrl = c.MediaUrl,
                 Size = c.Size,
-                Time = c.Time
+                Time = c.Time,
+                Name = c.Name
             });
         }
 
@@ -189,35 +190,52 @@ namespace Vocalia.Ingest.Repositories
         /// </summary>
         /// <param name="sessionUid">UID of the session to proces</param>
         /// <returns></returns>
-        public async Task<bool> FinishClipAsync(Guid sessionUid, string userUid)
+        public async Task<bool> FinishClipAsync(string clipName, Guid sessionUid, string userUid)
         {
             var entries = await GetSessionBlobsAsync(sessionUid, userUid);
             if (entries == null)
                 return false;
 
-            var busClipList = new List<Clip>();
-            foreach (var entry in entries)
+            var entry = entries.ToList()[0];
+            var session = await DbContext.Sessions.Include(x => x.Podcast).FirstOrDefaultAsync(x => x.UID == entry.SessionUID);
+
+            var clip = new Clip
+            {
+                SessionUID = entry.SessionUID,
+                PodcastUID = session.Podcast.UID,
+                Date = DateTime.Now,
+                Name = clipName,
+                UID = Guid.NewGuid()
+            };
+
+           
+            foreach (var e in entries)
             {
                 var uid = Guid.NewGuid();
-                var stream = await StreamBuilder.ConcatenateUrlMediaAsync(entry.Blobs.Select(x => x.Url));
-                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, uid, stream);
-
-                var session = await DbContext.Sessions.Include(x => x.Podcast).FirstOrDefaultAsync(x => x.UID == entry.SessionUID);
+                var stream = await StreamBuilder.ConcatenateUrlMediaAsync(e.Blobs.Select(x => x.Url));
+                var url = await MediaStorage.UploadStreamAsync(e.UserUID, sessionUid, uid, stream);
 
                 DbContext.SessionClips.Add(new Db.SessionClip
                 {
-                    UserUID = entry.UserUID,
+                    UserUID = e.UserUID,
                     SessionID = session.ID,
                     UID = uid,
                     MediaUrl = url,
                     Size = stream.ToArray().LongLength,
-                    Time = DateTime.Now
+                    Time = DateTime.Now,
+                    Name = clipName
                 });
 
-                busClipList.Add(new Clip(entry.SessionUID, session.Podcast.UID, entry.UserUID, url, DateTime.Now, uid));
+                clip.Media.Add(new ServiceBus.Types.Media
+                {
+                    Date = DateTime.Now,
+                    MediaUrl = url,
+                    UID = uid,
+                    UserUID = userUid
+                });
             }
 
-            await ClipBus.SendAsync(busClipList);
+            await ClipBus.SendAsync(clip);
 
             var media = DbContext.SessionMedia.Where(x => x.Session.UID == sessionUid);
             DbContext.SessionMedia.RemoveRange(media);

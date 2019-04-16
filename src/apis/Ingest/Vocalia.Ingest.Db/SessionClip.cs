@@ -13,6 +13,7 @@ namespace Vocalia.Ingest.Db
         public virtual long Size { get; set; }
         public virtual string MediaUrl { get; set; }
         public virtual DateTime Time { get; set; }
+        public virtual string Name { get; set; }
 
         public virtual Session Session { get; set; }
     }

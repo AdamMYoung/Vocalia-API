@@ -33,7 +33,7 @@ namespace Vocalia.Editor.Repository
         /// Instantiates a new EditorRepository.
         /// </summary>
         public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
-             IStreamBuilder streamBuilder, IObjectBus<IEnumerable<Clip>> recordBus,
+             IStreamBuilder streamBuilder, IObjectBus<Vocalia.ServiceBus.Types.Clip> recordBus,
              IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus)
         {
             DbContext = editorDb;
@@ -58,35 +58,77 @@ namespace Vocalia.Editor.Repository
         }
 
         /// <summary>
-        /// Builds an audio stream from the recieved stream chunks.
+        /// Gets the current timeline from the database.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<UserTrack>> GetStreamsAsync(Guid sessionUid, string userUid)
+        public async Task<IEnumerable<DomainModels.Clip>> GetTimelineAsync(Guid sessionUid, string userUid)
         {
             var session = await DbContext.Sessions
-                .Include(x => x.Users).ThenInclude(x => x.Media)
-                .Include(x => x.Podcast).ThenInclude(x => x.Members)
-                .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
+               .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip)
+               .ThenInclude(c => c.Media)
+               .Include(x => x.Podcast).ThenInclude(x => x.Members)
+               .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
-                var audioStreams = session.Users.Select(x => new UserTrack
+                var clips = session.TimelineEntries.Select(c => c.Clip).Select(x => new DomainModels.Clip
                 {
-                    UserUid = x.UserUID,
-                    SessionUid = x.Session.UID,
+                    UID = x.UID,
                     ID = x.ID,
-                    UserName = x.Name,
-                    Entries = x.Media.Select(c => new AudioEntry
+                    Date = x.Date,
+                    SessionID = x.SessionID,
+                    Name = x.Name,
+                    Media = x.Media.Select(c => new DomainModels.Media
                     {
                         ID = c.ID,
+                        Date = c.Date,
                         UID = c.UID,
-                        Url = c.MediaUrl
+                        MediaUrl = c.MediaUrl,
+                        UserUID = c.UserUID
                     })
                 });
 
-                return audioStreams;
+                return clips;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets all clips from the database.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="userUid">UID of the user.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Clip>> GetAllClipsAsync(Guid sessionUid, string userUid)
+        {
+            var session = await DbContext.Sessions
+               .Include(x => x.Clips).ThenInclude(c => c.Media)
+               .Include(x => x.Podcast).ThenInclude(x => x.Members)
+               .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
+
+            if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
+            {
+                var clips = session.Clips.Select(x => new DomainModels.Clip
+                {
+                    UID = x.UID,
+                    ID = x.ID,
+                    Date = x.Date,
+                    SessionID = x.SessionID,
+                    Name = x.Name,
+                    Media = x.Media.Select(c => new DomainModels.Media
+                    {
+                        ID = c.ID,
+                        Date = c.Date,
+                        UID = c.UID,
+                        MediaUrl = c.MediaUrl,
+                        UserUID = c.UserUID
+                    })
+                });
+
+                return clips;
             }
 
             return null;

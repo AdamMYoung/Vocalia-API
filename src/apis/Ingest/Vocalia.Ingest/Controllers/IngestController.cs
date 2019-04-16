@@ -245,7 +245,8 @@ namespace Ingest_API.Controllers
                 Size = c.Size,
                 UID = c.UID,
                 UserUID = c.UserUID,
-                Time = c.Time
+                Time = c.Time,
+                Name = c.Name
             });
 
             if (clips == null)
@@ -277,16 +278,17 @@ namespace Ingest_API.Controllers
         /// <summary>
         /// Finishes the current clip.
         /// </summary>
+        /// <param name="clipName">Name of the clip.</param>
         /// <param name="sessionUid">Session to finish the clip of.</param>
         /// <returns></returns>
         [Route("clip")]
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> FinishClip(Guid sessionUid)
+        public async Task<IActionResult> FinishClip(Guid sessionUid, string clipName)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var isCompleted = await Repository.FinishClipAsync(sessionUid, userId);
+            var isCompleted = await Repository.FinishClipAsync(clipName, sessionUid, userId);
 
             if (!isCompleted)
                 return Unauthorized();

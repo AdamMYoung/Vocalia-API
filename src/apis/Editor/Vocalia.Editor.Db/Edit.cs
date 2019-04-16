@@ -13,7 +13,7 @@ namespace Vocalia.Editor.Db
         public virtual int EndTimestamp { get; set; }
 
         public virtual EditType EditType { get; set; }
-        public virtual User User { get; set; }
+        public virtual Clip User { get; set; }
        
     }
 }

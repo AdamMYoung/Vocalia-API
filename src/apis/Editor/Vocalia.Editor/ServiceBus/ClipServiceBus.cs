@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Editor.ServiceBus
 {
-    public class ClipServiceBus : ObjectBus<IEnumerable<Clip>>
+    public class ClipServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Clip>
     {
         /// <summary>
         /// Facade for handling Auth0 user info.
@@ -29,36 +29,39 @@ namespace Vocalia.Editor.ServiceBus
             ServiceScope = serviceScope;
         }
 
-        public async override Task HandleMessageAsync(IEnumerable<Clip> messages)
+        public async override Task HandleMessageAsync(Vocalia.ServiceBus.Types.Clip message)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
             {
-                foreach (var message in messages) { 
-                    //Gets the specified session, or creates it if not available.
-                    var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == message.SessionUID);
-                    if (session == null)
-                    {
-                        var sessionId = await CreateSessionAsync(message);
-                        session = await DbContext.Sessions.FindAsync(sessionId);
-                    }
+                //Gets the specified session, or creates it if not available.
+                var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == message.SessionUID);
+                if (session == null)
+                {
+                    var sessionId = await CreateSessionAsync(message);
+                    session = await DbContext.Sessions.FindAsync(sessionId);
+                }
 
-                    //Gets the specificed user, or creates it if not available.
-                    Db.User user = await DbContext.Users.FirstOrDefaultAsync(x => x.UserUID == message.UserUID && x.Session.UID == message.SessionUID);
-                    if (user == null)
-                    {
-                        var userId = await CreateUserAsync(message, session.ID);
-                        user = await DbContext.Users.FindAsync(userId);
-                    }
+                //Gets the specificed user, or creates it if not available.
+                Db.Clip clip = await DbContext.Clips.FirstOrDefaultAsync(x => x.UID == message.UID && x.Session.UID == message.SessionUID);
+                if (clip == null)
+                {
+                    var userId = await CreateClipAsync(message, session.ID);
+                    clip = await DbContext.Clips.FindAsync(userId);
+                }
 
-                    //Adds the recieved media to the user entry.
-                    DbContext.UserMedia.Add(new UserMedia
+                foreach (var entry in clip.Media)
+                {
+                    var userRef = await UserFacade.GetUserInfoAsync(entry.UserUID);
+                    var media = new Db.Media
                     {
-                        UserID = user.ID,
-                        MediaUrl = message.MediaUrl,
-                        Date = message.Date,
-                        UID = message.UID
-                    });
+                        UID = entry.UID,
+                        ClipID = clip.ID,
+                        Date = entry.Date,
+                        MediaUrl = entry.MediaUrl,
+                        UserUID = entry.UserUID
+                    };
+                    DbContext.Media.Add(media);
                 }
 
                 await DbContext.SaveChangesAsync();
@@ -68,45 +71,45 @@ namespace Vocalia.Editor.ServiceBus
         /// <summary>
         /// Creates a user in the database and returns the reference.
         /// </summary>
-        /// <param name="recordingChunk">Recording chunk recieved.</param>
+        /// <param name="clip">Clip recieved.</param>
         /// <returns></returns>
-        private async Task<int> CreateUserAsync(Clip recordingChunk, int sessionId)
+        private async Task<int> CreateClipAsync(Vocalia.ServiceBus.Types.Clip clip, int sessionId)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
             {
-                var userRef = await UserFacade.GetUserInfoAsync(recordingChunk.UserUID);
-                var user = new Db.User
+                var dbClip = new Db.Clip
                 {
-                    Name = userRef.name,
-                    UserUID = recordingChunk.UserUID,
-                    SessionID = sessionId
+                    Name = clip.Name,
+                    UID = clip.UID,
+                    SessionID = sessionId,
+                    Date = clip.Date
                 };
 
-                DbContext.Users.Add(user);
+                DbContext.Clips.Add(dbClip);              
                 await DbContext.SaveChangesAsync();
 
-                return user.ID;
+                return dbClip.ID;
             }
         }
 
         /// <summary>
         /// Creates a session in the database and returns the reference.
         /// </summary>
-        /// <param name="recordingChunk">Recording chunk recieved.</param>
+        /// <param name="clip">Clip recieved.</param>
         /// <returns></returns>
-        private async Task<int> CreateSessionAsync(Clip recordingChunk)
+        private async Task<int> CreateSessionAsync(Vocalia.ServiceBus.Types.Clip clip)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
             {
-                var podcastRef = await DbContext.Podcasts.FirstOrDefaultAsync(x => x.UID == recordingChunk.PodcastUID);
+                var podcastRef = await DbContext.Podcasts.FirstOrDefaultAsync(x => x.UID == clip.PodcastUID);
                 var session = new Session()
                 {
                     IsFinishedEditing = false,
                     PodcastID = podcastRef.ID,
-                    UID = recordingChunk.SessionUID,
-                    Date = recordingChunk.Date
+                    UID = clip.SessionUID,
+                    Date = clip.Date
                 };
 
                 DbContext.Sessions.Add(session);

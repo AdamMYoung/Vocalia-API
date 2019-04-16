@@ -43,11 +43,19 @@ namespace Vocalia.Editor.Repository
         Task AddEditAsync(Guid sessionUid, string userUid, DomainModels.Edit edit);
 
         /// <summary>
-        /// Gets an audio stream with the current edits applied.
+        /// Gets the current timeline from the database.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        Task<IEnumerable<UserTrack>> GetStreamsAsync(Guid sessionUid, string userUid);
+        Task<IEnumerable<DomainModels.Clip>> GetTimelineAsync(Guid sessionUid, string userUid);
+
+        /// <summary>
+        /// Gets all clips from the database.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="userUid">UID of the user.</param>
+        /// <returns></returns>
+        Task<IEnumerable<DomainModels.Clip>> GetAllClipsAsync(Guid sessionUid, string userUid);
     }
 }

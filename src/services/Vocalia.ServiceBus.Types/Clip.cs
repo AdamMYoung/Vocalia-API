@@ -9,44 +9,32 @@ namespace Vocalia.ServiceBus.Types
         /// <summary>
         /// UID of the session.
         /// </summary>
-        public Guid SessionUID { get; private set; }
+        public Guid SessionUID { get; set; }
 
         /// <summary>
         /// UID of the podcast.
         /// </summary>
-        public Guid PodcastUID { get; private set; }
-
-        /// <summary>
-        /// UID of the user.
-        /// </summary>
-        public string UserUID { get; private set; }
+        public Guid PodcastUID { get; set; }
 
         /// <summary>
         /// UID of the clip.
         /// </summary>
-        public Guid UID { get; private set; }
+        public Guid UID { get; set; }
 
         /// <summary>
         /// Date of the recording chunk.
         /// </summary>
-        public DateTime Date { get; private set; }
+        public DateTime Date { get; set; }
 
         /// <summary>
-        /// URL to the media chunk.
+        /// Name of the clip.
         /// </summary>
-        public string MediaUrl { get; private set; }
-        
+        public string Name { get; set; }
+
         /// <summary>
-        /// Instantaites a new RecordingChunk.
+        /// User media belonging to the clip.
         /// </summary>
-        public Clip(Guid sessionUid, Guid podcastUid, string userUid, string mediaUrl, DateTime date, Guid uid)
-        {
-            SessionUID = sessionUid;
-            PodcastUID = podcastUid;
-            UserUID = userUid;
-            UID = uid;
-            MediaUrl = mediaUrl;
-            Date = date;
-        }
+        public IList<Media> Media { get; set; } = new List<Media>();
+
     }
 }

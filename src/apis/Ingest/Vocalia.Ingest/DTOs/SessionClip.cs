@@ -12,5 +12,6 @@ namespace Vocalia.Ingest.DTOs
         public long Size { get; set; }
         public string MediaUrl { get; set; }
         public DateTime Time { get; set; }
+        public string Name { get; set; }
     }
 }

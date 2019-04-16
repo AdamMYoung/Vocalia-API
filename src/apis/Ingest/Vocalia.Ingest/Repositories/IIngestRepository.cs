@@ -96,9 +96,11 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Builds the current clips stored into a single stream, then removes the clips.
         /// </summary>
-        /// <param name="sessionUid">UID of the session to proces</param>
+        /// <param name="clipName">Name of the clip.</param>
+        /// <param name="sessionUid">UID of the session to process.</param>
+        /// <param name="userUid">UID of the user requesting.</param>
         /// <returns></returns>
-        Task<bool> FinishClipAsync(Guid sessionUid, string userUid);
+        Task<bool> FinishClipAsync(string clipName, Guid sessionUid, string userUid);
 
         /// <summary>
         /// Returns the podcast assigned to the invite link.

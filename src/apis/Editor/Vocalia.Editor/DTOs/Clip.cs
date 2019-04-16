@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Vocalia.Ingest.DomainModels
+namespace Vocalia.Editor.DTOs
 {
-    public class SessionClip
+    public class Clip
     {
         public Guid UID { get; set; }
         public int SessionID { get; set; }
-        public string UserUID { get; set; }
-        public long Size { get; set; }
-        public DateTime Time { get; set; }
-        public string MediaUrl { get; set; }
         public string Name { get; set; }
+        public DateTime Date { get; set; }
+
+        public IEnumerable<Media> Media { get; set; } = new List<Media>();
     }
 }

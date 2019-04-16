@@ -49,6 +49,7 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.Size).IsRequired();
                 builder.Property(c => c.MediaUrl).IsRequired();
                 builder.Property(c => c.Time).IsRequired();
+                builder.Property(c => c.Name).IsRequired();
             }
         }
 

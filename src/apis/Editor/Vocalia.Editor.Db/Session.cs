@@ -13,7 +13,8 @@ namespace Vocalia.Editor.Db
         public virtual bool IsFinishedEditing { get; set; }
         public virtual bool IsActive { get; set; } = true;
 
-        public virtual IEnumerable<User> Users { get; set; }
+        public virtual IEnumerable<Clip> Clips { get; set; }
+        public virtual IEnumerable<TimelineEntry> TimelineEntries { get; set; }
         public virtual Podcast Podcast { get; set; }
     }
 }

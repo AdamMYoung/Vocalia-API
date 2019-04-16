@@ -116,35 +116,73 @@ namespace Vocalia.Editor.Controllers
         #endregion
 
         /// <summary>
-        /// Gets all streams belonging to the session UID.
+        /// Gets timeline of the session.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <returns></returns>
-        [Route("streams")]
+        [Route("timeline")]
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetStreams(Guid sessionUid)
+        public async Task<IActionResult> GetTimeline(Guid sessionUid)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var streams = await Repository.GetStreamsAsync(sessionUid, userId);
+            var clips = await Repository.GetTimelineAsync(sessionUid, userId);
 
-            if (streams == null)
+            if (clips == null)
                 return Unauthorized();
 
-            var streamsDTOs = streams.Select(x => new UserTrack
+            var clipDTOs = clips.Select(x => new Clip
             {
-                UserUid = x.UserUid,
-                SessionUid = x.SessionUid,
-                UserName = x.UserName,
-                Entries = x.Entries.Select(c => new AudioEntry
+                UID = x.UID,
+                Date = x.Date,
+                SessionID = x.SessionID,
+                Name = x.Name,
+                Media = x.Media.Select(c => new DTOs.Media
                 {
+                    Date = c.Date,
                     UID = c.UID,
-                    Url = c.Url
+                    MediaUrl = c.MediaUrl,
+                    UserUID = c.UserUID
                 })
             });
 
-            return Ok(streamsDTOs);
+            return Ok(clipDTOs);
+        }
+
+        /// <summary>
+        /// Gets all clips belonging to the session.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <returns></returns>
+        [Route("clips")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetClips(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var clips = await Repository.GetAllClipsAsync(sessionUid, userId);
+
+            if (clips == null)
+                return Unauthorized();
+
+            var clipDTOs = clips.Select(x => new Clip
+            {
+                UID = x.UID,
+                Date = x.Date,
+                SessionID = x.SessionID,
+                Name = x.Name,
+                Media = x.Media.Select(c => new DTOs.Media
+                {
+                    Date = c.Date,
+                    UID = c.UID,
+                    MediaUrl = c.MediaUrl,
+                    UserUID = c.UserUID
+                })
+            });
+
+            return Ok(clipDTOs);
         }
     }
 }

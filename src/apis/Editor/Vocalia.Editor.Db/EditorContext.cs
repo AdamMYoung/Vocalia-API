@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Vocalia.Editor.Db
 {
@@ -40,31 +37,48 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.PodcastID).IsRequired();
             builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.IsFinishedEditing).IsRequired();
+            builder.Property(x => x.IsActive).IsRequired();
+
+            builder.HasMany(x => x.Clips).WithOne(x => x.Session).IsRequired();
         }
     }
 
-    internal class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
+    internal class TimelineEntryEntityTypeConfiguration : IEntityTypeConfiguration<TimelineEntry>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<TimelineEntry> builder)
+        {
+            builder.Property(x => x.ID).IsRequired();
+            builder.Property(x => x.ClipID).IsRequired();
+            builder.Property(x => x.SessionID).IsRequired();
+            builder.Property(x => x.Position).IsRequired();
+
+            builder.HasOne(x => x.Clip).WithOne(x => x.TimelineEntry).IsRequired();
+            builder.HasOne(x => x.Session).WithMany(x => x.TimelineEntries).IsRequired();
+        }
+    }
+
+    internal class ClipEntityTypeConfiguration : IEntityTypeConfiguration<Clip>
+    {
+        public void Configure(EntityTypeBuilder<Clip> builder)
         {
             builder.Property(x => x.ID).IsRequired();
             builder.Property(x => x.SessionID).IsRequired();
-            builder.Property(x => x.UserUID).IsRequired();
+            builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.Name).IsRequired();
-
-            builder.HasOne(x => x.Session).WithMany(x => x.Users).IsRequired();
+            builder.Property(x => x.UID).IsRequired();
 
             builder.HasMany(x => x.Edits).WithOne(x => x.User).IsRequired();
-            builder.HasMany(x => x.Media).WithOne(x => x.User).IsRequired();
+            builder.HasMany(x => x.Media).WithOne(x => x.Clip).IsRequired();
         }
     }
 
-    internal class UserMediaEntityTypeConfiguration : IEntityTypeConfiguration<UserMedia>
+    internal class MediaEntityTypeConfiguration : IEntityTypeConfiguration<Media>
     {
-        public void Configure(EntityTypeBuilder<UserMedia> builder)
+        public void Configure(EntityTypeBuilder<Media> builder)
         {
             builder.Property(x => x.ID).IsRequired();
-            builder.Property(x => x.UserID).IsRequired();
+            builder.Property(x => x.ClipID).IsRequired();
+            builder.Property(x => x.UserUID).IsRequired();
             builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.MediaUrl).IsRequired();
             builder.Property(x => x.UID).IsRequired();
@@ -77,6 +91,8 @@ namespace Vocalia.Editor.Db
         {
             builder.Property(x => x.ID).IsRequired();
             builder.Property(x => x.Name).IsRequired();
+
+            builder.HasMany(x => x.Edits).WithOne(x => x.EditType).IsRequired();
         }
     }
 
@@ -89,8 +105,6 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.StartTimestamp).IsRequired();
             builder.Property(x => x.EndTimestamp).IsRequired();
             builder.Property(x => x.EditTypeID).IsRequired();
-
-            builder.HasOne(x => x.EditType).WithMany(x => x.Edits).IsRequired();
         }
     }
 
@@ -103,8 +117,9 @@ namespace Vocalia.Editor.Db
         public DbSet<Member> Members { get; set; }
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Session> Sessions { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserMedia> UserMedia { get; set; }
+        public DbSet<TimelineEntry> TimelineEntries { get; set; }
+        public DbSet<Clip> Clips { get; set; }
+        public DbSet<Media> Media { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -120,8 +135,9 @@ namespace Vocalia.Editor.Db
             modelBuilder.ApplyConfiguration(new MemberEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new UserMediaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ClipEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new MediaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new TimelineEntryEntityTypeConfiguration());
         }
     }
 

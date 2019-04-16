@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Editor.DTOs
 {
-    public class AudioEntry
+    public class Media
     {
+        public string UserUID { get; set; }
+        public DateTime Date { get; set; }
+        public string MediaUrl { get; set; }
         public Guid UID { get; set; }
-        public string Url { get; set; }
     }
 }
