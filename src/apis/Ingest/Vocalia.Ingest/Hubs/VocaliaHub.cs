@@ -158,6 +158,25 @@ namespace Vocalia.Ingest.Hubs
         }
 
         /// <summary>
+        /// Called when the session has ended.
+        /// </summary>
+
+        /// <returns></returns>
+        public async Task SetSessionEnd()
+        {
+            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            var session = Sessions.FirstOrDefault(x => x.SessionUID == user.CurrentSessionId);
+
+            var sessionUsers = Users.Where(x => x.CurrentSessionId == session.SessionUID);
+
+            await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
+                .SendAsync("onSessionEnd");
+
+            Users.RemoveAll(x => x.CurrentSessionId == session.SessionUID);
+            Sessions.Remove(session);
+        }
+
+        /// <summary>
         /// Updates the joining client with the current session information.
         /// </summary>
         /// <returns></returns>

@@ -81,7 +81,8 @@ namespace Vocalia.Editor.Repository
                     Entries = x.Media.Select(c => new AudioEntry
                     {
                         ID = c.ID,
-                        UID = c.UID
+                        UID = c.UID,
+                        Url = c.MediaUrl
                     })
                 });
 
@@ -169,7 +170,7 @@ namespace Vocalia.Editor.Repository
         /// <returns></returns>
         public async Task<bool> DeleteSessionAsync(string userUid, Guid sessionUid)
         {
-            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid && 
+            var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == sessionUid &&
                 x.Podcast.Members.Any(c => c.UserUID == userUid && c.IsAdmin));
 
             if (session == null)
