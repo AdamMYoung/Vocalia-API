@@ -9,6 +9,7 @@ using Vocalia.Editor.DomainModels;
 using Vocalia.Editor.Media;
 using Vocalia.ServiceBus.Types;
 using Vocalia.Streams;
+using Vocalia.UserFacade;
 
 namespace Vocalia.Editor.Repository
 {
@@ -25,6 +26,11 @@ namespace Vocalia.Editor.Repository
         private IStreamBuilder StreamBuilder { get; }
 
         /// <summary>
+        /// Facade for user access.
+        /// </summary>
+        private IUserFacade UserFacade { get; }
+
+        /// <summary>
         /// Database reference.
         /// </summary>
         private EditorContext DbContext { get; }
@@ -34,11 +40,12 @@ namespace Vocalia.Editor.Repository
         /// </summary>
         public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
              IStreamBuilder streamBuilder, IObjectBus<Vocalia.ServiceBus.Types.Clip> recordBus,
-             IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus)
+             IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus, IUserFacade userFacade)
         {
             DbContext = editorDb;
             MediaStorage = mediaStorage;
             StreamBuilder = streamBuilder;
+            UserFacade = userFacade;
 
             //Initializes service bus objects for handling I/O between services.
             _ = recordBus;
@@ -73,6 +80,14 @@ namespace Vocalia.Editor.Repository
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
+                var uids = session.Clips.Select(c => c.Media.Select(x => x.UserUID))
+                    .SelectMany(c => c)
+                    .Distinct();
+
+                var userInfo = new List<User>();
+                foreach (var uid in uids)
+                    userInfo.Add(await UserFacade.GetUserInfoAsync(uid));
+
                 var clips = session.TimelineEntries.Select(c => c.Clip).Select(x => new DomainModels.Clip
                 {
                     UID = x.UID,
@@ -86,11 +101,13 @@ namespace Vocalia.Editor.Repository
                         Date = c.Date,
                         UID = c.UID,
                         MediaUrl = c.MediaUrl,
-                        UserUID = c.UserUID
+                        UserUID = c.UserUID,
+                        UserImageUrl = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).picture,
+                        UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name
                     })
                 });
 
-                return clips;
+                return clips.OrderBy(c => c.Date);
             }
 
             return null;
@@ -111,6 +128,15 @@ namespace Vocalia.Editor.Repository
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
+                var uids = session.Clips.Select(c => c.Media.Select(x => x.UserUID))
+                    .SelectMany(c => c)
+                    .Distinct();
+
+                var userInfo = new List<User>();
+                foreach(var uid in uids)
+                    userInfo.Add(await UserFacade.GetUserInfoAsync(uid));
+                
+
                 var clips = session.Clips.Select(x => new DomainModels.Clip
                 {
                     UID = x.UID,
@@ -124,11 +150,13 @@ namespace Vocalia.Editor.Repository
                         Date = c.Date,
                         UID = c.UID,
                         MediaUrl = c.MediaUrl,
-                        UserUID = c.UserUID
+                        UserUID = c.UserUID,
+                        UserImageUrl = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).picture,
+                        UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name
                     })
                 });
 
-                return clips;
+                return clips.OrderBy(c => c.Date);
             }
 
             return null;

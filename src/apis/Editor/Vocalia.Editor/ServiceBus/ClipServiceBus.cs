@@ -50,7 +50,7 @@ namespace Vocalia.Editor.ServiceBus
                     clip = await DbContext.Clips.FindAsync(userId);
                 }
 
-                foreach (var entry in clip.Media)
+                foreach (var entry in message.Media)
                 {
                     var userRef = await UserFacade.GetUserInfoAsync(entry.UserUID);
                     var media = new Db.Media

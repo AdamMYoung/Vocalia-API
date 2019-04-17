@@ -143,7 +143,9 @@ namespace Vocalia.Editor.Controllers
                     Date = c.Date,
                     UID = c.UID,
                     MediaUrl = c.MediaUrl,
-                    UserUID = c.UserUID
+                    UserUID = c.UserUID,
+                    UserImageUrl = c.UserImageUrl,
+                    UserName = c.UserName
                 })
             });
 
@@ -178,7 +180,9 @@ namespace Vocalia.Editor.Controllers
                     Date = c.Date,
                     UID = c.UID,
                     MediaUrl = c.MediaUrl,
-                    UserUID = c.UserUID
+                    UserUID = c.UserUID,
+                    UserImageUrl = c.UserImageUrl,
+                    UserName = c.UserName
                 })
             });
 
