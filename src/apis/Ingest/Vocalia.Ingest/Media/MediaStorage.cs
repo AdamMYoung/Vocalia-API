@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -23,18 +24,17 @@ namespace Vocalia.Ingest.Media
         /// <summary>
         /// Uploads a media blob to the database.
         /// </summary>
-        /// <param name="blob">Blob to upload.</param>
         /// <returns></returns>
-        public async Task<string> UploadBlobAsync(BlobUpload blob)
+        public async Task<string> UploadFormFileAsync(IFormFile file, Guid sessionUid, string userUid)
         {
             var fileName = Guid.NewGuid().ToString();
-            var url = string.Concat(Config["BlobStorage:MediaURL"], blob.SessionUID,"/",
-                blob.UserUID, "/", fileName);
+            var url = string.Concat(Config["BlobStorage:MediaURL"], sessionUid, "/",
+                userUid, "/", fileName, ".wav");
 
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var newBlob = new CloudBlockBlob(new Uri(url), creds);
 
-            using (var stream = blob.Data.OpenReadStream())
+            using (var stream = file.OpenReadStream())
             {
                 await newBlob.UploadFromStreamAsync(stream);
             }
@@ -53,14 +53,13 @@ namespace Vocalia.Ingest.Media
         public async Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Guid entryUid, Stream stream)
         {
             var url = string.Concat(Config["BlobStorage:CompiledURL"], sessionUid, "/",
-                userUid, "/", entryUid, ".webm");
+                userUid, "/", entryUid, ".wav");
 
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var newBlob = new CloudBlockBlob(new Uri(url), creds);
 
             stream.Position = 0;
             await newBlob.UploadFromStreamAsync(stream);
-            stream.Dispose();
 
             return url;
         }

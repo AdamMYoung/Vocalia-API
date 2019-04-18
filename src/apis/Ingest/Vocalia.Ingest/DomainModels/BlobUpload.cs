@@ -8,9 +8,9 @@ namespace Vocalia.Ingest.DomainModels
 {
     public class BlobUpload
     {
-        public string UserUID { get; set; }
-        public int Timestamp { get; set; }
-        public Guid SessionUID { get; set; }
+        public string Name { get; set; }
+        public Guid SessionUid { get; set; }
+        public Guid ClipUid { get; set; }
         public IFormFile Data { get; set; }
     }
 }

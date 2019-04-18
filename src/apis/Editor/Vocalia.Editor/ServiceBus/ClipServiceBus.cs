@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Editor.ServiceBus
 {
-    public class ClipServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Clip>
+    public class ClipServiceBus : ObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>>
     {
         /// <summary>
         /// Facade for handling Auth0 user info.
@@ -29,42 +29,45 @@ namespace Vocalia.Editor.ServiceBus
             ServiceScope = serviceScope;
         }
 
-        public async override Task HandleMessageAsync(Vocalia.ServiceBus.Types.Clip message)
+        public async override Task HandleMessageAsync(IEnumerable<Vocalia.ServiceBus.Types.Clip> messages)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
             {
-                //Gets the specified session, or creates it if not available.
-                var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == message.SessionUID);
-                if (session == null)
+                foreach (var message in messages)
                 {
-                    var sessionId = await CreateSessionAsync(message);
-                    session = await DbContext.Sessions.FindAsync(sessionId);
-                }
-
-                //Gets the specificed user, or creates it if not available.
-                Db.Clip clip = await DbContext.Clips.FirstOrDefaultAsync(x => x.UID == message.UID && x.Session.UID == message.SessionUID);
-                if (clip == null)
-                {
-                    var userId = await CreateClipAsync(message, session.ID);
-                    clip = await DbContext.Clips.FindAsync(userId);
-                }
-
-                foreach (var entry in message.Media)
-                {
-                    var userRef = await UserFacade.GetUserInfoAsync(entry.UserUID);
-                    var media = new Db.Media
+                    //Gets the specified session, or creates it if not available.
+                    var session = await DbContext.Sessions.FirstOrDefaultAsync(x => x.UID == message.SessionUID);
+                    if (session == null)
                     {
-                        UID = entry.UID,
-                        ClipID = clip.ID,
-                        Date = entry.Date,
-                        MediaUrl = entry.MediaUrl,
-                        UserUID = entry.UserUID
-                    };
-                    DbContext.Media.Add(media);
-                }
+                        var sessionId = await CreateSessionAsync(message);
+                        session = await DbContext.Sessions.FindAsync(sessionId);
+                    }
 
-                await DbContext.SaveChangesAsync();
+                    //Gets the specificed user, or creates it if not available.
+                    Db.Clip clip = await DbContext.Clips.FirstOrDefaultAsync(x => x.UID == message.UID && x.Session.UID == message.SessionUID);
+                    if (clip == null)
+                    {
+                        var userId = await CreateClipAsync(message, session.ID);
+                        clip = await DbContext.Clips.FindAsync(userId);
+                    }
+
+                    foreach (var entry in message.Media)
+                    {
+                        var userRef = await UserFacade.GetUserInfoAsync(entry.UserUID);
+                        var media = new Db.Media
+                        {
+                            UID = entry.UID,
+                            ClipID = clip.ID,
+                            Date = entry.Date,
+                            MediaUrl = entry.MediaUrl,
+                            UserUID = entry.UserUID
+                        };
+                        DbContext.Media.Add(media);
+                    }
+
+                    await DbContext.SaveChangesAsync();
+                }
             }
         }
 

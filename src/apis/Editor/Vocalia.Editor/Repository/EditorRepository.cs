@@ -39,7 +39,7 @@ namespace Vocalia.Editor.Repository
         /// Instantiates a new EditorRepository.
         /// </summary>
         public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
-             IStreamBuilder streamBuilder, IObjectBus<Vocalia.ServiceBus.Types.Clip> recordBus,
+             IStreamBuilder streamBuilder, IObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>> recordBus,
              IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus, IUserFacade userFacade)
         {
             DbContext = editorDb;
@@ -102,29 +102,21 @@ namespace Vocalia.Editor.Repository
             var edit = await DbContext.Edits.Include(c => c.Clip).ThenInclude(c => c.Media).ThenInclude(c => c.Stream).FirstOrDefaultAsync(c => c.ID == editId);
 
             foreach(var entry in edit.Clip.Media)
-            {
-                double endTrim = edit.EndTrim / 100.0;
-                double startTrim = edit.StartTrim / 100.0;
-
-                var stream = await StreamBuilder.ConcatenateUrlMediaAsync(new List<string>() { entry.MediaUrl });  
-
-                var trimAmount = (long)(stream.Length - (stream.Length * endTrim));
-                var skipAmount = (long)(stream.Length * startTrim);
-
-                stream.Position = skipAmount;
-                stream.SetLength(trimAmount);
-                //TODO Find a library to trim these files as required.
-
-                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
-
-                if(entry.Stream != null)
-                    DbContext.Streams.Remove(entry.Stream);
-
-                DbContext.Streams.Add(new Stream
+            {               
+                using(var stream = await StreamBuilder.GetStreamFromUrlAsync(entry.MediaUrl))
                 {
-                    MediaID = entry.ID,
-                    MediaUrl = url
-                });
+                    var file = await Audio.AudioEditUtils.TrimFile(stream, edit.StartTrim, edit.EndTrim);
+                    var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
+
+                    if (entry.Stream != null)
+                        DbContext.Streams.Remove(entry.Stream);
+
+                    DbContext.Streams.Add(new Stream
+                    {
+                        MediaID = entry.ID,
+                        MediaUrl = url
+                    });
+                }
             }
 
             await DbContext.SaveChangesAsync();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vocalia.Ingest.DomainModels;
@@ -100,7 +101,7 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="sessionUid">UID of the session to process.</param>
         /// <param name="userUid">UID of the user requesting.</param>
         /// <returns></returns>
-        Task<bool> FinishClipAsync(string clipName, Guid sessionUid, string userUid);
+        Task<bool> FinishClipAsync(string userUid, DomainModels.BlobUpload upload);
 
         /// <summary>
         /// Returns the podcast assigned to the invite link.
@@ -124,12 +125,5 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User accepting the invite.</param>
         /// <returns></returns>
         Task<bool> AcceptInviteLinkAsync(Guid inviteLink, string userUID);
-
-        /// <summary>
-        /// Posts a blob to the blob storage database.
-        /// </summary>
-        /// <param name="blob">Blob to upload.</param>
-        /// <returns></returns>
-        Task PostMediaBlobAsync(BlobUpload blob);
     }
 }

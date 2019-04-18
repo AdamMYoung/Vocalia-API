@@ -13,6 +13,6 @@ namespace Vocalia.Streams
         /// </summary>
         /// <param name="urls">URLs to concatenate.</param>
         /// <returns></returns>
-        Task<MemoryStream> ConcatenateUrlMediaAsync(IEnumerable<string> urls);
+        Task<MemoryStream> GetStreamFromUrlAsync(string url);
     }
 }

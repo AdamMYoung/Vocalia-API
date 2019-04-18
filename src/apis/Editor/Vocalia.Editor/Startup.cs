@@ -48,7 +48,7 @@ namespace Vocalia.Editor
                 options.UseSqlServer(Configuration.GetConnectionString("EditorDatabase")));
 
             //Configure service bus for objects.
-            services.CreateObjectBus<Vocalia.ServiceBus.Types.Clip, ClipServiceBus>(p =>
+            services.CreateObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>, ClipServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
             services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast, PodcastServiceBus>(p =>

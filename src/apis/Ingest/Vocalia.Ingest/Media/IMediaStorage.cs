@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,9 +13,8 @@ namespace Vocalia.Ingest.Media
         /// <summary>
         /// Uploads a media blob to the database.
         /// </summary>
-        /// <param name="blob">Blob to upload.</param>
         /// <returns></returns>
-        Task<string> UploadBlobAsync(BlobUpload blob);
+        Task<string> UploadFormFileAsync(IFormFile file, Guid sessionUid, string userUid);
 
         /// <summary>
         /// Uploads a media stream to the database.

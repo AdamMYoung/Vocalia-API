@@ -239,10 +239,9 @@ namespace Ingest_API.Controllers
 
             var clips = await Repository.GetClipsAsync(sessionUid, userId);
 
-            var clipDTOs = clips.Select(c => new SessionClip
+            var clipDTOs = clips.Select(c => new Clip
             {
                 MediaUrl = c.MediaUrl,
-                Size = c.Size,
                 UID = c.UID,
                 UserUID = c.UserUID,
                 Time = c.Time,
@@ -282,13 +281,21 @@ namespace Ingest_API.Controllers
         /// <param name="sessionUid">Session to finish the clip of.</param>
         /// <returns></returns>
         [Route("clip")]
-        [HttpPut]
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> FinishClip(Guid sessionUid, string clipName)
+        public async Task<IActionResult> FinishClip([FromForm] BlobUpload upload)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var isCompleted = await Repository.FinishClipAsync(clipName, sessionUid, userId);
+            var uploadDM = new Vocalia.Ingest.DomainModels.BlobUpload
+            {
+                ClipUid = upload.ClipUid,
+                SessionUid = upload.SessionUid,
+                Name = upload.Name,
+                Data = upload.Data
+            };
+
+            var isCompleted = await Repository.FinishClipAsync(userId, uploadDM);
 
             if (!isCompleted)
                 return Unauthorized();
@@ -375,35 +382,6 @@ namespace Ingest_API.Controllers
             }
         }
 
-        #endregion
-
-        #region Ingestion
-
-        /// <summary>
-        /// Uploads a media blob to the database.
-        /// </summary>
-        /// <param name="upload">Data to upload.</param>
-        /// <returns></returns>
-        [Route("record")]
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> PostBlob([FromForm] BlobUpload upload)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            int.TryParse(upload.Timestamp, out int value);
-
-            var uploadDM = new Vocalia.Ingest.DomainModels.BlobUpload
-            {
-                UserUID = userId,
-                SessionUID = upload.SessionUID,
-                Timestamp = value,
-                Data = upload.Data
-            };
-
-            await Repository.PostMediaBlobAsync(uploadDM);
-            return Ok();
-        }
         #endregion
     }
 }

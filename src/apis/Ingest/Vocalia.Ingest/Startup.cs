@@ -47,7 +47,7 @@ namespace Vocalia.Ingest
             services.AddDbContext<IngestContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("IngestDatabase")));
 
-            services.CreateObjectBus<Clip>(p =>
+            services.CreateObjectBus<IEnumerable<ServiceBus.Types.Clip>>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Sender));
 
             services.CreateObjectBus<ServiceBus.Types.Podcast>(p =>
