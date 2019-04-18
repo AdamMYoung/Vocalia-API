@@ -263,5 +263,25 @@ namespace Vocalia.Editor.Controllers
             else
                 return Ok();
         }
+
+        /// <summary>
+        /// Submits the edit to the publishing microservice.
+        /// </summary>
+        /// <param name="sessionUid">Session to submit.</param>
+        /// <returns></returns>
+        [Route("submit")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Submit(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await Repository.SubmitEditAsync(sessionUid, userId);
+
+            if (!result)
+                return Unauthorized();
+            else
+                return Ok();
+        }
     }
 }

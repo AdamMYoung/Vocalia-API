@@ -66,5 +66,13 @@ namespace Vocalia.Editor.Repository
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
         Task<IEnumerable<DomainModels.Clip>> GetUnasignedClipsAsync(Guid sessionUid, string userUid);
+
+        /// <summary>
+        /// Compiles the edit files into one streamable file and sends it to the publisher.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="userUid">User requesting the action.</param>
+        /// <returns></returns>
+        Task<bool> SubmitEditAsync(Guid sessionUid, string userUid);
     }
 }

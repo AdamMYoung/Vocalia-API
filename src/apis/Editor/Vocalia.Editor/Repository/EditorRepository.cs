@@ -61,24 +61,73 @@ namespace Vocalia.Editor.Repository
         /// <returns></returns>
         public async Task<bool> AddEditAsync(string userUid, DomainModels.Edit edit)
         {
-            var clip = await DbContext.Clips.Include(x => x.Edit).FirstOrDefaultAsync(c => c.UID == edit.ClipUID && c.Session.Podcast.Members.Any(x => x.UserUID == userUid & x.IsAdmin));
+            var clip = await DbContext.Clips.Include(x => x.Edit).Include(c => c.Session)
+                .FirstOrDefaultAsync(c => c.UID == edit.ClipUID && c.Session.Podcast.Members.Any(x => x.UserUID == userUid & x.IsAdmin));
 
             if (clip == null)
                 return false;
 
             if (clip.Edit != null)
-                DbContext.Edits.Remove(clip.Edit);
+            {
+                if (clip.Edit.StartTrim == edit.StartTrim && 
+                    clip.Edit.EndTrim == edit.EndTrim && 
+                    clip.Edit.Gain == edit.Gain)
+                    return true;
 
-            DbContext.Edits.Add(new Db.Edit
+                DbContext.Edits.Remove(clip.Edit);
+            }
+
+            var dbEdit = new Db.Edit
             {
                 ClipID = clip.ID,
                 StartTrim = edit.StartTrim,
                 EndTrim = edit.EndTrim,
                 Gain = edit.Gain
-            });
+            };
+
+            DbContext.Edits.Add(dbEdit);
 
             await DbContext.SaveChangesAsync();
+            await UpdateStreamAsync(dbEdit.ID, clip.Session.UID);
             return true;
+        }
+
+        /// <summary>
+        /// Updates the stream belonging to the edit.
+        /// </summary>
+        /// <param name="edit">Edit to update.</param>
+        /// <returns></returns>
+        private async Task UpdateStreamAsync(int editId, Guid sessionUid)
+        {
+            var edit = await DbContext.Edits.Include(c => c.Clip).ThenInclude(c => c.Media).ThenInclude(c => c.Stream).FirstOrDefaultAsync(c => c.ID == editId);
+
+            foreach(var entry in edit.Clip.Media)
+            {
+                double endTrim = edit.EndTrim / 100.0;
+                double startTrim = edit.StartTrim / 100.0;
+
+                var stream = await StreamBuilder.ConcatenateUrlMediaAsync(new List<string>() { entry.MediaUrl });  
+
+                var trimAmount = (long)(stream.Length - (stream.Length * endTrim));
+                var skipAmount = (long)(stream.Length * startTrim);
+
+                stream.Position = skipAmount;
+                stream.SetLength(trimAmount);
+                //TODO Find a library to trim these files as required.
+
+                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, stream);
+
+                if(entry.Stream != null)
+                    DbContext.Streams.Remove(entry.Stream);
+
+                DbContext.Streams.Add(new Stream
+                {
+                    MediaID = entry.ID,
+                    MediaUrl = url
+                });
+            }
+
+            await DbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -91,7 +140,7 @@ namespace Vocalia.Editor.Repository
         {
             var session = await DbContext.Sessions
                .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip).ThenInclude(c => c.Edit)
-               .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip).ThenInclude(c => c.Media)
+               .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip).ThenInclude(c => c.Media).ThenInclude(c => c.Stream)
                .Include(x => x.Podcast).ThenInclude(x => x.Members)
                .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
 
@@ -117,7 +166,7 @@ namespace Vocalia.Editor.Repository
                         ID = c.ID,
                         Date = c.Date,
                         UID = c.UID,
-                        MediaUrl = c.MediaUrl,
+                        MediaUrl = c.Stream != null ? c.Stream.MediaUrl : c.MediaUrl,
                         UserUID = c.UserUID,
                         UserImageUrl = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).picture,
                         UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name
@@ -180,7 +229,7 @@ namespace Vocalia.Editor.Repository
         {
             var session = await DbContext.Sessions
                 .Include(x => x.TimelineEntries)
-               .Include(x => x.Clips).ThenInclude(c => c.Media)
+               .Include(x => x.Clips).ThenInclude(c => c.Media).ThenInclude(c => c.Stream)
                .Include(x => x.Clips).ThenInclude(c => c.Edit)
                .Include(x => x.Podcast).ThenInclude(x => x.Members)
                .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
@@ -210,7 +259,7 @@ namespace Vocalia.Editor.Repository
                         ID = c.ID,
                         Date = c.Date,
                         UID = c.UID,
-                        MediaUrl = c.MediaUrl,
+                        MediaUrl = c.Stream != null ? c.Stream.MediaUrl : c.MediaUrl,
                         UserUID = c.UserUID,
                         UserImageUrl = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).picture,
                         UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name,
@@ -318,6 +367,22 @@ namespace Vocalia.Editor.Repository
 
             session.IsActive = false;
             await DbContext.SaveChangesAsync();
+            return true;
+        }
+
+        #endregion
+
+        #region Submission
+
+        /// <summary>
+        /// Compiles the edit files into one streamable file and sends it to the publisher.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="userUid">User requesting the action.</param>
+        /// <returns></returns>
+        public async Task<bool> SubmitEditAsync(Guid sessionUid, string userUid)
+        {
+            //TODO compile files and build service bus queue for submissions.
             return true;
         }
 

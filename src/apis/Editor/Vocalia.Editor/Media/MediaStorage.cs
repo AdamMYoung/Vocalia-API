@@ -35,7 +35,6 @@ namespace Vocalia.Editor.Media
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var newBlob = new CloudBlockBlob(new Uri(url), creds);
 
-            stream.Position = 0;
             await newBlob.UploadFromStreamAsync(stream);
             stream.Dispose();
 

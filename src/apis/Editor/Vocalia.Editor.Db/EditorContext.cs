@@ -57,6 +57,16 @@ namespace Vocalia.Editor.Db
         }
     }
 
+    internal class StreamEntityTypeConfiguration : IEntityTypeConfiguration<Stream>
+    {
+        public void Configure(EntityTypeBuilder<Stream> builder)
+        {
+            builder.Property(x => x.ID).IsRequired();
+            builder.Property(x => x.MediaID).IsRequired();
+            builder.Property(x => x.MediaUrl).IsRequired();
+        }
+    }
+
     internal class ClipEntityTypeConfiguration : IEntityTypeConfiguration<Clip>
     {
         public void Configure(EntityTypeBuilder<Clip> builder)
@@ -82,6 +92,8 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.MediaUrl).IsRequired();
             builder.Property(x => x.UID).IsRequired();
+
+            builder.HasOne(c => c.Stream).WithOne(c => c.Media);
         }
     }
 
@@ -108,6 +120,7 @@ namespace Vocalia.Editor.Db
         public DbSet<TimelineEntry> TimelineEntries { get; set; }
         public DbSet<Clip> Clips { get; set; }
         public DbSet<Media> Media { get; set; }
+        public DbSet<Stream> Streams { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -125,6 +138,7 @@ namespace Vocalia.Editor.Db
             modelBuilder.ApplyConfiguration(new ClipEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new MediaEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new TimelineEntryEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new MediaEntityTypeConfiguration());
         }
     }
 

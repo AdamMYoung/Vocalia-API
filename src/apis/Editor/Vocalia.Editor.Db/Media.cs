@@ -14,6 +14,7 @@ namespace Vocalia.Editor.Db
         public virtual string MediaUrl { get; set; }
 
         public virtual Clip Clip { get; set; }
+        public virtual Stream Stream { get; set; }
         
     }
 }
