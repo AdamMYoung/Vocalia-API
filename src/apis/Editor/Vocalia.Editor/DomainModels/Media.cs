@@ -15,5 +15,6 @@ namespace Vocalia.Editor.DomainModels
         public string MediaUrl { get; set; }
         public Guid UID { get; set; }
 
+        
     }
 }

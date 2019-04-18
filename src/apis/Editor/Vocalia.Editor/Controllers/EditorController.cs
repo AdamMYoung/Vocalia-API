@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -136,7 +138,7 @@ namespace Vocalia.Editor.Controllers
             {
                 UID = x.UID,
                 Date = x.Date,
-                SessionID = x.SessionID,
+                SessionUID = x.SessionUID,
                 Name = x.Name,
                 Media = x.Media.Select(c => new DTOs.Media
                 {
@@ -145,15 +147,52 @@ namespace Vocalia.Editor.Controllers
                     MediaUrl = c.MediaUrl,
                     UserUID = c.UserUID,
                     UserImageUrl = c.UserImageUrl,
-                    UserName = c.UserName
-                })
+                    UserName = c.UserName,
+                    
+                }),
+                Edit = x.Edit != null ? new Edit
+                {
+                    StartTrim = x.Edit.StartTrim,
+                    EndTrim = x.Edit.EndTrim,
+                    Gain = x.Edit.Gain,
+                    ClipUID = x.UID
+                } : null
             });
 
             return Ok(clipDTOs);
         }
 
         /// <summary>
-        /// Gets all clips belonging to the session.
+        /// Sets the timeline for the specified session.
+        /// </summary>
+        /// <param name="sessionUid">Session UID of the timeline.</param>
+        /// <param name="clips">Clips to apply to the timeline.</param>
+        /// <returns></returns>
+        [Route("timeline")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SetTimeline(Guid sessionUid, [FromBody] IEnumerable<DTOs.Clip> clips)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var clipsDM = clips.Select(c => new DomainModels.Clip
+            {
+                SessionUID = sessionUid,
+                Date = c.Date,
+                Name = c.Name,
+                UID = c.UID
+            });
+
+            var result = await Repository.SetTimelineAsync(sessionUid, userId, clipsDM);
+
+            if (!result)
+                return Unauthorized();
+            else
+                return Ok();
+        }
+
+        /// <summary>
+        /// Gets all clips not in a timeline for the session.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <returns></returns>
@@ -164,7 +203,7 @@ namespace Vocalia.Editor.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var clips = await Repository.GetAllClipsAsync(sessionUid, userId);
+            var clips = await Repository.GetUnasignedClipsAsync(sessionUid, userId);
 
             if (clips == null)
                 return Unauthorized();
@@ -173,7 +212,7 @@ namespace Vocalia.Editor.Controllers
             {
                 UID = x.UID,
                 Date = x.Date,
-                SessionID = x.SessionID,
+                SessionUID = x.SessionUID,
                 Name = x.Name,
                 Media = x.Media.Select(c => new DTOs.Media
                 {
@@ -182,11 +221,47 @@ namespace Vocalia.Editor.Controllers
                     MediaUrl = c.MediaUrl,
                     UserUID = c.UserUID,
                     UserImageUrl = c.UserImageUrl,
-                    UserName = c.UserName
-                })
+                    UserName = c.UserName,
+                    
+                }),
+                Edit = x.Edit != null ? new Edit
+                {
+                    StartTrim = x.Edit.StartTrim,
+                    EndTrim = x.Edit.EndTrim,
+                    Gain = x.Edit.Gain,
+                    ClipUID = x.UID
+                } : null
             });
 
             return Ok(clipDTOs);
+        }
+
+        /// <summary>
+        /// Applies an edit to the clip.
+        /// </summary>
+        /// <param name="edit">Edit to apply.</param>
+        /// <returns></returns>
+        [Route("edit")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SetEdit([FromBody] DTOs.Edit edit)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var editDM = new DomainModels.Edit
+            {
+                ClipUID = edit.ClipUID,
+                StartTrim = edit.StartTrim,
+                EndTrim = edit.EndTrim,
+                Gain = edit.Gain
+            };
+
+            var result = await Repository.AddEditAsync(userId, editDM);
+
+            if (!result)
+                return Unauthorized();
+            else
+                return Ok();
         }
     }
 }

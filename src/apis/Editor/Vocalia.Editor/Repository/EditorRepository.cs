@@ -53,15 +53,32 @@ namespace Vocalia.Editor.Repository
         }
 
         /// <summary>
-        /// Applies the specified edit to the audio stream attached to the sessionUID and userUID
+        /// Applies the specified edit to the audio stream attached to the sessionUID and userUID.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <param name="edit">Edit to apply.</param>
         /// <returns></returns>
-        public Task AddEditAsync(Guid sessionUid, string userUid, DomainModels.Edit edit)
+        public async Task<bool> AddEditAsync(string userUid, DomainModels.Edit edit)
         {
-            throw new NotImplementedException();
+            var clip = await DbContext.Clips.Include(x => x.Edit).FirstOrDefaultAsync(c => c.UID == edit.ClipUID && c.Session.Podcast.Members.Any(x => x.UserUID == userUid & x.IsAdmin));
+
+            if (clip == null)
+                return false;
+
+            if (clip.Edit != null)
+                DbContext.Edits.Remove(clip.Edit);
+
+            DbContext.Edits.Add(new Db.Edit
+            {
+                ClipID = clip.ID,
+                StartTrim = edit.StartTrim,
+                EndTrim = edit.EndTrim,
+                Gain = edit.Gain
+            });
+
+            await DbContext.SaveChangesAsync();
+            return true;
         }
 
         /// <summary>
@@ -73,14 +90,14 @@ namespace Vocalia.Editor.Repository
         public async Task<IEnumerable<DomainModels.Clip>> GetTimelineAsync(Guid sessionUid, string userUid)
         {
             var session = await DbContext.Sessions
-               .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip)
-               .ThenInclude(c => c.Media)
+               .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip).ThenInclude(c => c.Edit)
+               .Include(x => x.TimelineEntries).ThenInclude(c => c.Clip).ThenInclude(c => c.Media)
                .Include(x => x.Podcast).ThenInclude(x => x.Members)
                .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
-                var uids = session.Clips.Select(c => c.Media.Select(x => x.UserUID))
+                var uids = session.TimelineEntries.Select(c => c.Clip.Media.Select(x => x.UserUID))
                     .SelectMany(c => c)
                     .Distinct();
 
@@ -93,7 +110,7 @@ namespace Vocalia.Editor.Repository
                     UID = x.UID,
                     ID = x.ID,
                     Date = x.Date,
-                    SessionID = x.SessionID,
+                    SessionUID = x.Session.UID,
                     Name = x.Name,
                     Media = x.Media.Select(c => new DomainModels.Media
                     {
@@ -104,7 +121,15 @@ namespace Vocalia.Editor.Repository
                         UserUID = c.UserUID,
                         UserImageUrl = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).picture,
                         UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name
-                    })
+                    }),
+                    Edit = x.Edit != null ? new DomainModels.Edit
+                    {
+                        ID = x.Edit.ID,
+                        StartTrim = x.Edit.StartTrim,
+                        EndTrim = x.Edit.EndTrim,
+                        Gain = x.Edit.Gain,
+                        ClipUID = x.UID
+                    } : null
                 });
 
                 return clips.OrderBy(c => c.Date);
@@ -114,17 +139,53 @@ namespace Vocalia.Editor.Repository
         }
 
         /// <summary>
+        /// Sets the timeline to the provided clips.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="clips">Clips to set as the timeline.</param>
+        /// <returns></returns>
+        public async Task<bool> SetTimelineAsync(Guid sessionUid, string userUid, IEnumerable<DomainModels.Clip> clips)
+        {
+            var session = await DbContext.Sessions.Include(c => c.TimelineEntries)
+                .FirstOrDefaultAsync(c => c.UID == sessionUid && c.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin));
+
+            if (session == null)
+                return false;
+
+            var databaseClips = await DbContext.Clips.Where(c => clips.Any(a => a.UID == c.UID)).ToListAsync();
+
+            DbContext.TimelineEntries.RemoveRange(session.TimelineEntries);
+            foreach(var clip in databaseClips)
+            {
+                DbContext.TimelineEntries.Add(new TimelineEntry
+                {
+                    ClipID = clip.ID,
+                    SessionID = session.ID,
+                    Position = databaseClips.IndexOf(clip)
+                });
+            }
+
+            await DbContext.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
         /// Gets all clips from the database.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Clip>> GetAllClipsAsync(Guid sessionUid, string userUid)
+        public async Task<IEnumerable<DomainModels.Clip>> GetUnasignedClipsAsync(Guid sessionUid, string userUid)
         {
             var session = await DbContext.Sessions
+                .Include(x => x.TimelineEntries)
                .Include(x => x.Clips).ThenInclude(c => c.Media)
+               .Include(x => x.Clips).ThenInclude(c => c.Edit)
                .Include(x => x.Podcast).ThenInclude(x => x.Members)
                .FirstOrDefaultAsync(x => x.UID == sessionUid && x.IsActive);
+
+            var sessionClips = session.Clips.Where(c => !session.TimelineEntries.Any(x => x.ClipID == c.ID));
 
             if (session.Podcast.Members.Any(x => x.UserUID == userUid && x.IsAdmin))
             {
@@ -137,12 +198,12 @@ namespace Vocalia.Editor.Repository
                     userInfo.Add(await UserFacade.GetUserInfoAsync(uid));
                 
 
-                var clips = session.Clips.Select(x => new DomainModels.Clip
+                var clips = sessionClips.Select(x => new DomainModels.Clip
                 {
                     UID = x.UID,
                     ID = x.ID,
                     Date = x.Date,
-                    SessionID = x.SessionID,
+                    SessionUID = x.Session.UID,
                     Name = x.Name,
                     Media = x.Media.Select(c => new DomainModels.Media
                     {
@@ -152,8 +213,17 @@ namespace Vocalia.Editor.Repository
                         MediaUrl = c.MediaUrl,
                         UserUID = c.UserUID,
                         UserImageUrl = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).picture,
-                        UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name
-                    })
+                        UserName = userInfo.FirstOrDefault(a => a.user_id == c.UserUID).name,
+                        
+                    }),
+                    Edit = x.Edit != null ? new DomainModels.Edit
+                    {
+                        ID = x.Edit.ID,
+                        StartTrim = x.Edit.StartTrim,
+                        EndTrim = x.Edit.EndTrim,
+                        Gain = x.Edit.Gain,
+                        ClipUID = x.UID
+                    } : null
                 });
 
                 return clips.OrderBy(c => c.Date);

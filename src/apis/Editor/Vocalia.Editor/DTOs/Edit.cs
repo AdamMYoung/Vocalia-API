@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Vocalia.Editor.DomainModels
+namespace Vocalia.Editor.DTOs
 {
     public class Edit
     {
-        public int ID { get; set; }
         public Guid ClipUID { get; set; }
         public int StartTrim { get; set; }
-        public int EndTrim { get; set; }  
-        public int Gain { get; set; }  
+        public int EndTrim { get; set; }
+        public int Gain { get; set; }
     }
 }

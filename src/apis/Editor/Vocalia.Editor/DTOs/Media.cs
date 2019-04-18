@@ -13,5 +13,7 @@ namespace Vocalia.Editor.DTOs
         public DateTime Date { get; set; }
         public string MediaUrl { get; set; }
         public Guid UID { get; set; }
+
+        
     }
 }

@@ -67,8 +67,8 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.UID).IsRequired();
 
-            builder.HasMany(x => x.Edits).WithOne(x => x.User).IsRequired();
             builder.HasMany(x => x.Media).WithOne(x => x.Clip).IsRequired();
+            builder.HasOne(x => x.Edit).WithOne(x => x.Clip).IsRequired();
         }
     }
 
@@ -85,26 +85,15 @@ namespace Vocalia.Editor.Db
         }
     }
 
-    internal class EditTypeEntityTypeConfiguration : IEntityTypeConfiguration<EditType>
-    {
-        public void Configure(EntityTypeBuilder<EditType> builder)
-        {
-            builder.Property(x => x.ID).IsRequired();
-            builder.Property(x => x.Name).IsRequired();
-
-            builder.HasMany(x => x.Edits).WithOne(x => x.EditType).IsRequired();
-        }
-    }
-
     internal class EditEntityTypeConfiguration : IEntityTypeConfiguration<Edit>
     {
         public void Configure(EntityTypeBuilder<Edit> builder)
         {
             builder.Property(x => x.ID).IsRequired();
-            builder.Property(x => x.UserID).IsRequired();
-            builder.Property(x => x.StartTimestamp).IsRequired();
-            builder.Property(x => x.EndTimestamp).IsRequired();
-            builder.Property(x => x.EditTypeID).IsRequired();
+            builder.Property(x => x.ClipID).IsRequired();
+            builder.Property(x => x.StartTrim).IsRequired();
+            builder.Property(x => x.EndTrim).IsRequired();
+            builder.Property(x => x.Gain).IsRequired();
         }
     }
 
@@ -113,7 +102,6 @@ namespace Vocalia.Editor.Db
         public EditorContext(DbContextOptions<EditorContext> options) : base(options) { }
 
         public DbSet<Edit> Edits { get; set; }
-        public DbSet<EditType> EditTypes { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Session> Sessions { get; set; }
@@ -131,7 +119,6 @@ namespace Vocalia.Editor.Db
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new EditEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new EditTypeEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new MemberEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());

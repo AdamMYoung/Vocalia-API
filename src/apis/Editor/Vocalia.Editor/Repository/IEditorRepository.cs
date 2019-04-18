@@ -40,7 +40,7 @@ namespace Vocalia.Editor.Repository
         /// <param name="userUid">UID of the user.</param>
         /// <param name="edit">Edit to apply.</param>
         /// <returns></returns>
-        Task AddEditAsync(Guid sessionUid, string userUid, DomainModels.Edit edit);
+        Task<bool> AddEditAsync(string userUid, DomainModels.Edit edit);
 
         /// <summary>
         /// Gets the current timeline from the database.
@@ -51,11 +51,20 @@ namespace Vocalia.Editor.Repository
         Task<IEnumerable<DomainModels.Clip>> GetTimelineAsync(Guid sessionUid, string userUid);
 
         /// <summary>
+        /// Sets the timeline to the provided clips.
+        /// </summary>
+        /// <param name="sessionUid">UID of the session.</param>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="clips">Clips to set as the timeline.</param>
+        /// <returns></returns>
+        Task<bool> SetTimelineAsync(Guid sessionUid, string userUid, IEnumerable<DomainModels.Clip> clips);
+
+        /// <summary>
         /// Gets all clips from the database.
         /// </summary>
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        Task<IEnumerable<DomainModels.Clip>> GetAllClipsAsync(Guid sessionUid, string userUid);
+        Task<IEnumerable<DomainModels.Clip>> GetUnasignedClipsAsync(Guid sessionUid, string userUid);
     }
 }

@@ -7,13 +7,12 @@ namespace Vocalia.Editor.Db
     public class Edit
     {
         public virtual int ID { get; set; }
-        public virtual int UserID { get; set; }
-        public virtual int EditTypeID { get; set; }
-        public virtual int StartTimestamp { get; set; }
-        public virtual int EndTimestamp { get; set; }
+        public virtual int ClipID { get; set; }
+        public virtual int StartTrim { get; set; }
+        public virtual int EndTrim { get; set; }
+        public virtual int Gain { get; set; }
 
-        public virtual EditType EditType { get; set; }
-        public virtual Clip User { get; set; }
+        public virtual Clip Clip { get; set; }
        
     }
 }
