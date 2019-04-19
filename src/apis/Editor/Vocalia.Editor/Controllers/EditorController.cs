@@ -154,7 +154,6 @@ namespace Vocalia.Editor.Controllers
                 {
                     StartTrim = x.Edit.StartTrim,
                     EndTrim = x.Edit.EndTrim,
-                    Gain = x.Edit.Gain,
                     ClipUID = x.UID
                 } : null
             });
@@ -228,7 +227,6 @@ namespace Vocalia.Editor.Controllers
                 {
                     StartTrim = x.Edit.StartTrim,
                     EndTrim = x.Edit.EndTrim,
-                    Gain = x.Edit.Gain,
                     ClipUID = x.UID
                 } : null
             });
@@ -252,8 +250,7 @@ namespace Vocalia.Editor.Controllers
             {
                 ClipUID = edit.ClipUID,
                 StartTrim = edit.StartTrim,
-                EndTrim = edit.EndTrim,
-                Gain = edit.Gain
+                EndTrim = edit.EndTrim
             };
 
             var result = await Repository.AddEditAsync(userId, editDM);

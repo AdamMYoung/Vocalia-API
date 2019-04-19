@@ -71,8 +71,7 @@ namespace Vocalia.Editor.Repository
             if (clip.Edit != null)
             {
                 if (clip.Edit.StartTrim == edit.StartTrim &&
-                    clip.Edit.EndTrim == edit.EndTrim &&
-                    clip.Edit.Gain == edit.Gain)
+                    clip.Edit.EndTrim == edit.EndTrim)
                     return true;
 
                 DbContext.Edits.Remove(clip.Edit);
@@ -83,7 +82,6 @@ namespace Vocalia.Editor.Repository
                 ClipID = clip.ID,
                 StartTrim = edit.StartTrim,
                 EndTrim = edit.EndTrim,
-                Gain = edit.Gain
             };
 
             DbContext.Edits.Add(dbEdit);
@@ -158,7 +156,6 @@ namespace Vocalia.Editor.Repository
                         ID = x.Edit.ID,
                         StartTrim = x.Edit.StartTrim,
                         EndTrim = x.Edit.EndTrim,
-                        Gain = x.Edit.Gain,
                         ClipUID = x.UID
                     } : null
                 });
@@ -251,7 +248,6 @@ namespace Vocalia.Editor.Repository
                         ID = x.Edit.ID,
                         StartTrim = x.Edit.StartTrim,
                         EndTrim = x.Edit.EndTrim,
-                        Gain = x.Edit.Gain,
                         ClipUID = x.UID
                     } : null
                 });

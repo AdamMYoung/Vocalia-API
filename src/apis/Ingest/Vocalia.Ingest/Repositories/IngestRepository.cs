@@ -209,7 +209,8 @@ namespace Vocalia.Ingest.Repositories
         /// <returns></returns>
         public async Task<bool> FinishClipAsync(string userUid, DomainModels.BlobUpload upload)
         {
-            var session = await DbContext.Sessions.Include(x => x.Clips).Include(x => x.Podcast).FirstOrDefaultAsync(x => x.UID == upload.SessionUid);
+            var session = await DbContext.Sessions.Include(x => x.Clips).ThenInclude(x => x.Media)
+                .Include(x => x.Podcast).FirstOrDefaultAsync(x => x.UID == upload.SessionUid);
 
             if (session == null)
                 return false;
@@ -234,6 +235,17 @@ namespace Vocalia.Ingest.Repositories
                 };
 
                 DbContext.Media.Add(media);
+
+                var mediaList = new List<Stream>();
+                foreach(var entry in clip.Media)
+                    mediaList.Add(await StreamBuilder.GetStreamFromUrlAsync(entry.MediaUrl));
+
+                if(mediaList.Count() > 1)
+                {
+                    var concatStream = Audio.AudioConcatUtils.ConcatAudioStreams(mediaList);
+                    var concatUrl = await MediaStorage.UploadStreamAsync("concat", upload.SessionUid, upload.ClipUid, stream);
+                    clip.MediaUrl = concatUrl;
+                }
             }
 
             await DbContext.SaveChangesAsync();

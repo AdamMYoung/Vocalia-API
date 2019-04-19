@@ -105,7 +105,6 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.ClipID).IsRequired();
             builder.Property(x => x.StartTrim).IsRequired();
             builder.Property(x => x.EndTrim).IsRequired();
-            builder.Property(x => x.Gain).IsRequired();
         }
     }
 

@@ -10,6 +10,5 @@ namespace Vocalia.Editor.DTOs
         public Guid ClipUID { get; set; }
         public int StartTrim { get; set; }
         public int EndTrim { get; set; }
-        public int Gain { get; set; }
     }
 }
