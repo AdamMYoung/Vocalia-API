@@ -106,17 +106,7 @@ namespace Vocalia.Editor.Repository
             {
                 var stream = await StreamBuilder.GetStreamFromUrlAsync(entry.MediaUrl);
                 var file = await Audio.AudioEditUtils.TrimFile(stream, edit.StartTrim, edit.EndTrim);
-                var url = await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, entry.Clip.UID, file);
-
-                if (entry.Stream != null)
-                    DbContext.Streams.Remove(entry.Stream);
-
-                DbContext.Streams.Add(new Db.Stream
-                {
-                    MediaID = entry.ID,
-                    MediaUrl = url
-                });
-
+                await MediaStorage.UploadStreamAsync(entry.UserUID, sessionUid, entry.Clip.UID, file);
             }
 
             await DbContext.SaveChangesAsync();
@@ -237,7 +227,6 @@ namespace Vocalia.Editor.Repository
                 var userInfo = new List<User>();
                 foreach (var uid in uids)
                     userInfo.Add(await UserFacade.GetUserInfoAsync(uid));
-
 
                 var clips = sessionClips.Select(x => new DomainModels.Clip
                 {
