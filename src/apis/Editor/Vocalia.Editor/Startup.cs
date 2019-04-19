@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ObjectBus.Extensions;
-using ObjectBus.Options;
+
 using System.Collections.Generic;
 using Vocalia.Editor.Db;
 using Vocalia.Editor.Media;
