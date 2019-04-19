@@ -9,7 +9,6 @@ COPY ["src/apis/Editor/Vocalia.Editor/Vocalia.Editor.csproj", "src/apis/Editor/V
 COPY ["src/services/Vocalia.ServiceBus.Types/Vocalia.ServiceBus.Types.csproj", "src/services/Vocalia.ServiceBus.Types/"]
 COPY ["src/services/Vocalia.UserFacade/Vocalia.UserFacade.csproj", "src/services/Vocalia.UserFacade/"]
 COPY ["src/apis/Editor/Vocalia.Editor.Db/Vocalia.Editor.Db.csproj", "src/apis/Editor/Vocalia.Editor.Db/"]
-COPY ["../ObjectBus/ObjectBus.csproj", "../ObjectBus/"]
 COPY ["src/apis/Editor/Vocalia.Editor.Streams/Vocalia.Editor.Streams.csproj", "src/apis/Editor/Vocalia.Editor.Streams/"]
 RUN dotnet restore "src/apis/Editor/Vocalia.Editor/Vocalia.Editor.csproj"
 COPY . .
