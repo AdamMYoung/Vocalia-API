@@ -62,6 +62,7 @@ namespace Vocalia.Audio
                         waveFileWriter.Write(buffer, 0, read);
                     }
                 }
+                stream.Dispose();
             }
 
             waveFileWriter.Dispose();
