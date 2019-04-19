@@ -182,7 +182,7 @@ namespace Ingest_API.Controllers
 
             var sessionGuid = await Repository.CreateSessionAsync(podcastUid, userId);
             if (sessionGuid == null)
-                return NotFound();          
+                return NotFound();
 
             return Ok();
         }
@@ -204,9 +204,13 @@ namespace Ingest_API.Controllers
                 return Unauthorized();
 
             return Ok();
-            
         }
 
+        /// <summary>
+        /// Finishes the session's recording, and passes the info onto editing.
+        /// </summary>
+        /// <param name="sessionUid">Session UID to finish.</param>
+        /// <returns></returns>
         [Route("session/complete")]
         [HttpPut]
         [Authorize]
@@ -217,7 +221,85 @@ namespace Ingest_API.Controllers
             var isCompleted = await Repository.CompleteSessionAsync(sessionUid, userId);
             if (!isCompleted)
                 return Unauthorized();
-  
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Gets all clips belonging to the specified sessionUID.
+        /// </summary>
+        /// <param name="sessionUid">Session to get clips for.</param>
+        /// <returns></returns>
+        [Route("clip")]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetClips(Guid sessionUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var clips = await Repository.GetClipsAsync(sessionUid, userId);
+
+            var clipDTOs = clips.Select(c => new Clip
+            {
+                MediaUrl = c.MediaUrl,
+                UID = c.UID,
+                UserUID = c.UserUID,
+                Time = c.Time,
+                Name = c.Name
+            });
+
+            if (clips == null)
+                return NotFound();
+
+            return Ok(clipDTOs);
+        }
+
+        /// <summary>
+        /// Deletes the specified clip from the database.
+        /// </summary>
+        /// <param name="clipUid">Clip to delete.</param>
+        /// <returns></returns>
+        [Route("clip")]
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteClip(Guid clipUid)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var isDeleted = await Repository.DeleteClipAsync(clipUid, userId);
+
+            if (!isDeleted)
+                return Unauthorized();
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Finishes the current clip.
+        /// </summary>
+        /// <param name="clipName">Name of the clip.</param>
+        /// <param name="sessionUid">Session to finish the clip of.</param>
+        /// <returns></returns>
+        [Route("clip")]
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> FinishClip([FromForm] BlobUpload upload)
+        {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var uploadDM = new Vocalia.Ingest.DomainModels.BlobUpload
+            {
+                ClipUid = upload.ClipUid,
+                SessionUid = upload.SessionUid,
+                Name = upload.Name,
+                Data = upload.Data
+            };
+
+            var isCompleted = await Repository.FinishClipAsync(userId, uploadDM);
+
+            if (!isCompleted)
+                return Unauthorized();
+
             return Ok();
         }
 
@@ -300,35 +382,6 @@ namespace Ingest_API.Controllers
             }
         }
 
-        #endregion
-
-        #region Ingestion
-
-        /// <summary>
-        /// Uploads a media blob to the database.
-        /// </summary>
-        /// <param name="upload">Data to upload.</param>
-        /// <returns></returns>
-        [Route("record")]
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> PostBlob([FromForm] BlobUpload upload)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            int.TryParse(upload.Timestamp, out int value);
-
-            var uploadDM = new Vocalia.Ingest.DomainModels.BlobUpload
-            {
-                UserUID = userId,
-                SessionUID = upload.SessionUID,
-                Timestamp = value,
-                Data = upload.Data
-            };
-
-            await Repository.PostMediaBlobAsync(uploadDM);
-            return Ok();
-        }
         #endregion
     }
 }

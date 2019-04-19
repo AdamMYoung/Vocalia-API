@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Vocalia.Editor.Db
 {
@@ -26,8 +23,8 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.ImageUrl).IsRequired();
 
-            builder.HasMany(x => x.Sessions).WithOne(x => x.Podcast);
-            builder.HasMany(x => x.Members).WithOne(x => x.Podcast);
+            builder.HasMany(x => x.Sessions).WithOne(x => x.Podcast).IsRequired();
+            builder.HasMany(x => x.Members).WithOne(x => x.Podcast).IsRequired();
         }
     }
 
@@ -38,43 +35,65 @@ namespace Vocalia.Editor.Db
             builder.Property(x => x.ID).IsRequired();
             builder.Property(x => x.UID).IsRequired();
             builder.Property(x => x.PodcastID).IsRequired();
+            builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.IsFinishedEditing).IsRequired();
+            builder.Property(x => x.IsActive).IsRequired();
 
-            builder.HasMany(x => x.Users).WithOne(x => x.Session);
+            builder.HasMany(x => x.Clips).WithOne(x => x.Session).IsRequired();
         }
     }
 
-    internal class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
+    internal class TimelineEntryEntityTypeConfiguration : IEntityTypeConfiguration<TimelineEntry>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<TimelineEntry> builder)
         {
             builder.Property(x => x.ID).IsRequired();
+            builder.Property(x => x.ClipID).IsRequired();
             builder.Property(x => x.SessionID).IsRequired();
-            builder.Property(x => x.UserUID).IsRequired();
-            builder.Property(x => x.Name).IsRequired();
+            builder.Property(x => x.Position).IsRequired();
 
-            builder.HasMany(x => x.Edits).WithOne(x => x.User);
-            builder.HasMany(x => x.Media).WithOne(x => x.User);
+            builder.HasOne(x => x.Clip).WithOne(x => x.TimelineEntry).IsRequired();
+            builder.HasOne(x => x.Session).WithMany(x => x.TimelineEntries).IsRequired();
         }
     }
 
-    internal class UserMediaEntityTypeConfiguration : IEntityTypeConfiguration<UserMedia>
+    internal class StreamEntityTypeConfiguration : IEntityTypeConfiguration<Stream>
     {
-        public void Configure(EntityTypeBuilder<UserMedia> builder)
+        public void Configure(EntityTypeBuilder<Stream> builder)
         {
             builder.Property(x => x.ID).IsRequired();
-            builder.Property(x => x.UserID).IsRequired();
-            builder.Property(x => x.Timestamp).IsRequired();
+            builder.Property(x => x.MediaID).IsRequired();
             builder.Property(x => x.MediaUrl).IsRequired();
         }
     }
 
-    internal class EditTypeEntityTypeConfiguration : IEntityTypeConfiguration<EditType>
+    internal class ClipEntityTypeConfiguration : IEntityTypeConfiguration<Clip>
     {
-        public void Configure(EntityTypeBuilder<EditType> builder)
+        public void Configure(EntityTypeBuilder<Clip> builder)
         {
             builder.Property(x => x.ID).IsRequired();
+            builder.Property(x => x.SessionID).IsRequired();
+            builder.Property(x => x.Date).IsRequired();
             builder.Property(x => x.Name).IsRequired();
+            builder.Property(x => x.UID).IsRequired();
+
+            builder.HasMany(x => x.Media).WithOne(x => x.Clip).IsRequired();
+            builder.HasOne(x => x.Edit).WithOne(x => x.Clip).IsRequired();
+        }
+    }
+
+    internal class MediaEntityTypeConfiguration : IEntityTypeConfiguration<Media>
+    {
+        public void Configure(EntityTypeBuilder<Media> builder)
+        {
+            builder.Property(x => x.ID).IsRequired();
+            builder.Property(x => x.ClipID).IsRequired();
+            builder.Property(x => x.UserUID).IsRequired();
+            builder.Property(x => x.Date).IsRequired();
+            builder.Property(x => x.MediaUrl).IsRequired();
+            builder.Property(x => x.UID).IsRequired();
+
+            builder.HasOne(c => c.Stream).WithOne(c => c.Media);
         }
     }
 
@@ -83,12 +102,9 @@ namespace Vocalia.Editor.Db
         public void Configure(EntityTypeBuilder<Edit> builder)
         {
             builder.Property(x => x.ID).IsRequired();
-            builder.Property(x => x.UserID).IsRequired();
-            builder.Property(x => x.StartTimestamp).IsRequired();
-            builder.Property(x => x.EndTimestamp).IsRequired();
-            builder.Property(x => x.EditTypeID).IsRequired();
-
-            builder.HasOne(x => x.EditType).WithMany(x => x.Edits);
+            builder.Property(x => x.ClipID).IsRequired();
+            builder.Property(x => x.StartTrim).IsRequired();
+            builder.Property(x => x.EndTrim).IsRequired();
         }
     }
 
@@ -97,12 +113,13 @@ namespace Vocalia.Editor.Db
         public EditorContext(DbContextOptions<EditorContext> options) : base(options) { }
 
         public DbSet<Edit> Edits { get; set; }
-        public DbSet<EditType> EditTypes { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Session> Sessions { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserMedia> UserMedia { get; set; }
+        public DbSet<TimelineEntry> TimelineEntries { get; set; }
+        public DbSet<Clip> Clips { get; set; }
+        public DbSet<Media> Media { get; set; }
+        public DbSet<Stream> Streams { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -114,12 +131,13 @@ namespace Vocalia.Editor.Db
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new EditEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new EditTypeEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new MemberEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new UserMediaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ClipEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new MediaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new TimelineEntryEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new MediaEntityTypeConfiguration());
         }
     }
 

@@ -15,6 +15,6 @@ namespace Vocalia.Editor.Media
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="stream">Stream to upload.</param>
         /// <returns></returns>
-        Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Stream stream);
+        Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Guid clipUid, Stream stream);
     }
 }

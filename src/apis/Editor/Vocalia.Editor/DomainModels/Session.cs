@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace Vocalia.Editor.DomainModels
 {
-    public class Edit
+    public class Session
     {
         public int ID { get; set; }
-        public Guid ClipUID { get; set; }
-        public int StartTrim { get; set; }
-        public int EndTrim { get; set; }  
+        public Guid UID { get; set; }
+        public int PodcastID { get; set; }
+        public DateTime Date { get; set; }
     }
 }

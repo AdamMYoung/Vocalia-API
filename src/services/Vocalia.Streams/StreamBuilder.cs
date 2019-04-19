@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Vocalia.Ingest.Streams
+namespace Vocalia.Streams
 {
     public class StreamBuilder : IStreamBuilder
     {
@@ -18,7 +18,7 @@ namespace Vocalia.Ingest.Streams
         /// </summary>
         /// <param name="urls">URLs to concatenate.</param>
         /// <returns></returns>
-        public async Task<MemoryStream> ConcatenateUrlMediaAsync(IEnumerable<string> urls)
+        public async Task<MemoryStream> GetStreamFromUrlAsync(string url)
         {
             return await Task.Run(() =>
             {
@@ -26,17 +26,14 @@ namespace Vocalia.Ingest.Streams
                 //Instead the process is run on a background thread to prevent interrupts.
                 using (var client = new WebClient())
                 {
-                    var ms = new MemoryStream();
-                    foreach (var url in urls)
+                    var ms = new MemoryStream();              
+                    if (!CachedStreams.TryGetValue(url, out byte[] bytes))
                     {
-                        if (!CachedStreams.TryGetValue(url, out byte[] bytes))
-                        {
-                            bytes = client.DownloadData(new Uri(url));                 
-                            CachedStreams.Add(url, bytes);
-                        }
-                        
-                        ms.Write(bytes, 0, bytes.Length);             
+                        bytes = client.DownloadData(new Uri(url));                 
+                        CachedStreams.Add(url, bytes);
                     }
+                        
+                    ms.Write(bytes, 0, bytes.Length);             
                     return ms;
                 };
             });

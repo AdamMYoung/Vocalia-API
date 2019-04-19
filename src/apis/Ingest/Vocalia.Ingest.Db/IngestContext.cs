@@ -18,20 +18,35 @@ namespace Vocalia.Ingest.Db
                 builder.Property(c => c.PodcastID).IsRequired();
                 builder.Property(c => c.IsFinished).IsRequired();
 
-                builder.HasMany(c => c.MediaEntries)
+                builder.HasMany(c => c.Clips)
                    .WithOne(c => c.Session);
             }
         }
 
-        internal class SessionMediaEntityTypeConfiguration : IEntityTypeConfiguration<SessionMedia>
+        internal class SessionMediaEntityTypeConfiguration : IEntityTypeConfiguration<Media>
         {
-            public void Configure(EntityTypeBuilder<SessionMedia> builder)
+            public void Configure(EntityTypeBuilder<Media> builder)
             {
                 builder.Property(c => c.ID).IsRequired();
-                builder.Property(c => c.SessionID).IsRequired();
+                builder.Property(c => c.ClipID).IsRequired();
                 builder.Property(c => c.UserUID).IsRequired();
-                builder.Property(c => c.Timestamp).IsRequired();
                 builder.Property(c => c.MediaUrl).IsRequired();
+                builder.Property(c => c.UID).IsRequired();
+            }
+        }
+
+        internal class SessionClipEntityTypeConfiguration : IEntityTypeConfiguration<Clip>
+        {
+            public void Configure(EntityTypeBuilder<Clip> builder)
+            {
+                builder.Property(c => c.ID).IsRequired();
+                builder.Property(c => c.UID).IsRequired();
+                builder.Property(c => c.SessionID).IsRequired();
+                builder.Property(c => c.MediaUrl).IsRequired();
+                builder.Property(c => c.Time).IsRequired();
+                builder.Property(c => c.Name).IsRequired();
+
+                builder.HasMany(c => c.Media).WithOne(c => c.Clip);
             }
         }
 
@@ -65,16 +80,6 @@ namespace Vocalia.Ingest.Db
             }
         }
 
-        internal class SessionUserEntityTypeConfiguration : IEntityTypeConfiguration<SessionUser>
-        {
-            public void Configure(EntityTypeBuilder<SessionUser> builder)
-            {
-                builder.Property(c => c.ID).IsRequired();
-                builder.Property(c => c.SessionID).IsRequired();
-                builder.Property(c => c.UserUID).IsRequired();
-            }
-        }
-
         internal class PodcastUserEntityTypeConfiguration : IEntityTypeConfiguration<PodcastUser>
         {
             public void Configure(EntityTypeBuilder<PodcastUser> builder)
@@ -89,8 +94,8 @@ namespace Vocalia.Ingest.Db
 
         public DbSet<Podcast> Podcasts { get; set; }
         public DbSet<Session> Sessions { get; set; }
-        public DbSet<SessionUser> SessionUsers { get; set; }
-        public DbSet<SessionMedia> SessionMedia { get; set; }
+        public DbSet<Media> Media { get; set; }
+        public DbSet<Clip> Clips { get; set; }
         public DbSet<PodcastUser> PodcastUsers { get; set; }
         public DbSet<PodcastInvite> PodcastInvites { get; set; }
 
@@ -106,8 +111,8 @@ namespace Vocalia.Ingest.Db
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new SessionMediaEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new SessionUserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastInviteEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new SessionClipEntityTypeConfiguration());
         }
     }
 }

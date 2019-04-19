@@ -15,15 +15,16 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.10" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\ObjectBus\ObjectBus.csproj" />
+    <ProjectReference Include="..\..\..\services\Vocalia.Audio\Vocalia.Audio.csproj" />
     <ProjectReference Include="..\..\..\services\Vocalia.ServiceBus.Types\Vocalia.ServiceBus.Types.csproj" />
+    <ProjectReference Include="..\..\..\services\Vocalia.Streams\Vocalia.Streams.csproj" />
+    <ProjectReference Include="..\..\Editor\Vocalia.Editor.Db\Vocalia.Editor.Db.csproj" />
     <ProjectReference Include="..\Vocalia.Ingest.Db\Vocalia.Ingest.Db.csproj" />
-    <ProjectReference Include="..\Vocalia.Ingest.StreamBuilder\Vocalia.Ingest.Streams.csproj" />
   </ItemGroup>
 
 </Project>

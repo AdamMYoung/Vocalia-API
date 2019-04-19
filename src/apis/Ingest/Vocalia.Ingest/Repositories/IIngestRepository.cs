@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vocalia.Ingest.DomainModels;
@@ -78,6 +79,31 @@ namespace Vocalia.Ingest.Repositories
         Task<bool> CompleteSessionAsync(Guid sessionUID, string userUID);
 
         /// <summary>
+        /// Deletes the specified clip from the database.
+        /// </summary>
+        /// <param name="clipUid">Clip to delete.</param>
+        /// <param name="userUid">User UID requesting the deletion.</param>
+        /// <returns></returns>
+        Task<bool> DeleteClipAsync(Guid clipUid, string userUid);
+
+        /// <summary>
+        /// Gets all clips belonging to the specified sessionUID.
+        /// </summary>
+        /// <param name="sessionUid">UID to get session information for. </param>
+        /// <param name="userUid">User UID requesting the info.</param>
+        /// <returns></returns>
+        Task<IEnumerable<DomainModels.SessionClip>> GetClipsAsync(Guid sessionUid, string userUid);
+
+        /// <summary>
+        /// Builds the current clips stored into a single stream, then removes the clips.
+        /// </summary>
+        /// <param name="clipName">Name of the clip.</param>
+        /// <param name="sessionUid">UID of the session to process.</param>
+        /// <param name="userUid">UID of the user requesting.</param>
+        /// <returns></returns>
+        Task<bool> FinishClipAsync(string userUid, DomainModels.BlobUpload upload);
+
+        /// <summary>
         /// Returns the podcast assigned to the invite link.
         /// </summary>
         /// <param name="inviteLink">Invite GUID to check.</param>
@@ -99,12 +125,5 @@ namespace Vocalia.Ingest.Repositories
         /// <param name="userUID">User accepting the invite.</param>
         /// <returns></returns>
         Task<bool> AcceptInviteLinkAsync(Guid inviteLink, string userUID);
-
-        /// <summary>
-        /// Posts a blob to the blob storage database.
-        /// </summary>
-        /// <param name="blob">Blob to upload.</param>
-        /// <returns></returns>
-        Task PostMediaBlobAsync(BlobUpload blob);
     }
 }

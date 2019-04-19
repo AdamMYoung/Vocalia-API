@@ -6,10 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ObjectBus.Extensions;
+using ObjectBus.Options;
 using System.Collections.Generic;
 using Vocalia.Editor.Db;
+using Vocalia.Editor.Media;
 using Vocalia.Editor.Repository;
+using Vocalia.Editor.ServiceBus;
 using Vocalia.ServiceBus.Types;
+using Vocalia.Streams;
 using Vocalia.UserFacade;
 
 namespace Vocalia.Editor
@@ -44,10 +48,15 @@ namespace Vocalia.Editor
                 options.UseSqlServer(Configuration.GetConnectionString("EditorDatabase")));
 
             //Configure service bus for objects.
-            services.CreateObjectBus<RecordingChunk>(p =>
+            services.CreateObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>, ClipServiceBus>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
+
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast, PodcastServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
             services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
+            services.AddSingleton<IStreamBuilder, StreamBuilder>();
+            services.AddSingleton<IMediaStorage, MediaStorage>();
             services.AddScoped<IEditorRepository, EditorRepository>();
         }
 
@@ -63,7 +72,9 @@ namespace Vocalia.Editor
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseAuthentication();
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
             app.UseMvc();
         }
     }

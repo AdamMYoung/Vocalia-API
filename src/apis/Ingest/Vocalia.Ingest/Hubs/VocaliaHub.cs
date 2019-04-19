@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -155,6 +156,41 @@ namespace Vocalia.Ingest.Hubs
             session.IsPaused = isPaused;
             await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
                 .SendAsync("onPauseChanged", isPaused);
+        }
+
+        /// <summary>
+        /// Called when the session has ended.
+        /// </summary>
+
+        /// <returns></returns>
+        public async Task SetSessionEnd()
+        {
+            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            var session = Sessions.FirstOrDefault(x => x.SessionUID == user.CurrentSessionId);
+
+            var sessionUsers = Users.Where(x => x.CurrentSessionId == session.SessionUID);
+
+            await Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList())
+                .SendAsync("onSessionEnd");
+
+            Users.RemoveAll(x => x.CurrentSessionId == session.SessionUID);
+            Sessions.Remove(session);
+        }
+
+        /// <summary>
+        /// Called when the recoding status has changed in a session.
+        /// </summary>
+        /// <param name="isRecording">Recording status.</param>
+        /// <returns></returns>
+        public async Task SubmitClip(Guid id, string name)
+        {
+            var user = Users.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            var session = Sessions.FirstOrDefault(x => x.SessionUID == user.CurrentSessionId);
+
+            var sessionUsers = Users.Where(x => x.CurrentSessionId == session.SessionUID);
+
+            var clients = Clients.Clients(sessionUsers.Select(c => c.ConnectionId).ToList());
+            await clients.SendAsync("onSubmitClip", id, name);
         }
 
         /// <summary>

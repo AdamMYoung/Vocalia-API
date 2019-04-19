@@ -6,6 +6,11 @@ services:
     build:
       context: .
       dockerfile: src/services/Vocalia.Gateway/Dockerfile
+    depends_on:
+      - vocalia.podcast
+      - vocalia.social
+      - vocalia.ingest
+      - vocalia.editor
 
   vocalia.podcast:
     image: ${DOCKER_REGISTRY-}vocaliapodcast
@@ -25,3 +30,8 @@ services:
       context: .
       dockerfile: src/apis/Ingest/Vocalia.Ingest/Dockerfile
 
+  vocalia.editor:
+    image: ${DOCKER_REGISTRY-}vocaliaeditor
+    build:
+      context: .
+      dockerfile: src/apis/Editor/Vocalia.Editor/Dockerfile

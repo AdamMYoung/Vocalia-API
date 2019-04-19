@@ -1,17 +1,19 @@
-#Depending on the operating system of the host machines(s) that will build or run the containers, the image specified in the FROM statement may need to be changed.
-#For more information, please see https://aka.ms/containercompat
-
-FROM microsoft/dotnet:2.1-aspnetcore-runtime-nanoserver-1803 AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM microsoft/dotnet:2.1-sdk-nanoserver-1803 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
-COPY ["src/apis/Vocalia.Editor/Vocalia.Editor.csproj", "src/apis/Vocalia.Editor/"]
-RUN dotnet restore "src/apis/Vocalia.Editor/Vocalia.Editor.csproj"
+COPY ["src/apis/Editor/Vocalia.Editor/Vocalia.Editor.csproj", "src/apis/Editor/Vocalia.Editor/"]
+COPY ["src/services/Vocalia.ServiceBus.Types/Vocalia.ServiceBus.Types.csproj", "src/services/Vocalia.ServiceBus.Types/"]
+COPY ["src/services/Vocalia.UserFacade/Vocalia.UserFacade.csproj", "src/services/Vocalia.UserFacade/"]
+COPY ["src/apis/Editor/Vocalia.Editor.Db/Vocalia.Editor.Db.csproj", "src/apis/Editor/Vocalia.Editor.Db/"]
+COPY ["../ObjectBus/ObjectBus.csproj", "../ObjectBus/"]
+COPY ["src/apis/Editor/Vocalia.Editor.Streams/Vocalia.Editor.Streams.csproj", "src/apis/Editor/Vocalia.Editor.Streams/"]
+RUN dotnet restore "src/apis/Editor/Vocalia.Editor/Vocalia.Editor.csproj"
 COPY . .
-WORKDIR "/src/src/apis/Vocalia.Editor"
+WORKDIR "/src/src/apis/Editor/Vocalia.Editor"
 RUN dotnet build "Vocalia.Editor.csproj" -c Release -o /app
 
 FROM build AS publish
