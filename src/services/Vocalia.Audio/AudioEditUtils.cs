@@ -1,6 +1,4 @@
-﻿using Concentus.Oggfile;
-using Concentus.Structs;
-using NAudio.Wave;
+﻿using NAudio.Wave;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,22 +19,22 @@ namespace Vocalia.Audio
             var editedStream = new MemoryStream();
 
             stream.Position = 0;
-            using (var reader = new WaveFileReader(stream))
-            using (var writer = new WaveFileWriter(editedStream, reader.WaveFormat))
-            {
-                int bytesPerMillisecond = reader.WaveFormat.AverageBytesPerSecond / 1000;
+            var reader = new WaveFileReader(stream);
+            var writer = new WaveFileWriter(editedStream, reader.WaveFormat);
 
-                int startPos = (startSeconds * 100) * bytesPerMillisecond;
-                startPos -= startPos % reader.WaveFormat.BlockAlign;
+            int bytesPerMillisecond = reader.WaveFormat.AverageBytesPerSecond / 1000;
 
-                int endBytes = (endSeconds * 100) * bytesPerMillisecond;
-                endBytes -= endBytes % reader.WaveFormat.BlockAlign;
-                int endPos = (int)reader.Length - endBytes;
+            int startPos = (startSeconds * 100) * bytesPerMillisecond;
+            startPos -= startPos % reader.WaveFormat.BlockAlign;
 
-                await TrimWavFile(reader, writer, startPos, endPos);
-                stream.Dispose();
-                return editedStream;
-            }
+            int endBytes = (endSeconds * 100) * bytesPerMillisecond;
+            endBytes -= endBytes % reader.WaveFormat.BlockAlign;
+            int endPos = (int)reader.Length - endBytes;
+
+            await TrimWavFile(reader, writer, startPos, endPos);
+            stream.Dispose();
+            return editedStream;
+
         }
 
         /// <summary>
@@ -49,7 +47,7 @@ namespace Vocalia.Audio
         /// <returns></returns>
         private static async Task TrimWavFile(WaveFileReader reader, WaveFileWriter writer, int startPos, int endPos)
         {
-            reader.Position = startPos;
+            reader.Position = 0;
             byte[] buffer = new byte[1024];
             while (reader.Position < endPos)
             {
@@ -65,6 +63,5 @@ namespace Vocalia.Audio
                 }
             }
         }
-
     }
 }

@@ -22,27 +22,6 @@ namespace Vocalia.Ingest.Media
         }
 
         /// <summary>
-        /// Uploads a media blob to the database.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<string> UploadFormFileAsync(IFormFile file, Guid sessionUid, string userUid)
-        {
-            var fileName = Guid.NewGuid().ToString();
-            var url = string.Concat(Config["BlobStorage:MediaURL"], sessionUid, "/",
-                userUid, "/", fileName, ".wav");
-
-            var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
-            var newBlob = new CloudBlockBlob(new Uri(url), creds);
-
-            using (var stream = file.OpenReadStream())
-            {
-                await newBlob.UploadFromStreamAsync(stream);
-            }
-
-            return url;
-        }
-
-        /// <summary>
         /// Uploads a media stream to the database.
         /// </summary>
         /// <param name="userUid">UID of the user.</param>

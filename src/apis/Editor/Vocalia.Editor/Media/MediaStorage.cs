@@ -27,10 +27,10 @@ namespace Vocalia.Editor.Media
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="stream">Stream to upload.</param>
         /// <returns></returns>
-        public async Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Stream stream)
+        public async Task<string> UploadStreamAsync(string userUid, Guid sessionUid, Guid clipUid, Stream stream)
         {
             var url = string.Concat(Config["BlobStorage:StreamURL"], sessionUid, "/",
-                userUid, ".wav");
+                clipUid, "/", userUid, ".wav");
 
             var creds = new StorageCredentials(Config["BlobStorage:Account"], Config["BlobStorage:Key"]);
             var newBlob = new CloudBlockBlob(new Uri(url), creds);

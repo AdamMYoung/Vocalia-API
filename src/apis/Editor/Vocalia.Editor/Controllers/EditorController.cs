@@ -72,7 +72,7 @@ namespace Vocalia.Editor.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var podcast = await Repository.GetPodcastDetailAsync(userId, podcastUid);
+            var podcast = await Repository.GetPodcastDetailAsync(podcastUid, userId);
             if (podcast == null)
                 return null;
 
@@ -107,7 +107,7 @@ namespace Vocalia.Editor.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var streams = await Repository.DeleteSessionAsync(userId, sessionUid);
+            var streams = await Repository.DeleteSessionAsync(sessionUid, userId);
 
             if (streams)
                 return Ok();
@@ -148,7 +148,7 @@ namespace Vocalia.Editor.Controllers
                     UserUID = c.UserUID,
                     UserImageUrl = c.UserImageUrl,
                     UserName = c.UserName,
-                    
+
                 }),
                 Edit = x.Edit != null ? new Edit
                 {
@@ -222,7 +222,7 @@ namespace Vocalia.Editor.Controllers
                     UserUID = c.UserUID,
                     UserImageUrl = c.UserImageUrl,
                     UserName = c.UserName,
-                    
+
                 }),
                 Edit = x.Edit != null ? new Edit
                 {
@@ -276,7 +276,7 @@ namespace Vocalia.Editor.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var result = await Repository.SubmitEditAsync(sessionUid, userId);
+            var result = await Repository.FinishEditingAsync(sessionUid, userId);
 
             if (!result)
                 return Unauthorized();

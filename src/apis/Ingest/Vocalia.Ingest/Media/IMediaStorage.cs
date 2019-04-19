@@ -11,12 +11,6 @@ namespace Vocalia.Ingest.Media
     public interface IMediaStorage
     {
         /// <summary>
-        /// Uploads a media blob to the database.
-        /// </summary>
-        /// <returns></returns>
-        Task<string> UploadFormFileAsync(IFormFile file, Guid sessionUid, string userUid);
-
-        /// <summary>
         /// Uploads a media stream to the database.
         /// </summary>
         /// <param name="userUid">UID of the user.</param>

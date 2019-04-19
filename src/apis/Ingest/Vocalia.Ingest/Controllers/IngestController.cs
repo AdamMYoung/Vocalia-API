@@ -182,7 +182,7 @@ namespace Ingest_API.Controllers
 
             var sessionGuid = await Repository.CreateSessionAsync(podcastUid, userId);
             if (sessionGuid == null)
-                return NotFound();          
+                return NotFound();
 
             return Ok();
         }
@@ -221,7 +221,7 @@ namespace Ingest_API.Controllers
             var isCompleted = await Repository.CompleteSessionAsync(sessionUid, userId);
             if (!isCompleted)
                 return Unauthorized();
-  
+
             return Ok();
         }
 
