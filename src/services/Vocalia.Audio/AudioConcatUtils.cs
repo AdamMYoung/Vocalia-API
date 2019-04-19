@@ -14,7 +14,7 @@ namespace Vocalia.Audio
         /// </summary>
         /// <param name="streams">Streams to concatenate.</param>
         /// <returns></returns>
-        public static MemoryStream ConcatAudioStreams(IEnumerable<MemoryStream> streams)
+        public static Stream ConcatAudioStreams(IEnumerable<Stream> streams)
         {
             var mixedStream = new MemoryStream();
             var sampleProviders = new List<ISampleProvider>();
@@ -41,7 +41,7 @@ namespace Vocalia.Audio
         /// </summary>
         /// <param name="streams">Streams to combine.</param>
         /// <returns></returns>
-        public static MemoryStream SequenceAudioStreams(IEnumerable<MemoryStream> streams)
+        public static Stream SequenceAudioStreams(IEnumerable<Stream> streams)
         {
             byte[] buffer = new byte[1024];
             var outputStream = new MemoryStream();

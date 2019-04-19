@@ -14,7 +14,7 @@ namespace Vocalia.Audio
         /// <param name="startSeconds">Seconds to trim off of start.</param>
         /// <param name="endSeconds">Seconds to trim off of end.</param>
         /// <returns></returns>
-        public static async Task<MemoryStream> TrimFile(MemoryStream stream, int startSeconds, int endSeconds)
+        public static async Task<Stream> TrimFile(MemoryStream stream, int startSeconds, int endSeconds)
         {
             var editedStream = new MemoryStream();
 

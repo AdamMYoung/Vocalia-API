@@ -367,10 +367,10 @@ namespace Vocalia.Editor.Repository
             if (session == null)
                 return false;
 
-            var combinedStreams = new List<MemoryStream>();
+            var combinedStreams = new List<System.IO.Stream>();
             foreach (var clip in session.Clips)
             {
-                var streams = new List<MemoryStream>();
+                var streams = new List<System.IO.Stream>();
                 foreach (var stream in clip.Media)
                     streams.Add(await StreamBuilder.GetStreamFromUrlAsync(stream.MediaUrl));
 
