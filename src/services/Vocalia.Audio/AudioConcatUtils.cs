@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using NAudio.Utils;
+using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace Vocalia.Audio
 
             var mixer = new MixingSampleProvider(sampleProviders);
             var waveProvider = mixer.ToWaveProvider();
-            WaveFileWriter.WriteWavFileToStream(mixedStream, waveProvider);
+            WaveFileWriter.WriteWavFileToStream(new IgnoreDisposeStream(mixedStream), waveProvider);
 
             foreach (var stream in streams)
                 stream.Dispose();
@@ -53,7 +54,7 @@ namespace Vocalia.Audio
                 using (WaveFileReader reader = new WaveFileReader(stream))
                 {
                     if (waveFileWriter == null)
-                        waveFileWriter = new WaveFileWriter(outputStream, reader.WaveFormat);
+                        waveFileWriter = new WaveFileWriter(new IgnoreDisposeStream(outputStream), reader.WaveFormat);
 
                     int read;
                     while ((read = reader.Read(buffer, 0, buffer.Length)) > 0)
@@ -63,6 +64,7 @@ namespace Vocalia.Audio
                 }
             }
 
+            waveFileWriter.Dispose();
             return outputStream;
         }
     }

@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using NAudio.Utils;
+using NAudio.Wave;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace Vocalia.Audio
 
             stream.Position = 0;
             var reader = new WaveFileReader(stream);
-            var writer = new WaveFileWriter(editedStream, reader.WaveFormat);
+            var writer = new WaveFileWriter(new IgnoreDisposeStream(editedStream), reader.WaveFormat);
 
             int bytesPerMillisecond = reader.WaveFormat.AverageBytesPerSecond / 1000;
 
@@ -32,7 +33,9 @@ namespace Vocalia.Audio
             int endPos = (int)reader.Length - endBytes;
 
             await TrimWavFile(reader, writer, startPos, endPos);
+
             stream.Dispose();
+            writer.Dispose();
             return editedStream;
 
         }
@@ -47,7 +50,7 @@ namespace Vocalia.Audio
         /// <returns></returns>
         private static async Task TrimWavFile(WaveFileReader reader, WaveFileWriter writer, int startPos, int endPos)
         {
-            reader.Position = 0;
+            reader.Position = startPos;
             byte[] buffer = new byte[1024];
             while (reader.Position < endPos)
             {

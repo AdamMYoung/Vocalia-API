@@ -207,7 +207,7 @@ namespace Vocalia.Editor.Repository
         /// <param name="sessionUid">UID of the session.</param>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Clip>> GetUnasignedClipsAsync(Guid sessionUid, string userUid)
+        public async Task<IEnumerable<DomainModels.Clip>> GetUnassignedClipsAsync(Guid sessionUid, string userUid)
         {
             var session = await DbContext.Sessions
                 .Include(x => x.TimelineEntries)

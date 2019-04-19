@@ -203,7 +203,7 @@ namespace Vocalia.Editor.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var clips = await Repository.GetUnasignedClipsAsync(sessionUid, userId);
+            var clips = await Repository.GetUnassignedClipsAsync(sessionUid, userId);
 
             if (clips == null)
                 return Unauthorized();
