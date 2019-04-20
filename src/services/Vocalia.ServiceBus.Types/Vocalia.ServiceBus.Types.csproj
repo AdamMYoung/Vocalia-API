@@ -8,4 +8,9 @@
     <ProjectReference Include="..\Vocalia.UserFacade\Vocalia.UserFacade.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder1\" />
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
 </Project>
