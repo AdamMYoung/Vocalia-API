@@ -12,7 +12,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ObjectBus.Extensions;
 using Vocalia.Publishing.Db;
+using Vocalia.Publishing.ServiceBus;
+using Vocalia.ServiceBus.Types;
+using Vocalia.ServiceBus.Types.Publishing;
 
 namespace Vocalia.Publishing
 {
@@ -39,11 +43,17 @@ namespace Vocalia.Publishing
                 options.Audience = "https://api.vocalia.co.uk";
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             //Configure editor database context.
             services.AddDbContext<PublishContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("PublishDatabase")));
+
+            services.CreateObjectBus<Podcast, PodcastServiceBus>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Reciever));
+
+            services.CreateObjectBus<Timeline, TimelineServiceBus>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Reciever));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

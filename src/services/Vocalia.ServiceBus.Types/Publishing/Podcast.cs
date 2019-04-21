@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Vocalia.ServiceBus.Types.Editor
+namespace Vocalia.ServiceBus.Types.Publishing
 {
     public class Podcast
     {

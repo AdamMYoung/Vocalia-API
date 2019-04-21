@@ -10,16 +10,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Editor.ServiceBus
 {
-    public class PodcastServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Podcast>
+    public class EditorPodcastServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast>
     {
         private IServiceScopeFactory ServiceScope { get; }
 
-        public PodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
+        public EditorPodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
         {
             ServiceScope = serviceScope;
         }
 
-        public async override Task HandleMessageAsync(Vocalia.ServiceBus.Types.Podcast message)
+        public async override Task HandleMessageAsync(Vocalia.ServiceBus.Types.Editor.Podcast message)
         {
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vocalia.ServiceBus.Types;
+using Vocalia.ServiceBus.Types.Publishing;
 
 namespace Vocalia.Publishing.ServiceBus
 {
