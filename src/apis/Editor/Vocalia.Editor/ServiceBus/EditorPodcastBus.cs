@@ -24,6 +24,17 @@ namespace Vocalia.Editor.ServiceBus
             using (var scope = ServiceScope.CreateScope())
             using (var DbContext = scope.ServiceProvider.GetService<EditorContext>())
             {
+                //Pass onto next service bus.
+                var publishServiceBus = scope.ServiceProvider.GetService<IObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast>>();
+                await publishServiceBus.SendAsync(new Vocalia.ServiceBus.Types.Publishing.Podcast
+                {
+                    UID = message.UID,
+                    ImageUrl = message.ImageUrl,
+                    Name = message.Name,
+                    Members = message.Members
+                });
+
+                //Update database of editor.
                 if (!DbContext.Podcasts.Any(x => x.UID == message.UID))
                 {
                     var podcast = new Db.Podcast
@@ -32,7 +43,6 @@ namespace Vocalia.Editor.ServiceBus
                         ImageUrl = message.ImageUrl,
                         UID = message.UID
                     };
-
                     DbContext.Podcasts.Add(podcast);
 
                     var members = message.Members.Select(x => new Member
@@ -41,7 +51,6 @@ namespace Vocalia.Editor.ServiceBus
                         IsAdmin = x.IsAdmin,
                         UserUID = x.UserUID
                     });
-
                     DbContext.Members.AddRange(members);
 
                     await DbContext.SaveChangesAsync();

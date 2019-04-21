@@ -32,6 +32,11 @@ namespace Vocalia.Editor.Repository
         private IUserFacade UserFacade { get; }
 
         /// <summary>
+        /// Service bus for timeline updates.
+        /// </summary>
+        private IObjectBus<Vocalia.ServiceBus.Types.Publishing.Timeline> TimelineBus { get; }
+
+        /// <summary>
         /// Database reference.
         /// </summary>
         private EditorContext DbContext { get; }
@@ -41,16 +46,19 @@ namespace Vocalia.Editor.Repository
         /// </summary>
         public EditorRepository(IMediaStorage mediaStorage, EditorContext editorDb,
              IStreamBuilder streamBuilder, IObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>> recordBus,
-             IObjectBus<Vocalia.ServiceBus.Types.Podcast> podcastBus, IUserFacade userFacade)
+             IObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast> editorPodcastBus, 
+             IObjectBus<Vocalia.ServiceBus.Types.Publishing.Timeline> publishTimelineBus, 
+             IUserFacade userFacade)
         {
             DbContext = editorDb;
             MediaStorage = mediaStorage;
             StreamBuilder = streamBuilder;
             UserFacade = userFacade;
+            TimelineBus = publishTimelineBus;
 
             //Initializes service bus objects for handling I/O between services.
             _ = recordBus;
-            _ = podcastBus;
+            _ = editorPodcastBus;
         }
 
         /// <summary>
@@ -357,27 +365,34 @@ namespace Vocalia.Editor.Repository
         /// <returns></returns>
         public async Task<bool> FinishEditingAsync(Guid sessionUid, string userUid)
         {
-            var session = await DbContext.Sessions.Include(c => c.Clips).ThenInclude(c => c.Media).FirstOrDefaultAsync(x => x.UID == sessionUid &&
+            //TODO Move this into publishing
+
+            var session = await DbContext.Sessions.Include(c => c.Podcast).Include(c => c.TimelineEntries).ThenInclude(c => c.Clip).FirstOrDefaultAsync(x => x.UID == sessionUid &&
                 x.Podcast.Members.Any(c => c.UserUID == userUid && c.IsAdmin));
 
             if (session == null)
                 return false;
-
-            var combinedStreams = new List<System.IO.Stream>();
-            foreach (var clip in session.Clips)
+            
+            var combinedStreams = new List<string>();
+            foreach (var entry in session.TimelineEntries.OrderBy(c => c.Position))
             {
                 var streams = new List<System.IO.Stream>();
-                foreach (var stream in clip.Media)
+                foreach (var stream in entry.Clip.Media)
                     streams.Add(await StreamBuilder.GetStreamFromUrlAsync(stream.MediaUrl));
 
                 var combinedStream = Audio.AudioConcatUtils.ConcatAudioStreams(streams);
-                combinedStreams.Add(combinedStream);
+                var url = await MediaStorage.UploadStreamAsync(Guid.NewGuid().ToString(), sessionUid, Guid.NewGuid(), combinedStream);
+                combinedStreams.Add(url);
             }
 
-            var finalSequence = Audio.AudioConcatUtils.SequenceAudioStreams(combinedStreams);
-            var url = await MediaStorage.UploadStreamAsync(Guid.NewGuid().ToString(), sessionUid, Guid.NewGuid(), finalSequence);
+            await TimelineBus.SendAsync(new Vocalia.ServiceBus.Types.Publishing.Timeline
+            {
+                PodcastUID = session.Podcast.UID,
+                Date = session.Date,
+                UID = session.UID,
+                TimelineEntries = combinedStreams
+            });
 
-            //Send service bus queue.
             return true;
         }
     }

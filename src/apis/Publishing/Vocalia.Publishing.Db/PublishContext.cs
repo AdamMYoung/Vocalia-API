@@ -6,6 +6,56 @@ using System.Text;
 
 namespace Vocalia.Publishing.Db
 {
+    internal class UnassignedEpisodeEntityTypeConfiguration : IEntityTypeConfiguration<UnassignedEpisode>
+    {
+        public void Configure(EntityTypeBuilder<UnassignedEpisode> builder)
+        {
+            builder.Property(c => c.ID).IsRequired();
+            builder.Property(c => c.UnassignedPodcastID).IsRequired();
+            builder.Property(c => c.UID).IsRequired();
+            builder.Property(c => c.Name).IsRequired();
+            builder.Property(c => c.IsCompleted).IsRequired();
+
+            builder.HasMany(c => c.Clips).WithOne(c => c.Episode).IsRequired();
+        }
+    }
+
+    internal class UnassignedEpisodeClipEntityTypeConfiguration : IEntityTypeConfiguration<UnassignedEpisodeClip>
+    {
+        public void Configure(EntityTypeBuilder<UnassignedEpisodeClip> builder)
+        {
+            builder.Property(c => c.ID).IsRequired();
+            builder.Property(c => c.UnassignedEpisodeID).IsRequired();
+            builder.Property(c => c.Position).IsRequired();
+            builder.Property(c => c.MediaUrl).IsRequired();
+        }
+    }
+
+    internal class UnassignedPodcastEntityTypeConfiguration : IEntityTypeConfiguration<UnassignedPodcast>
+    {
+        public void Configure(EntityTypeBuilder<UnassignedPodcast> builder)
+        {
+            builder.Property(c => c.ID).IsRequired();
+            builder.Property(c => c.UID).IsRequired();
+            builder.Property(c => c.Name).IsRequired();
+            builder.Property(c => c.ImageUrl).IsRequired();
+            builder.Property(c => c.IsCompleted).IsRequired();
+
+            builder.HasMany(c => c.Episodes).WithOne(c => c.Podcast).IsRequired();
+            builder.HasMany(c => c.Members).WithOne(c => c.Podcast).IsRequired();
+        }
+    }
+
+    internal class UnassignedPodcastMemberEntityTypeConfiguration : IEntityTypeConfiguration<UnassignedPodcastMember>
+    {
+        public void Configure(EntityTypeBuilder<UnassignedPodcastMember> builder)
+        {
+            builder.Property(c => c.ID).IsRequired();
+            builder.Property(c => c.UnassignedPodcastID).IsRequired();
+            builder.Property(c => c.UserUID).IsRequired();
+        }
+    }
+
     internal class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<Category>
     {
         public void Configure(EntityTypeBuilder<Category> builder)
@@ -84,6 +134,10 @@ namespace Vocalia.Publishing.Db
         public DbSet<Category> Categories { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Language> Languages { get; set; }
+        public DbSet<UnassignedPodcastMember> UnassignedMembers { get; set; }
+        public DbSet<UnassignedPodcast> UnassignedPodcasts { get; set; }
+        public DbSet<UnassignedEpisode> UnassignedEpisodes { get; set; }
+        public DbSet<UnassignedEpisodeClip> UnassignedEpisodeClips { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -99,6 +153,10 @@ namespace Vocalia.Publishing.Db
             modelBuilder.ApplyConfiguration(new LanguageEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PodcastEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new EpisodeEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UnassignedPodcastMemberEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UnassignedEpisodeClipEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UnassignedPodcastEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UnassignedEpisodeEntityTypeConfiguration());
         }
     }
 }
