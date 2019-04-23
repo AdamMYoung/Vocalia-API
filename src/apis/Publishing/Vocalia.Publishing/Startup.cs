@@ -14,9 +14,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ObjectBus.Extensions;
 using Vocalia.Publishing.Db;
+using Vocalia.Publishing.Media;
+using Vocalia.Publishing.Repository;
 using Vocalia.Publishing.ServiceBus;
 using Vocalia.ServiceBus.Types;
 using Vocalia.ServiceBus.Types.Publishing;
+using Vocalia.Streams;
 
 namespace Vocalia.Publishing
 {
@@ -49,11 +52,15 @@ namespace Vocalia.Publishing
             services.AddDbContext<PublishContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("PublishDatabase")));
 
-            services.CreateObjectBus<Podcast, PodcastServiceBus>(p =>
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast, PodcastServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Reciever));
 
             services.CreateObjectBus<Timeline, TimelineServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Reciever));
+
+            services.AddScoped<IPublishingRepository, PublishingRepository>();
+            services.AddSingleton<IStreamBuilder, StreamBuilder>();
+            services.AddSingleton<IMediaStorage, MediaStorage>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

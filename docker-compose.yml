@@ -11,6 +11,7 @@ services:
       - vocalia.social
       - vocalia.ingest
       - vocalia.editor
+      - vocalia.publish
 
   vocalia.podcast:
     image: ${DOCKER_REGISTRY-}vocaliapodcast
@@ -35,3 +36,9 @@ services:
     build:
       context: .
       dockerfile: src/apis/Editor/Vocalia.Editor/Dockerfile
+
+  vocalia.publish:
+    image: ${DOCKER_REGISTRY-}vocaliapublish
+    build:
+      context: .
+      dockerfile: src/apis/Publishing/Vocalia.Publishing/Dockerfile

@@ -8,7 +8,7 @@ namespace Vocalia.Publishing.DomainModels
     public class Episode
     {
         public int ID { get; set; }
-        public int PodcastID { get; set; }
+        public Guid PodcastUID { get; set; }
         public Guid UID { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

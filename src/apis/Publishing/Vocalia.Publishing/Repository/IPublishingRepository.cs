@@ -38,18 +38,18 @@ namespace Vocalia.Publishing.Repository
         Task<bool> DeletePodcast(string userUid, Guid podcastUid);
 
         /// <summary>
-        /// Adds or updates the specified podcast object to the database, if an unassigned podcast already exists with the same UID.
+        /// Updates the specified podcast object in the database.
         /// </summary>
         /// <param name="userUid">UID of the user.</param>
-        /// <param name="podcast">Podcast to add to the database.</param>
+        /// <param name="podcast">Podcast to update in the database.</param>
         /// <returns></returns>
         Task<bool> UpdatePodcast(string userUid, Podcast podcast);
 
         /// <summary>
-        /// Adds or updates the specified episode object to the database, if an unassigned episode already exists with the same UID.
+        /// Updates the specified episode object in the database.
         /// </summary>
         /// <param name="userUid">UID of the user.</param>
-        /// <param name="episode">Episode to add to the database.</param>
+        /// <param name="episode">Episode to add update in the database.</param>
         /// <returns></returns>
         Task<bool> UpdateEpisode(string userUid, Episode episode);
     }

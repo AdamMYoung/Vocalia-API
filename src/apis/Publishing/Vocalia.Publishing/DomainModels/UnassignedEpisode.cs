@@ -7,10 +7,10 @@ namespace Vocalia.Publishing.DomainModels
 {
     public class UnassignedEpisode
     {
-        public virtual int ID { get; set; }
-        public virtual Guid UnassignedPodcastUID { get; set; }
-        public virtual Guid UID { get; set; }
-        public virtual string Name { get; set; }
-        public virtual bool IsCompleted { get; set; }
+        public int ID { get; set; }
+        public Guid UnassignedPodcastUID { get; set; }
+        public Guid UID { get; set; }
+        public string Name { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }
