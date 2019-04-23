@@ -365,8 +365,6 @@ namespace Vocalia.Editor.Repository
         /// <returns></returns>
         public async Task<bool> FinishEditingAsync(Guid sessionUid, string userUid)
         {
-            //TODO Move this into publishing
-
             var session = await DbContext.Sessions.Include(c => c.Podcast).Include(c => c.TimelineEntries).ThenInclude(c => c.Clip).FirstOrDefaultAsync(x => x.UID == sessionUid &&
                 x.Podcast.Members.Any(c => c.UserUID == userUid && c.IsAdmin));
 
@@ -392,6 +390,9 @@ namespace Vocalia.Editor.Repository
                 UID = session.UID,
                 TimelineEntries = combinedStreams
             });
+
+            session.IsFinishedEditing = true;
+            await DbContext.SaveChangesAsync();
 
             return true;
         }

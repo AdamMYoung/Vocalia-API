@@ -10,11 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Vocalia.Editor.ServiceBus
 {
-    public class EditorPodcastServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast>
+    public class PodcastServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast>
     {
         private IServiceScopeFactory ServiceScope { get; }
 
-        public EditorPodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
+        public PodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
         {
             ServiceScope = serviceScope;
         }

@@ -51,7 +51,7 @@ namespace Vocalia.Editor
             services.CreateObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>, ClipServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
-            services.CreateObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast, EditorPodcastServiceBus>(p =>
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast, PodcastServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
             services.CreateObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast>(p =>
