@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ObjectBus;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using Vocalia.Publishing.Db;
 using Vocalia.Publishing.DomainModels;
 using Vocalia.Publishing.Media;
+using Vocalia.ServiceBus.Types.Publishing;
 using Vocalia.Streams;
 
 namespace Vocalia.Publishing.Repository
@@ -35,11 +37,17 @@ namespace Vocalia.Publishing.Repository
         private IStreamBuilder StreamBuilder { get; }
 
         public PublishingRepository(PublishContext ingestContext, IMediaStorage mediaStorage, 
-            IStreamBuilder streamBuilder, IConfiguration config)
+            IStreamBuilder streamBuilder, IConfiguration config, 
+            IObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast> podcastBus,
+            IObjectBus<Timeline> timelineBus)
         {
             DbContext = ingestContext;
             MediaStorage = mediaStorage;
             StreamBuilder = streamBuilder;
+            Config = config;
+
+            _ = podcastBus;
+            _ = timelineBus;
         }
 
         /// <summary>
@@ -119,6 +127,7 @@ namespace Vocalia.Publishing.Repository
             };
 
             DbContext.Episodes.Add(dbEpisode);
+            dbUnassignedEpisode.IsCompleted = true;
             await DbContext.SaveChangesAsync();
 
             return dbEpisode;
@@ -161,8 +170,8 @@ namespace Vocalia.Publishing.Repository
         /// <returns></returns>
         private async Task CreateNewPodcast(string userUid, DomainModels.Podcast podcast)
         {
-            var unassignedDbContext = await DbContext.UnassignedPodcasts.Include(c => c.Members).FirstOrDefaultAsync(c => c.UID == podcast.UID && c.Members.Any(x => x.UserUID == userUid));
-            if (unassignedDbContext == null)
+            var unassignedPodcast = await DbContext.UnassignedPodcasts.Include(c => c.Members).FirstOrDefaultAsync(c => c.UID == podcast.UID && c.Members.Any(x => x.UserUID == userUid));
+            if (unassignedPodcast == null)
                 return;
 
             var dbPodcast = new Db.Podcast
@@ -179,13 +188,14 @@ namespace Vocalia.Publishing.Repository
 
             DbContext.Podcasts.Add(dbPodcast);
 
-            var dbMembers = unassignedDbContext.Members.Select(c => new Db.Member
+            var dbMembers = unassignedPodcast.Members.Select(c => new Db.Member
             {
                 UserUID = c.UserUID,
                 PodcastID = dbPodcast.ID
             });
 
             DbContext.Members.AddRange(dbMembers);
+            unassignedPodcast.IsCompleted = true;
 
             await DbContext.SaveChangesAsync();
         }
@@ -249,7 +259,7 @@ namespace Vocalia.Publishing.Repository
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.UnassignedEpisode>> GetAllUnassignedEpisodes(string userUid)
         {
-            var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
+            var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => !c.IsCompleted && c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
             return dbEpisodes.Select(x => new DomainModels.UnassignedEpisode
             {
@@ -267,7 +277,7 @@ namespace Vocalia.Publishing.Repository
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.UnassignedPodcast>> GetAllUnassignedPodcasts(string userUid)
         {
-            var dbPodcasts = await DbContext.UnassignedPodcasts.Include(c => c.Episodes).Where(c => c.Members.Any(x => x.UserUID == userUid)).ToListAsync();
+            var dbPodcasts = await DbContext.UnassignedPodcasts.Include(c => c.Episodes).Where(c => !c.IsCompleted && c.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
             return dbPodcasts.Select(c => new DomainModels.UnassignedPodcast
             {

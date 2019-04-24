@@ -38,7 +38,7 @@ namespace Vocalia.Publishing.ServiceBus
                 {
                     UserUID = c.UserUID
                 });
-                DbContext.UnassignedMembers.AddRange(members);
+                DbContext.UnassignedPodcastMembers.AddRange(members);
 
                 await DbContext.SaveChangesAsync();
             }

@@ -134,7 +134,7 @@ namespace Vocalia.Publishing.Db
         public DbSet<Category> Categories { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<Language> Languages { get; set; }
-        public DbSet<UnassignedPodcastMember> UnassignedMembers { get; set; }
+        public DbSet<UnassignedPodcastMember> UnassignedPodcastMembers { get; set; }
         public DbSet<UnassignedPodcast> UnassignedPodcasts { get; set; }
         public DbSet<UnassignedEpisode> UnassignedEpisodes { get; set; }
         public DbSet<UnassignedEpisodeClip> UnassignedEpisodeClips { get; set; }
