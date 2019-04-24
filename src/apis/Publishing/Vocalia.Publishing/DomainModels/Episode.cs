@@ -15,5 +15,6 @@ namespace Vocalia.Publishing.DomainModels
         public string RssUrl { get; set; }
         public DateTime PublishDate { get; set; }
         public string MediaUrl { get; set; }
+        public bool IsActive { get; set; }
     }
 }

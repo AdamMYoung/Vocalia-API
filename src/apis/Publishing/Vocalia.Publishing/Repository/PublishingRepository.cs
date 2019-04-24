@@ -43,6 +43,24 @@ namespace Vocalia.Publishing.Repository
         }
 
         /// <summary>
+        /// Deletes the specified episode from the database, if the user is an admin.
+        /// </summary>
+        /// <param name="userUid">UID of the user.</param>
+        /// <param name="episodeUid">UID of the episode.</param>
+        /// <returns></returns>
+        public async Task<bool> DeleteEpisode(string userUid, Guid episodeUid)
+        {
+            var dbEpisode = await DbContext.Episodes.FirstOrDefaultAsync(c => c.UID == episodeUid && c.Podcast.Members.Any(x => x.UserUID == userUid));
+            if (dbEpisode == null)
+                return false;
+
+            dbEpisode.IsActive = false;
+            await DbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        /// <summary>
         /// Adds or updates the specified episode object to the database, if an unassigned episode already exists with the same UID.
         /// </summary>
         /// <param name="userUid">UID of the user.</param>
@@ -218,7 +236,8 @@ namespace Vocalia.Publishing.Repository
                     Description = x.Description,
                     MediaUrl = x.MediaUrl,
                     RssUrl = x.RssUrl,
-                    PublishDate = x.PublishDate
+                    PublishDate = x.PublishDate,
+                    IsActive = x.IsActive
                 })
             });
         }
@@ -236,7 +255,6 @@ namespace Vocalia.Publishing.Repository
             {
                 ID = x.ID,
                 UID = x.UID,
-                Name = x.Name,
                 IsCompleted = x.IsCompleted,
                 UnassignedPodcastUID = x.Podcast.UID
             });
@@ -262,11 +280,39 @@ namespace Vocalia.Publishing.Repository
                 {
                     ID = x.ID,
                     UID = x.UID,
-                    Name = x.Name,
                     IsCompleted = x.IsCompleted,
                     UnassignedPodcastUID = c.UID
                 })
             });
+        }
+
+        /// <summary>
+        /// Gets all languages that can be assigned.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Language>> GetLanguages()
+        {
+           return await DbContext.Languages.Select(c => new DomainModels.Language
+            {
+                ID = c.ID,
+                Name = c.Name,
+                ISOCode = c.ISOCode
+            }).ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets all categories that can be assigned.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<DomainModels.Category>> GetCategories()
+        {
+            return await DbContext.Categories.Select(c => new DomainModels.Category
+            {
+                ID = c.ID,
+                ITunesID = c.ITunesID,
+                Title = c.Title,
+                GPodderTag = c.GPodderTag
+            }).ToListAsync();
         }
     }
 }

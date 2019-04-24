@@ -14,6 +14,7 @@ namespace Vocalia.Publishing.Db
         public virtual string RssUrl { get; set; }
         public virtual DateTime PublishDate { get; set; }
         public virtual string MediaUrl { get; set; }
+        public virtual bool IsActive { get; set; }
 
         public virtual Podcast Podcast { get; set; }
     }

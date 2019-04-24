@@ -13,5 +13,6 @@ namespace Vocalia.Publishing.DTOs
         public string RssUrl { get; set; }
         public DateTime PublishDate { get; set; }
         public string MediaUrl { get; set; }
+        public bool IsActive { get; set; }
     }
 }

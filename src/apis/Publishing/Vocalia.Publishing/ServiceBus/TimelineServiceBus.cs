@@ -32,7 +32,6 @@ namespace Vocalia.Publishing.ServiceBus
                     var episode = new UnassignedEpisode
                     {
                         UID = message.UID,
-                        Name = message.Name,
                         IsCompleted = false,
                         UnassignedPodcastID = podcast.ID
                     };
