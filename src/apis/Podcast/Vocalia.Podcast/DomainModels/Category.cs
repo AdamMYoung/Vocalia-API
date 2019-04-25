@@ -13,11 +13,6 @@ namespace Vocalia.Podcast.DomainModels
         public int ID { get; set; }
 
         /// <summary>
-        /// Language ID of the category.
-        /// </summary>
-        public int LanguageID { get; set; }
-
-        /// <summary>
         /// ITunes API ID reference of the category.
         /// </summary>
         public int ITunesID { get; set; }

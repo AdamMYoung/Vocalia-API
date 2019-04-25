@@ -64,7 +64,6 @@ namespace Vocalia.Podcast.Repositories
                 categories = await DbContext.Categories.Select(c => new DomainModels.Category()
                 {
                     ID = c.ID,
-                    LanguageID = c.LanguageID,
                     ITunesID = c.ITunesID,
                     GPodderTag = c.GpodderTag,
                     Title = c.Title,
