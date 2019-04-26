@@ -20,9 +20,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.10" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+    <PackageReference Include="ObjectBus" Version="1.1.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\services\Vocalia.ServiceBus.Types\Vocalia.ServiceBus.Types.csproj" />
     <ProjectReference Include="..\Facades\Vocalia.Facades.GPodder\Vocalia.Facades.GPodder.csproj" />
     <ProjectReference Include="..\Facades\Vocalia.Facades.iTunes\Vocalia.Facades.iTunes.csproj" />
     <ProjectReference Include="..\Vocalia.Podcast.Db\Vocalia.Podcast.Db.csproj" />

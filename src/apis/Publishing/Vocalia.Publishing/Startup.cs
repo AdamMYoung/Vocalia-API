@@ -58,6 +58,9 @@ namespace Vocalia.Publishing
             services.CreateObjectBus<Timeline, TimelineServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Reciever));
 
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Podcast, ObjectBus.BusType.Sender));
+
             services.AddScoped<IPublishingRepository, PublishingRepository>();
             services.AddSingleton<IStreamBuilder, StreamBuilder>();
             services.AddSingleton<IMediaStorage, MediaStorage>();

@@ -10,14 +10,11 @@ namespace Vocalia.Podcast.Db
         public virtual Guid UID { get; set; }
         public virtual int CategoryID { get; set; }
         public virtual int LanguageID { get; set; }
-        public virtual int GroupID { get; set; }
-        public virtual int Subscribers { get; set; }
-        public virtual string Title { get; set; }
-        public virtual string Description { get; set; }
         public virtual string RSS { get; set; }
-        public virtual string ImageUrl { get; set; }
         public virtual bool Active { get; set; }
         public virtual bool IsExplicit { get; set; }
+        public virtual string Title { get; set; }
+        public virtual string ImageUrl { get; set; }
         
 
         public virtual Category Category { get; set; }

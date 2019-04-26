@@ -37,14 +37,21 @@ namespace Vocalia.Publishing.Repository
         /// </summary>
         private IStreamBuilder StreamBuilder { get; }
 
+        /// <summary>
+        /// Handles streams to the listen podcast feed.
+        /// </summary>
+        private IObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast> ListenBus { get; }
+
         public PublishingRepository(PublishContext ingestContext, IMediaStorage mediaStorage, 
             IStreamBuilder streamBuilder, IConfiguration config, 
             IObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast> podcastBus,
-            IObjectBus<Timeline> timelineBus)
+            IObjectBus<Timeline> timelineBus,
+            IObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast> listenBus)
         {
             DbContext = ingestContext;
             MediaStorage = mediaStorage;
             StreamBuilder = streamBuilder;
+            ListenBus = listenBus;
             Config = config;
 
             _ = podcastBus;
@@ -197,6 +204,17 @@ namespace Vocalia.Publishing.Repository
 
             DbContext.Members.AddRange(dbMembers);
             unassignedPodcast.IsCompleted = true;
+
+            await ListenBus.SendAsync(new Vocalia.ServiceBus.Types.Podcast.Podcast
+            {
+                UID = dbPodcast.UID,
+                Title = dbPodcast.Title,
+                ImageUrl = dbPodcast.ImageUrl,
+                IsExplicit = dbPodcast.IsExplicit,
+                RssUrl = string.Concat(Config.GetSection("RssUrl").ToString(), dbPodcast.UID),
+                CategoryID = dbPodcast.CategoryID,
+                LanguageID = dbPodcast.LanguageID
+            });
 
             await DbContext.SaveChangesAsync();
         }
