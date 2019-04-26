@@ -6,11 +6,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
 
-  vocalia.social:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://0.0.0.0:80
-
   vocalia.ingest:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development

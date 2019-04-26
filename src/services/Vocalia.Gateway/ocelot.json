@@ -13,19 +13,6 @@
       "UpstreamPathTemplate": "/podcast/{everything}",
       "UpstreamHttpMethod": [ "GET", "DELETE", "POST", "PUT" ]
     },
-    //Social
-    {
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "vocalia.social",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/social/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
-    },
     //Ingest
     {
       "DownstreamPathTemplate": "/voice/",
