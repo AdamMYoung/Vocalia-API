@@ -35,7 +35,7 @@ namespace Vocalia.Publishing.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var podcasts = await Repository.GetAllUnassignedPodcasts(userId);
+            var podcasts = await Repository.GetAllUnassignedPodcastsAsync(userId);
 
             if (podcasts == null)
                 return NotFound();
@@ -61,7 +61,7 @@ namespace Vocalia.Publishing.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var podcasts = await Repository.GetAllPodcasts(userId);
+            var podcasts = await Repository.GetAllPodcastsAsync(userId);
 
             if (podcasts == null)
                 return NotFound();
@@ -101,7 +101,7 @@ namespace Vocalia.Publishing.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var episodes = await Repository.GetAllUnassignedEpisodes(userId);
+            var episodes = await Repository.GetAllUnassignedEpisodesAsync(userId);
 
             if (episodes == null)
                 return NotFound();
@@ -124,7 +124,7 @@ namespace Vocalia.Publishing.Controllers
         [Route("podcast")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> UpdatePodcast(DTOs.Podcast podcast)
+        public async Task<IActionResult> UpdatePodcast([FromBody] DTOs.Podcast podcast)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -140,7 +140,7 @@ namespace Vocalia.Publishing.Controllers
                 IsActive = podcast.IsActive
             };
 
-            var isUpdated = await Repository.UpdatePodcast(userId, dmPodcast);
+            var isUpdated = await Repository.UpdatePodcastAsync(userId, dmPodcast);
 
             if (isUpdated)
                 return Ok();
@@ -160,7 +160,7 @@ namespace Vocalia.Publishing.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var isDeleted = await Repository.DeletePodcast(userId, podcastUid);
+            var isDeleted = await Repository.DeletePodcastAsync(userId, podcastUid);
 
             if (isDeleted)
                 return Ok();
@@ -178,7 +178,7 @@ namespace Vocalia.Publishing.Controllers
         [Route("episode")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> UpdateEpisode(DTOs.Episode episode)
+        public async Task<IActionResult> UpdateEpisode([FromBody] DTOs.Episode episode)
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -192,7 +192,7 @@ namespace Vocalia.Publishing.Controllers
                 PublishDate = episode.PublishDate
             };
 
-            var isUpdated = await Repository.UpdateEpisode(userId, dmEpisode);
+            var isUpdated = await Repository.UpdateEpisodeAsync(userId, dmEpisode);
 
             if (isUpdated)
                 return Ok();
@@ -212,7 +212,7 @@ namespace Vocalia.Publishing.Controllers
         {
             string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var isDeleted = await Repository.DeleteEpisode(userId, episodeUid);
+            var isDeleted = await Repository.DeleteEpisodeAsync(userId, episodeUid);
 
             if (isDeleted)
                 return Ok();
@@ -229,7 +229,7 @@ namespace Vocalia.Publishing.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await Repository.GetCategories();
+            var categories = await Repository.GetCategoriesAsync();
 
             if (categories == null)
                 return NotFound();
@@ -254,7 +254,7 @@ namespace Vocalia.Publishing.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetLanguages()
         {
-            var languages = await Repository.GetLanguages();
+            var languages = await Repository.GetLanguagesAsync();
 
             if (languages == null)
                 return NotFound();
@@ -267,6 +267,24 @@ namespace Vocalia.Publishing.Controllers
             });
 
             return Ok(categoryDTOs);
+        }
+
+        /// <summary>
+        /// Gets the RSS feed for the specified podcast UID.
+        /// </summary>
+        /// <param name="podcastUid">UID of the podcast to fetch.</param>
+        /// <returns></returns>
+        [Route("rss/{podcastUid}")]
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRssFeed(Guid podcastUid)
+        {
+            var rssFeed = await Repository.GetRssAsync(podcastUid);
+
+            if (rssFeed == null)
+                return NotFound();
+
+            return Content(rssFeed, "text/xml");
         }
     }
 }

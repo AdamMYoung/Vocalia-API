@@ -289,7 +289,6 @@ namespace Vocalia.Podcast.Controllers
             return Ok();
         }
 
-
         /// <summary>
         /// Gets the latest podcast listened to by the user.
         /// </summary>

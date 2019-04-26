@@ -11,6 +11,7 @@ using Vocalia.Publishing.DomainModels;
 using Vocalia.Publishing.Media;
 using Vocalia.ServiceBus.Types.Publishing;
 using Vocalia.Streams;
+using WilderMinds.RssSyndication;
 
 namespace Vocalia.Publishing.Repository
 {
@@ -56,7 +57,7 @@ namespace Vocalia.Publishing.Repository
         /// <param name="userUid">UID of the user.</param>
         /// <param name="episodeUid">UID of the episode.</param>
         /// <returns></returns>
-        public async Task<bool> DeleteEpisode(string userUid, Guid episodeUid)
+        public async Task<bool> DeleteEpisodeAsync(string userUid, Guid episodeUid)
         {
             var dbEpisode = await DbContext.Episodes.FirstOrDefaultAsync(c => c.UID == episodeUid && c.Podcast.Members.Any(x => x.UserUID == userUid));
             if (dbEpisode == null)
@@ -74,7 +75,7 @@ namespace Vocalia.Publishing.Repository
         /// <param name="userUid">UID of the user.</param>
         /// <param name="episode">Episode to add to the database.</param>
         /// <returns></returns>
-        public async Task<bool> UpdateEpisode(string userUid, DomainModels.Episode episode)
+        public async Task<bool> UpdateEpisodeAsync(string userUid, DomainModels.Episode episode)
         {
             var dbPodcast = await DbContext.Podcasts.Include(x => x.Episodes).FirstOrDefaultAsync(c => c.UID == episode.PodcastUID && c.Members.Any(x => x.UserUID == userUid));
             if (dbPodcast == null)
@@ -139,7 +140,7 @@ namespace Vocalia.Publishing.Repository
         /// <param name="userUid">UID of the user.</param>
         /// <param name="podcast">Podcast to add to the database.</param>
         /// <returns></returns>
-        public async Task<bool> UpdatePodcast(string userUid, DomainModels.Podcast podcast)
+        public async Task<bool> UpdatePodcastAsync(string userUid, DomainModels.Podcast podcast)
         {
             var dbPodcast = await DbContext.Podcasts.FirstOrDefaultAsync(c => c.UID == podcast.UID && c.Members.Any(x => x.UserUID == userUid));
             if (dbPodcast == null)
@@ -206,7 +207,7 @@ namespace Vocalia.Publishing.Repository
         /// <param name="userUid">UID of the user.</param>
         /// <param name="podcastUid">UID of the podcast.</param>
         /// <returns></returns>
-        public async Task<bool> DeletePodcast(string userUid, Guid podcastUid)
+        public async Task<bool> DeletePodcastAsync(string userUid, Guid podcastUid)
         {
             var dbPodcast = await DbContext.Podcasts.FirstOrDefaultAsync(c => c.UID == podcastUid);
             if (dbPodcast == null) 
@@ -222,7 +223,7 @@ namespace Vocalia.Publishing.Repository
         /// </summary>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Podcast>> GetAllPodcasts(string userUid)
+        public async Task<IEnumerable<DomainModels.Podcast>> GetAllPodcastsAsync(string userUid)
         {
             var dbPodcasts = await DbContext.Podcasts.Include(c => c.Episodes).Where(c => c.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
@@ -257,7 +258,7 @@ namespace Vocalia.Publishing.Repository
         /// </summary>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.UnassignedEpisode>> GetAllUnassignedEpisodes(string userUid)
+        public async Task<IEnumerable<DomainModels.UnassignedEpisode>> GetAllUnassignedEpisodesAsync(string userUid)
         {
             var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => !c.IsCompleted && c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
@@ -275,7 +276,7 @@ namespace Vocalia.Publishing.Repository
         /// </summary>
         /// <param name="userUid">UID of the user.</param>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.UnassignedPodcast>> GetAllUnassignedPodcasts(string userUid)
+        public async Task<IEnumerable<DomainModels.UnassignedPodcast>> GetAllUnassignedPodcastsAsync(string userUid)
         {
             var dbPodcasts = await DbContext.UnassignedPodcasts.Include(c => c.Episodes).Where(c => !c.IsCompleted && c.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
@@ -300,7 +301,7 @@ namespace Vocalia.Publishing.Repository
         /// Gets all languages that can be assigned.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Language>> GetLanguages()
+        public async Task<IEnumerable<DomainModels.Language>> GetLanguagesAsync()
         {
            return await DbContext.Languages.Select(c => new DomainModels.Language
             {
@@ -314,7 +315,7 @@ namespace Vocalia.Publishing.Repository
         /// Gets all categories that can be assigned.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<DomainModels.Category>> GetCategories()
+        public async Task<IEnumerable<DomainModels.Category>> GetCategoriesAsync()
         {
             return await DbContext.Categories.Select(c => new DomainModels.Category
             {
@@ -323,6 +324,41 @@ namespace Vocalia.Publishing.Repository
                 Title = c.Title,
                 GPodderTag = c.GPodderTag
             }).ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets the RSS feed for the specified podcast UID.
+        /// </summary>
+        /// <param name="podcastUid">UID of the podcast.</param>
+        /// <returns></returns>
+        public async Task<string> GetRssAsync(Guid podcastUid)
+        {
+            var podcast = await DbContext.Podcasts.Include(c => c.Episodes).Include(c => c.Members)
+                .Include(c => c.Category).FirstOrDefaultAsync(c => c.UID == podcastUid);
+
+            var feed = new Feed()
+            {
+                Title = podcast.Title,
+                Description = podcast.Description,
+                Link = new Uri(""),
+                Copyright = "(c) " + DateTime.Now.Year
+            };
+
+            foreach(var episode in podcast.Episodes)
+            {
+                var item = new Item()
+                {
+                    Title = episode.Title,
+                    Body = episode.Description,
+                    Link = new Uri(episode.RssUrl),
+                    PublishDate = episode.PublishDate
+                };
+
+                item.Categories.Add(podcast.Category.Title);
+                feed.Items.Add(item);
+            }
+
+            return feed.Serialize();
         }
     }
 }
