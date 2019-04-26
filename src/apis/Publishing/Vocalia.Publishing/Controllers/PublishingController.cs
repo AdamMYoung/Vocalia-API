@@ -110,7 +110,8 @@ namespace Vocalia.Publishing.Controllers
             {
                 UID = c.UID,
                 PodcastUID = c.UnassignedPodcastUID,
-                Name = c.Name
+                Date = c.Date,
+                ImageUrl = c.ImageUrl
             });
 
             return Ok(episodeDTOs);
@@ -187,6 +188,7 @@ namespace Vocalia.Publishing.Controllers
                 UID = episode.UID,
                 Title = episode.Title,
                 Description = episode.Description,
+                PodcastUID = episode.PodcastUID,
                 RssUrl = episode.RssUrl,
                 MediaUrl = episode.MediaUrl,
                 PublishDate = episode.PublishDate

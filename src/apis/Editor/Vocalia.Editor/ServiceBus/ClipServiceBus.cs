@@ -22,7 +22,7 @@ namespace Vocalia.Editor.ServiceBus
 
         private IServiceScopeFactory ServiceScope { get; }
 
-        public ClipServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope,
+        public ClipServiceBus(IOptions<ObjectBusOptions<IEnumerable<Vocalia.ServiceBus.Types.Clip>>> options, IServiceScopeFactory serviceScope,
             IUserFacade userFacade) : base(options)
         {
             UserFacade = userFacade;

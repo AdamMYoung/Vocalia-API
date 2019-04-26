@@ -42,11 +42,13 @@ namespace Vocalia.Publishing.Repository
         /// </summary>
         private IObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast> ListenBus { get; }
 
+
         public PublishingRepository(PublishContext ingestContext, IMediaStorage mediaStorage, 
             IStreamBuilder streamBuilder, IConfiguration config, 
             IObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast> podcastBus,
-            IObjectBus<Timeline> timelineBus,
-            IObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast> listenBus)
+            IObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast> listenBus,
+            IObjectBus<Timeline> timelineBus
+           )
         {
             DbContext = ingestContext;
             MediaStorage = mediaStorage;
@@ -128,7 +130,7 @@ namespace Vocalia.Publishing.Repository
                 UID = Guid.NewGuid(),
                 Title = episode.Title,
                 Description = episode.Description,
-                RssUrl = string.Concat(Config.GetSection("RssUrl").ToString(), dbPodcast.UID, "/", episode.UID),
+                RssUrl = string.Concat(Config["RssPath"], dbPodcast.UID, "/", episode.UID),
                 MediaUrl = url,
                 PublishDate = DateTime.Now,
                 PodcastID = dbPodcast.ID
@@ -211,7 +213,7 @@ namespace Vocalia.Publishing.Repository
                 Title = dbPodcast.Title,
                 ImageUrl = dbPodcast.ImageUrl,
                 IsExplicit = dbPodcast.IsExplicit,
-                RssUrl = string.Concat(Config.GetSection("RssUrl").ToString(), dbPodcast.UID),
+                RssUrl = string.Concat(Config["RssPath"], dbPodcast.UID),
                 CategoryID = dbPodcast.CategoryID,
                 LanguageID = dbPodcast.LanguageID
             });
@@ -285,6 +287,8 @@ namespace Vocalia.Publishing.Repository
                 ID = x.ID,
                 UID = x.UID,
                 IsCompleted = x.IsCompleted,
+                Date = x.Date,
+                ImageUrl = x.Podcast.ImageUrl,
                 UnassignedPodcastUID = x.Podcast.UID
             });
         }
@@ -310,6 +314,8 @@ namespace Vocalia.Publishing.Repository
                     ID = x.ID,
                     UID = x.UID,
                     IsCompleted = x.IsCompleted,
+                    Date = x.Date,
+                    ImageUrl = c.ImageUrl,
                     UnassignedPodcastUID = c.UID
                 })
             });
@@ -358,7 +364,7 @@ namespace Vocalia.Publishing.Repository
             {
                 Title = podcast.Title,
                 Description = podcast.Description,
-                Link = new Uri(""),
+                Link = new Uri(Config["RssPath"] + podcast.UID),
                 Copyright = "(c) " + DateTime.Now.Year
             };
 
@@ -371,6 +377,11 @@ namespace Vocalia.Publishing.Repository
                     Link = new Uri(episode.RssUrl),
                     PublishDate = episode.PublishDate
                 };
+
+                var enclosure = new Enclosure();
+                enclosure.Values.Add("url", episode.MediaUrl);
+                enclosure.Values.Add("type", "audio/wav");
+                item.Enclosures.Add(enclosure);
 
                 item.Categories.Add(podcast.Category.Title);
                 feed.Items.Add(item);

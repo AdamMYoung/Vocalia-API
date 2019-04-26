@@ -15,7 +15,7 @@ namespace Vocalia.Publishing.ServiceBus
     {
         private IServiceScopeFactory ServiceScope { get; }
 
-        public PodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
+        public PodcastServiceBus(IOptions<ObjectBusOptions<Vocalia.ServiceBus.Types.Publishing.Podcast>> options, IServiceScopeFactory serviceScope) : base(options)
         {
             ServiceScope = serviceScope;
         }
@@ -36,6 +36,7 @@ namespace Vocalia.Publishing.ServiceBus
 
                 var members = message.Members.Select(c => new UnassignedPodcastMember
                 {
+                    UnassignedPodcastID = podcast.ID,
                     UserUID = c.UserUID
                 });
                 DbContext.UnassignedPodcastMembers.AddRange(members);

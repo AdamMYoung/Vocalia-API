@@ -322,7 +322,7 @@ namespace Vocalia.Editor.Repository
                 UID = podcast.UID,
                 Name = podcast.Name,
                 ImageUrl = podcast.ImageUrl,
-                Sessions = podcast.Sessions.Where(x => x.IsActive).Select(c => new DomainModels.Session
+                Sessions = podcast.Sessions.Where(x => x.IsActive && !x.IsFinishedEditing).Select(c => new DomainModels.Session
                 {
                     ID = c.ID,
                     UID = c.UID,

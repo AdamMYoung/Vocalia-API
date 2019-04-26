@@ -14,7 +14,7 @@ namespace Vocalia.Editor.ServiceBus
     {
         private IServiceScopeFactory ServiceScope { get; }
 
-        public PodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
+        public PodcastServiceBus(IOptions<ObjectBusOptions<Vocalia.ServiceBus.Types.Editor.Podcast>> options, IServiceScopeFactory serviceScope) : base(options)
         {
             ServiceScope = serviceScope;
         }

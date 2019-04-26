@@ -14,6 +14,7 @@ namespace Vocalia.Publishing.Db
             builder.Property(c => c.UnassignedPodcastID).IsRequired();
             builder.Property(c => c.UID).IsRequired();
             builder.Property(c => c.IsCompleted).IsRequired();
+            builder.Property(c => c.Date).IsRequired();
 
             builder.HasMany(c => c.Clips).WithOne(c => c.Episode).IsRequired();
         }

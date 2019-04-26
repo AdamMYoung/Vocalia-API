@@ -9,6 +9,7 @@ namespace Vocalia.Publishing.DTOs
     {
         public Guid UID { get; set; }
         public Guid PodcastUID { get; set; }
-        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

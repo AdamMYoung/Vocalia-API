@@ -15,7 +15,7 @@ namespace Vocalia.Publishing.ServiceBus
     {
         private IServiceScopeFactory ServiceScope { get; }
 
-        public TimelineServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
+        public TimelineServiceBus(IOptions<ObjectBusOptions<Timeline>> options, IServiceScopeFactory serviceScope) : base(options)
         {
             ServiceScope = serviceScope;
         }
@@ -33,6 +33,7 @@ namespace Vocalia.Publishing.ServiceBus
                     {
                         UID = message.UID,
                         IsCompleted = false,
+                        Date = DateTime.Now,
                         UnassignedPodcastID = podcast.ID
                     };
                     DbContext.UnassignedEpisodes.Add(episode);
