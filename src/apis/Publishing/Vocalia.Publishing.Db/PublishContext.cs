@@ -120,6 +120,7 @@ namespace Vocalia.Publishing.Db
             builder.Property(c => c.ImageUrl).IsRequired();
             builder.Property(c => c.IsActive).IsRequired();
             builder.Property(c => c.IsExplicit).IsRequired();
+            builder.Property(c => c.RssUrl).IsRequired();
 
             builder.HasMany(c => c.Episodes).WithOne(c => c.Podcast).IsRequired();
             builder.HasMany(c => c.Members).WithOne(c => c.Podcast).IsRequired();

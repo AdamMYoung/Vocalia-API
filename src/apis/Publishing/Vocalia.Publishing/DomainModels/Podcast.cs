@@ -13,6 +13,7 @@ namespace Vocalia.Publishing.DomainModels
         public int LanguageID { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string RssUrl { get; set; }
         public string ImageUrl { get; set; }
         public bool IsActive { get; set; }
         public bool IsExplicit { get; set; }

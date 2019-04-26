@@ -193,7 +193,8 @@ namespace Vocalia.Publishing.Repository
                 LanguageID = podcast.LanguageID,
                 ImageUrl = podcast.ImageUrl,
                 IsActive = podcast.IsActive,
-                IsExplicit = podcast.IsExplicit
+                IsExplicit = podcast.IsExplicit,
+                RssUrl = Config["RssPath"] + podcast.UID
             };
 
             DbContext.Podcasts.Add(dbPodcast);
@@ -258,6 +259,7 @@ namespace Vocalia.Publishing.Repository
                 ImageUrl = c.ImageUrl,
                 IsActive = c.IsActive,
                 IsExplicit = c.IsExplicit,
+                RssUrl = c.RssUrl,
                 Episodes = c.Episodes.Select(x => new DomainModels.Episode
                 {
                     ID = x.ID,

@@ -76,6 +76,7 @@ namespace Vocalia.Publishing.Controllers
                 ImageUrl = c.ImageUrl,
                 IsExplicit = c.IsExplicit,
                 IsActive = c.IsActive,
+                RssUrl = c.RssUrl,
                 Episodes = c.Episodes.Select(x => new DTOs.Episode
                 {
                     UID = x.UID,

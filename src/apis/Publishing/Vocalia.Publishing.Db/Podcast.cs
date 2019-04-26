@@ -15,6 +15,7 @@ namespace Vocalia.Publishing.Db
         public virtual string ImageUrl { get; set; }
         public virtual bool IsActive { get; set; }
         public virtual bool IsExplicit { get; set; }
+        public virtual string RssUrl { get; set; }
 
         public virtual IEnumerable<Episode> Episodes { get; set; }
         public virtual IEnumerable<Member> Members { get; set; }
