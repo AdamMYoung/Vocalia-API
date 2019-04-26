@@ -47,7 +47,7 @@ namespace Vocalia.Ingest.Repositories
         /// <summary>
         /// Message bus for sending new podcasts to listeners.
         /// </summary>
-        private IObjectBus<ServiceBus.Types.Podcast> PodcastBus { get; }
+        private IObjectBus<ServiceBus.Types.Editor.Podcast> PodcastBus { get; }
 
         /// <summary>
         /// Repository for ingest data.
@@ -56,7 +56,7 @@ namespace Vocalia.Ingest.Repositories
         public IngestRepository(IngestContext context, IImageStorage imageStorage,
             IMediaStorage mediaStorage, IStreamBuilder streamBuilder,
             IObjectBus<IEnumerable<ServiceBus.Types.Clip>> clipBus, 
-            IObjectBus<ServiceBus.Types.Podcast> podcastBus)
+            IObjectBus<ServiceBus.Types.Editor.Podcast> podcastBus)
         {
             DbContext = context;
             ImageStorage = imageStorage;
@@ -396,7 +396,7 @@ namespace Vocalia.Ingest.Repositories
             await DbContext.PodcastUsers.AddAsync(dbPodcastUsers);
             await DbContext.SaveChangesAsync();
 
-            await PodcastBus.SendAsync(new ServiceBus.Types.Podcast
+            await PodcastBus.SendAsync(new ServiceBus.Types.Editor.Podcast
             {
                 Name = dbPodcast.Name,
                 UID = dbPodcast.UID,

@@ -1,6 +1,7 @@
 ﻿using CodeHollow.FeedReader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using ObjectBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,12 +46,16 @@ namespace Vocalia.Podcast.Repositories
         /// <param name="gpodderFacade">GPodder API service.</param>
         /// <param name="iTunesFacade">iTunes API service.</param>
         /// <param name="cache">Cache object for storing pre-fetched data.</param>
-        public PodcastRepository(PodcastContext context, IGPodderFacade gpodderFacade, IITunesFacade iTunesFacade, IMemoryCache cache)
+        public PodcastRepository(PodcastContext context, IGPodderFacade gpodderFacade, 
+            IITunesFacade iTunesFacade, IMemoryCache cache,
+            IObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast> podcastBus)
         {
             DbContext = context;
             GPodderService = gpodderFacade;
             ITunesService = iTunesFacade;
             Cache = cache;
+
+            _ = podcastBus;
         }
 
         /// <summary>
@@ -64,7 +69,6 @@ namespace Vocalia.Podcast.Repositories
                 categories = await DbContext.Categories.Select(c => new DomainModels.Category()
                 {
                     ID = c.ID,
-                    LanguageID = c.LanguageID,
                     ITunesID = c.ITunesID,
                     GPodderTag = c.GpodderTag,
                     Title = c.Title,
@@ -186,7 +190,7 @@ namespace Vocalia.Podcast.Repositories
                 vocaliaPodcasts = vocaliaPodcasts.Where(x => x.IsExplicit == false);
             }
 
-            return await vocaliaPodcasts.OrderByDescending(x => x.Subscribers).Take(count).Select(p => new DomainModels.Podcast()
+            return await vocaliaPodcasts.Take(count).Select(p => new DomainModels.Podcast()
             {
                 ID = p.ID,
                 Title = p.Title,

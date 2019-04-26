@@ -5,10 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ObjectBus.Extensions;
 using Vocalia.Facades.GPodder;
 using Vocalia.Podcast.Db;
 using Vocalia.Podcast.Facades.iTunes;
 using Vocalia.Podcast.Repositories;
+using Vocalia.Podcast.ServiceBus;
+using Vocalia.ServiceBus.Types;
 
 namespace Vocalia.Podcast
 {
@@ -42,6 +45,9 @@ namespace Vocalia.Podcast
             //Configure podcast database context.
             services.AddDbContext<PodcastContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("PodcastDatabase")));
+
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast.Podcast, PodcastServiceBus>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Podcast, ObjectBus.BusType.Reciever));
 
             services.AddSingleton<IGPodderFacade, GPodderFacade>();
             services.AddSingleton<IITunesFacade, ITunesFacade>();

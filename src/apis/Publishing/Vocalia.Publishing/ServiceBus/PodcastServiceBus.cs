@@ -1,21 +1,47 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using ObjectBus;
 using ObjectBus.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vocalia.ServiceBus.Types;
+using Vocalia.Publishing.Db;
+using Vocalia.ServiceBus.Types.Publishing;
 
 namespace Vocalia.Publishing.ServiceBus
 {
-    public class PodcastServiceBus : ObjectBus<Podcast>
+    public class PodcastServiceBus : ObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast>
     {
-        public PodcastServiceBus(IOptions<ObjectBusOptions> options) : base(options) { }
+        private IServiceScopeFactory ServiceScope { get; }
 
-        public override Task HandleMessageAsync(Podcast message)
+        public PodcastServiceBus(IOptions<ObjectBusOptions> options, IServiceScopeFactory serviceScope) : base(options)
         {
-            return base.HandleMessageAsync(message);
+            ServiceScope = serviceScope;
+        }
+
+        public override async Task HandleMessageAsync(Vocalia.ServiceBus.Types.Publishing.Podcast message)
+        {
+            using (var scope = ServiceScope.CreateScope())
+            using (var DbContext = scope.ServiceProvider.GetService<PublishContext>())
+            {
+                var podcast = new UnassignedPodcast
+                {
+                    Name = message.Name,
+                    ImageUrl = message.ImageUrl,
+                    UID = message.UID,
+                    IsCompleted = false
+                };
+                DbContext.UnassignedPodcasts.Add(podcast);
+
+                var members = message.Members.Select(c => new UnassignedPodcastMember
+                {
+                    UserUID = c.UserUID
+                });
+                DbContext.UnassignedPodcastMembers.AddRange(members);
+
+                await DbContext.SaveChangesAsync();
+            }
         }
     }
 }

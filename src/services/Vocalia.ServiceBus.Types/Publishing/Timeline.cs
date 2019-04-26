@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Vocalia.ServiceBus.Types
+namespace Vocalia.ServiceBus.Types.Publishing
 {
     public class Timeline
     {
         public Guid UID { get; set; }
-        public string Name { get; set; }
+        public DateTime Date { get; set; }
+        public Guid PodcastUID { get; set; }
         public IList<string> TimelineEntries { get; set; } = new List<string>();
     }
 }

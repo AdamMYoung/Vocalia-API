@@ -41,7 +41,7 @@ namespace Vocalia.Editor
                 options.Audience = "https://api.vocalia.co.uk";
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             //Configure editor database context.
             services.AddDbContext<EditorContext>(options =>
@@ -51,8 +51,14 @@ namespace Vocalia.Editor
             services.CreateObjectBus<IEnumerable<Vocalia.ServiceBus.Types.Clip>, ClipServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
 
-            services.CreateObjectBus<Vocalia.ServiceBus.Types.Podcast, PodcastServiceBus>(p =>
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Editor.Podcast, PodcastServiceBus>(p =>
                 p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Editor, ObjectBus.BusType.Reciever));
+
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Publishing.Podcast>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Sender));
+
+            services.CreateObjectBus<Vocalia.ServiceBus.Types.Publishing.Timeline>(p =>
+                p.Configure(Configuration["AzureServiceBus:ConnectionString"], Queues.Publishing, ObjectBus.BusType.Sender));
 
             services.AddSingleton<IUserFacade, UserFacade.UserFacade>();
             services.AddSingleton<IStreamBuilder, StreamBuilder>();

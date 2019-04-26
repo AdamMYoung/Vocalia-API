@@ -7,6 +7,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
+            builder.Property(c => c.ID).IsRequired();
             builder.Property(c => c.ITunesID).IsRequired();
             builder.Property(c => c.GpodderTag).IsRequired();
             builder.Property(c => c.Title).IsRequired();
@@ -18,6 +19,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<IntegrationType> builder)
         {
+            builder.Property(i => i.ID).IsRequired();
             builder.Property(i => i.Name).IsRequired();
             builder.Property(i => i.LogoUrl).IsRequired();
         }
@@ -27,6 +29,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<Language> builder)
         {
+            builder.Property(l => l.ID).IsRequired();
             builder.Property(l => l.Name).IsRequired();
             builder.HasMany(l => l.Categories)
                 .WithOne(e => e.Language);
@@ -37,14 +40,12 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<Podcast> builder)
         {
-            builder.Property(p => p.UID).IsRequired();
-            builder.Property(p => p.GroupID).IsRequired();
+            builder.Property(p => p.ID).IsRequired();
+            builder.Property(p => p.UID).IsRequired(); 
             builder.Property(p => p.Title).IsRequired();
-            builder.Property(p => p.Description).IsRequired();
             builder.Property(p => p.RSS).IsRequired();
             builder.Property(p => p.ImageUrl).IsRequired();
             builder.Property(p => p.Active).IsRequired();
-            builder.Property(p => p.Subscribers).IsRequired();
             builder.Property(p => p.IsExplicit).IsRequired();
 
             builder.HasOne(p => p.Category)
@@ -63,6 +64,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<PodcastIntegration> builder)
         {
+            builder.Property(p => p.ID).IsRequired();
             builder.Property(p => p.Url).IsRequired();
 
             builder.HasOne(p => p.Podcast)
@@ -81,6 +83,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<Listen> builder)
         {
+            builder.Property(i => i.ID).IsRequired();
             builder.Property(i => i.UserUID).IsRequired();
             builder.Property(i => i.RssUrl).IsRequired();
             builder.Property(i => i.EpisodeUrl).IsRequired();
@@ -95,6 +98,7 @@ namespace Vocalia.Podcast.Db
     {
         public void Configure(EntityTypeBuilder<Subscription> builder)
         {
+            builder.Property(i => i.ID).IsRequired();
             builder.Property(i => i.UserUID).IsRequired();
             builder.Property(i => i.RssUrl).IsRequired();
             builder.Property(i => i.Name).IsRequired();
