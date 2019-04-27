@@ -98,16 +98,27 @@ namespace Vocalia.Podcast.Repositories
             if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
             {
                 var fetchedPodcasts = new List<DomainModels.Podcast>();
-                var iTunes = await ITunesService.SearchPodcastsAsync(query, limit, countryCode, alowExplicit);
+                var iTunesPodcasts = await ITunesService.SearchPodcastsAsync(query, limit, countryCode, alowExplicit);
 
-                podcasts = iTunes.Select(p => new DomainModels.Podcast
+                var dbPodcasts = DbContext.Podcasts.Where(c => c.Active && c.Title.Contains(query)).Take(limit);
+                if (!alowExplicit)
+                    dbPodcasts = dbPodcasts.Where(c => c.IsExplicit == false);
+
+                fetchedPodcasts.AddRange(dbPodcasts.Select(p => new DomainModels.Podcast
+                {
+                    Title = p.Title,
+                    RssUrl = p.RSS,
+                    ImageUrl = p.ImageUrl
+                }));
+
+                fetchedPodcasts.AddRange(iTunesPodcasts.Select(p => new DomainModels.Podcast
                 {
                     Title = p.Name,
                     RssUrl = p.RssUrl,
                     ImageUrl = p.ImageUrl
-                });
+                }));
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }
 
