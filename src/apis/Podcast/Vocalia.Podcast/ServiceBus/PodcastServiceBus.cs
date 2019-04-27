@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using ObjectBus;
 using ObjectBus.Options;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Vocalia.Podcast.Db;
 
 namespace Vocalia.Podcast.ServiceBus

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Vocalia.Publishing.Db;
 using Vocalia.Publishing.DomainModels;
@@ -389,7 +390,7 @@ namespace Vocalia.Publishing.Repository
                 feed.Items.Add(item);
             }
 
-            return feed.Serialize();
+            return feed.Serialize(new SerializeOption() { Encoding = Encoding.UTF8 });
         }
     }
 }
