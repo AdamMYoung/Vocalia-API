@@ -368,7 +368,7 @@ namespace Vocalia.Publishing.Repository
                 Title = podcast.Title,
                 Description = podcast.Description,
                 Link = new Uri(Config["RssPath"] + podcast.UID),
-                Copyright = "(c) " + DateTime.Now.Year
+                Copyright = "(c) " + DateTime.Now.Year,
             };
 
             foreach(var episode in podcast.Episodes)

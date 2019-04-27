@@ -275,7 +275,7 @@ namespace Vocalia.Podcast.Repositories
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     IsSubscribed = false,
-                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed.Element.Element("{" + ITunesNamespace + "}image")?.Attribute("href")?.Value ?? feed.ImageUrl),
+                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed?.Element?.Element("{" + ITunesNamespace + "}image")?.Attribute("href")?.Value ?? feed.ImageUrl),
 
                 };
 
@@ -289,7 +289,7 @@ namespace Vocalia.Podcast.Repositories
                     Author = feed.Title,
                     Id = i.Id,
                     Time = 0,
-                    Content = ReplaceHttpWithHttps(i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
+                    Content = ReplaceHttpWithHttps(i?.SpecificItem?.Element?.Elements("enclosure")?.FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
                 }).ToList();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(2));
@@ -318,6 +318,9 @@ namespace Vocalia.Podcast.Repositories
         /// <returns></returns>
         private string ReplaceHttpWithHttps(string link)
         {
+            if (link == null)
+                return "";
+
             return link.Replace("http://", "https://");
         }
 
