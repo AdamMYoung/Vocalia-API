@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Vocalia.Facades.GPodder;
-using Vocalia.Podcast.DomainModels;
-using Vocalia.Podcast.Facades.iTunes;
 using Vocalia.Podcast.Repositories;
 
 namespace Vocalia.Podcast.Controllers
@@ -68,7 +62,7 @@ namespace Vocalia.Podcast.Controllers
         {
             var podcasts = await Repository.GetTopPodcastsAsync(limit, categoryId, allowExplicit, countryCode);
 
-            if(podcasts == null)
+            if (podcasts == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
 
             if (podcasts.Count() == 0)
@@ -186,8 +180,8 @@ namespace Vocalia.Podcast.Controllers
                 Title = s.Name,
                 ImageUrl = s.ImageUrl,
                 RssUrl = s.RssUrl,
-                ID = 0
-               
+                ID = s.ID
+
             });
 
             return Ok(subDTOs);
