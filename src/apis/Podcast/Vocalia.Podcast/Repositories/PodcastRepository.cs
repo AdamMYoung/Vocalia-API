@@ -153,7 +153,7 @@ namespace Vocalia.Podcast.Repositories
 
             if (categoryId.HasValue)
             {
-                category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
+                category = await DbContext.Categories.FirstOrDefaultAsync(c => c.ID == categoryId.Value);
             }
 
             var fetchedPodcasts = new List<DomainModels.Podcast>();

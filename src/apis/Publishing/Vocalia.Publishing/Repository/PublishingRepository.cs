@@ -282,7 +282,7 @@ namespace Vocalia.Publishing.Repository
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.UnassignedEpisode>> GetAllUnassignedEpisodesAsync(string userUid)
         {
-            var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => !c.IsCompleted && c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
+            var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => !c.IsCompleted && c.Podcast.IsCompleted && c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
             return dbEpisodes.Select(x => new DomainModels.UnassignedEpisode
             {

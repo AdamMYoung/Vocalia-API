@@ -11,6 +11,5 @@ namespace Vocalia.Podcast.Db
         public virtual string ISOCode { get; set; }
 
         public virtual IEnumerable<Podcast> Podcasts { get; set; }
-        public virtual IEnumerable<Category> Categories { get; set; }
     }
 }

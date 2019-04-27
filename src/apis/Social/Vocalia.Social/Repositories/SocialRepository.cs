@@ -23,7 +23,6 @@ namespace Vocalia.Social.Repositories
         /// Returns user information for a specific user.
         /// </summary>
         /// <param name="userId">ID of the user.</param>
-        /// <param name="accessToken">Auth token for user access.</param>
         /// <returns></returns>
         public async Task<DomainModels.User> GetUserDetailAsync(string userId)
         {
