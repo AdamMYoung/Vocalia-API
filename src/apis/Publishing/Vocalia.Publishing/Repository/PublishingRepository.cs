@@ -390,7 +390,7 @@ namespace Vocalia.Publishing.Repository
                 feed.Items.Add(item);
             }
 
-            return feed.Serialize(new SerializeOption() { Encoding = Encoding.UTF8 });
+            return feed.Serialize(new SerializeOption() { Encoding = Encoding.Unicode });
         }
     }
 }
