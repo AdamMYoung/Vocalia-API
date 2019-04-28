@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Vocalia.Publishing.Db;
 using Vocalia.Publishing.DomainModels;
@@ -282,7 +283,7 @@ namespace Vocalia.Publishing.Repository
         /// <returns></returns>
         public async Task<IEnumerable<DomainModels.UnassignedEpisode>> GetAllUnassignedEpisodesAsync(string userUid)
         {
-            var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => !c.IsCompleted && c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
+            var dbEpisodes = await DbContext.UnassignedEpisodes.Include(c => c.Podcast).Where(c => !c.IsCompleted && c.Podcast.IsCompleted && c.Podcast.Members.Any(x => x.UserUID == userUid)).ToListAsync();
 
             return dbEpisodes.Select(x => new DomainModels.UnassignedEpisode
             {
@@ -367,7 +368,7 @@ namespace Vocalia.Publishing.Repository
                 Title = podcast.Title,
                 Description = podcast.Description,
                 Link = new Uri(Config["RssPath"] + podcast.UID),
-                Copyright = "(c) " + DateTime.Now.Year
+                Copyright = "(c) " + DateTime.Now.Year,
             };
 
             foreach(var episode in podcast.Episodes)
@@ -389,7 +390,7 @@ namespace Vocalia.Publishing.Repository
                 feed.Items.Add(item);
             }
 
-            return feed.Serialize();
+            return feed.Serialize(new SerializeOption() { Encoding = Encoding.UTF8 });
         }
     }
 }

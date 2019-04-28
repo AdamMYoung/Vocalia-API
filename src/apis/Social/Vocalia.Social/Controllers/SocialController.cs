@@ -30,63 +30,6 @@ namespace Vocalia.Social.Controllers
         }
 
         /// <summary>
-        /// Gets the timeline for the current authenticated user.
-        /// </summary>
-        /// <param name="count">Number of entries to return.</param>
-        /// <returns></returns>
-        [Route("feed")]
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetUserFeed(int count = 25)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var user = await Repository.GetUserDetailAsync(userId);
-            if (user == null)
-                return NotFound();
-
-            var followers = await Repository.GetFollowersAsync(userId);
-            var following = await Repository.GetFollowingsAsync(userId);
-            var feed = await Repository.GetTimelineFeedAsync(userId, count);
-
-            if (feed == null)
-                return NotFound();
-
-            var userDto = new DTOs.UserDetail
-            {
-                UserUID = userId,
-                UserTag = user.UserTag,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PictureUrl = user.PictureUrl,
-                Followers = followers.Select(x => new DTOs.UserDetail
-                {
-                    UserTag = x.UserTag,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName
-                }),
-                Following = following.Select(x => new DTOs.UserDetail
-                {
-                    UserTag = x.UserTag,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName
-                }),
-                Feed = feed.Select(x => new DTOs.Listen
-                {
-                    UserUID = x.UserUID,
-                    UserName = x.UserName,
-                    RssUrl = x.RssUrl,
-                    EpisodeUrl = x.EpisodeUrl,
-                    EpisodeName = x.EpisodeName,
-                    Date = x.Date,
-                    IsCompleted = x.IsCompleted
-                })
-            };
-
-            return Ok(userDto);
-        }
-
-        /// <summary>
         /// Gets detailed information for the user with the specified tag.
         /// </summary>
         /// <param name="userId">User to fetch.</param>
@@ -94,64 +37,40 @@ namespace Vocalia.Social.Controllers
         [Route("user/detail")]
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetUserDetail(string userId, int count = 25)
+        public async Task<IActionResult> GetUserDetail(string userId)
         {
             var user = await Repository.GetUserDetailAsync(userId);
             if (user == null)
-                return NotFound();
+                return NotFound();       
 
-            var followers = await Repository.GetFollowersAsync(userId);
-            var following = await Repository.GetFollowingsAsync(userId);
-            var feed = await Repository.GetUserFeedAsync(userId, 25);
-
-            var userDto = new DTOs.UserDetail
+            var userDto = new DTOs.User
             {
                 UserUID = userId,
                 UserTag = user.UserTag,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PictureUrl = user.PictureUrl,
-                Followers = followers.Select(x => new DTOs.UserDetail
-                {
-                    UserTag = x.UserTag,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName
-                }),
-                Following = following.Select(x => new DTOs.UserDetail
-                {
-                    UserTag = x.UserTag,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName
-                }),
-                Feed = feed.Select(x => new DTOs.Listen {
-                    UserUID = x.UserUID,
-                    UserName = x.UserName,
-                    RssUrl = x.RssUrl,
-                    EpisodeUrl = x.EpisodeUrl,
-                    EpisodeName = x.EpisodeName,
-                    Date = x.Date,
-                    IsCompleted = x.IsCompleted
-                })
             };
 
             return Ok(userDto);
         }
 
         /// <summary>
-        /// Gets basic user information for the user with the provided tag.
+        /// Gets detailed information about the current user.
         /// </summary>
-        /// <param name="userId">User to fetch.</param>
         /// <returns></returns>
-        [Route("user/overview")]
+        [Route("user")]
         [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetUserOverview(string userId)
+        [Authorize]
+        public async Task<IActionResult> GetUserDetail()
         {
+            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var user = await Repository.GetUserDetailAsync(userId);
             if (user == null)
                 return NotFound();
 
-            var userDto = new DTOs.UserOverview
+            var userDto = new DTOs.User
             {
                 UserUID = userId,
                 UserTag = user.UserTag,
@@ -161,38 +80,6 @@ namespace Vocalia.Social.Controllers
             };
 
             return Ok(userDto);
-        }
-
-        /// <summary>
-        /// Adds the specified user tag to the authorized user's follow list.
-        /// </summary>
-        /// <param name="userTag">User to add.</param>
-        /// <returns></returns>
-        [Route("followers")]
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> AddFollower(string followerId)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            await Repository.AddFollowingAsync(userId, followerId);
-
-            return Ok();
-        }
-
-        /// <summary>
-        /// Removes the specified user from the authorized user's follow list.
-        /// </summary>
-        /// <param name="userId">User to remove.</param>
-        /// <returns></returns>
-        [Route("followers")]
-        [HttpDelete]
-        [Authorize]
-        public async Task<IActionResult> RemoveFollower(string followerId)
-        {
-            string userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            await Repository.RemoveFollowingAsync(userId, followerId);
-
-            return Ok();
         }
     }
 }

@@ -287,7 +287,7 @@ namespace Vocalia.Publishing.Controllers
             if (rssFeed == null)
                 return NotFound();
 
-            return Content(rssFeed, "text/xml");
+            return Content(rssFeed, "text/xml; charset=utf-8");
         }
     }
 }

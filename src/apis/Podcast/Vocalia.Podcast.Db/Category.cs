@@ -12,7 +12,6 @@ namespace Vocalia.Podcast.Db
         public virtual string Title { get; set; }
         public virtual string IconUrl { get; set; }
 
-        public virtual Language Language { get; set; }
         public virtual IEnumerable<Podcast> Podcasts { get; set; }
     }
 }

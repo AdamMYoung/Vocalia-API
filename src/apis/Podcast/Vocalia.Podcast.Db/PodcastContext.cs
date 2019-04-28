@@ -12,6 +12,9 @@ namespace Vocalia.Podcast.Db
             builder.Property(c => c.GpodderTag).IsRequired();
             builder.Property(c => c.Title).IsRequired();
             builder.Property(c => c.IconUrl).IsRequired();
+
+            builder.HasMany(c => c.Podcasts)
+                .WithOne(c => c.Category);
         }
     }
 
@@ -22,6 +25,9 @@ namespace Vocalia.Podcast.Db
             builder.Property(i => i.ID).IsRequired();
             builder.Property(i => i.Name).IsRequired();
             builder.Property(i => i.LogoUrl).IsRequired();
+
+            builder.HasMany(i => i.Integrations)
+                .WithOne(i => i.Type);
         }
     }
 
@@ -31,8 +37,10 @@ namespace Vocalia.Podcast.Db
         {
             builder.Property(l => l.ID).IsRequired();
             builder.Property(l => l.Name).IsRequired();
-            builder.HasMany(l => l.Categories)
-                .WithOne(e => e.Language);
+            builder.Property(l => l.ISOCode).IsRequired();
+
+            builder.HasMany(l => l.Podcasts)
+                .WithOne(l => l.Language);
         }
     }
 
@@ -44,19 +52,14 @@ namespace Vocalia.Podcast.Db
             builder.Property(p => p.UID).IsRequired(); 
             builder.Property(p => p.Title).IsRequired();
             builder.Property(p => p.RSS).IsRequired();
+            builder.Property(p => p.LanguageID).IsRequired();
+            builder.Property(p => p.CategoryID).IsRequired();
             builder.Property(p => p.ImageUrl).IsRequired();
             builder.Property(p => p.Active).IsRequired();
             builder.Property(p => p.IsExplicit).IsRequired();
 
-            builder.HasOne(p => p.Category)
-                .WithMany()
-                .HasForeignKey(p => p.CategoryID)
-                .IsRequired();
-
-            builder.HasOne(p => p.Language)
-                .WithMany()
-                .HasForeignKey(p => p.LanguageID)
-                .IsRequired();
+            builder.HasMany(p => p.Integrations)
+                .WithOne(p => p.Podcast);
         }
     }
 
@@ -66,16 +69,7 @@ namespace Vocalia.Podcast.Db
         {
             builder.Property(p => p.ID).IsRequired();
             builder.Property(p => p.Url).IsRequired();
-
-            builder.HasOne(p => p.Podcast)
-                .WithMany()
-                .HasForeignKey(p => p.PodcastID)
-                .IsRequired();
-
-            builder.HasOne(p => p.Type)
-                .WithMany()
-                .HasForeignKey(p => p.IntegrationTypeID)
-                .IsRequired();
+            builder.Property(p => p.IntegrationTypeID).IsRequired();
         }
     }
 

@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Vocalia.Social.Db;
 using Vocalia.Social.Repositories;
 using Vocalia.UserFacade;
 
@@ -42,10 +33,6 @@ namespace Vocalia.Social
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            //Configure catalog database context.
-            services.AddDbContext<SocialContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("SocialDatabase")));
 
             services.AddScoped<ISocialRepository, SocialRepository>();
             services.AddSingleton<IUserFacade, UserFacade.UserFacade>();

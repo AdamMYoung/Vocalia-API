@@ -98,16 +98,27 @@ namespace Vocalia.Podcast.Repositories
             if (!Cache.TryGetValue(cacheTerm, out IEnumerable<DomainModels.Podcast> podcasts))
             {
                 var fetchedPodcasts = new List<DomainModels.Podcast>();
-                var iTunes = await ITunesService.SearchPodcastsAsync(query, limit, countryCode, alowExplicit);
+                var iTunesPodcasts = await ITunesService.SearchPodcastsAsync(query, limit, countryCode, alowExplicit);
 
-                podcasts = iTunes.Select(p => new DomainModels.Podcast
+                var dbPodcasts = DbContext.Podcasts.Where(c => c.Active && c.Title.Contains(query)).Take(limit);
+                if (!alowExplicit)
+                    dbPodcasts = dbPodcasts.Where(c => c.IsExplicit == false);
+
+                fetchedPodcasts.AddRange(dbPodcasts.Select(p => new DomainModels.Podcast
+                {
+                    Title = p.Title,
+                    RssUrl = p.RSS,
+                    ImageUrl = p.ImageUrl
+                }));
+
+                fetchedPodcasts.AddRange(iTunesPodcasts.Select(p => new DomainModels.Podcast
                 {
                     Title = p.Name,
                     RssUrl = p.RssUrl,
                     ImageUrl = p.ImageUrl
-                });
+                }));
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddDays(1));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }
 
@@ -153,7 +164,7 @@ namespace Vocalia.Podcast.Repositories
 
             if (categoryId.HasValue)
             {
-                category = await DbContext.Categories.Include(c => c.Language).FirstOrDefaultAsync(c => c.ID == categoryId.Value);
+                category = await DbContext.Categories.FirstOrDefaultAsync(c => c.ID == categoryId.Value);
             }
 
             var fetchedPodcasts = new List<DomainModels.Podcast>();
@@ -264,7 +275,7 @@ namespace Vocalia.Podcast.Repositories
                     Description = feed.Description,
                     Copyright = feed.Copyright,
                     IsSubscribed = false,
-                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed.Element.Element("{" + ITunesNamespace + "}image")?.Attribute("href")?.Value ?? feed.ImageUrl),
+                    ImageUrl = ReplaceHttpWithHttps(feed.SpecificFeed?.Element?.Element("{" + ITunesNamespace + "}image")?.Attribute("href")?.Value ?? feed.ImageUrl),
 
                 };
 
@@ -278,7 +289,7 @@ namespace Vocalia.Podcast.Repositories
                     Author = feed.Title,
                     Id = i.Id,
                     Time = 0,
-                    Content = ReplaceHttpWithHttps(i.SpecificItem.Element.Elements("enclosure").FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
+                    Content = ReplaceHttpWithHttps(i?.SpecificItem?.Element?.Elements("enclosure")?.FirstOrDefault()?.Attribute("url")?.Value ?? i.Content)
                 }).ToList();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(2));
@@ -307,6 +318,9 @@ namespace Vocalia.Podcast.Repositories
         /// <returns></returns>
         private string ReplaceHttpWithHttps(string link)
         {
+            if (link == null)
+                return "";
+
             return link.Replace("http://", "https://");
         }
 

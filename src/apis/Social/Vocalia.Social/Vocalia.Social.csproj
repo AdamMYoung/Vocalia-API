@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\services\Vocalia.UserFacade\Vocalia.UserFacade.csproj" />
-    <ProjectReference Include="..\Vocalia.Social.Db\Vocalia.Social.Db.csproj" />
   </ItemGroup>
 
 </Project>
