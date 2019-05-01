@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Vocalia.Facades.GPodder;
-using Vocalia.Podcast.DomainModels;
-using Vocalia.Podcast.Facades.iTunes;
 using Vocalia.Podcast.Repositories;
 
 namespace Vocalia.Podcast.Controllers

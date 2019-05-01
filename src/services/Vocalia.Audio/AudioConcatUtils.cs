@@ -1,10 +1,8 @@
 ﻿using NAudio.Utils;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Vocalia.Audio
 {

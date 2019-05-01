@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vocalia.Publishing.Db;
-using Vocalia.Publishing.DomainModels;
 using Vocalia.Publishing.Media;
 using Vocalia.ServiceBus.Types.Publishing;
 using Vocalia.Streams;

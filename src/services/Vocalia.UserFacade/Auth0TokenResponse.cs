@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vocalia.UserFacade
+﻿namespace Vocalia.UserFacade
 {
     class Auth0TokenResponse
     {

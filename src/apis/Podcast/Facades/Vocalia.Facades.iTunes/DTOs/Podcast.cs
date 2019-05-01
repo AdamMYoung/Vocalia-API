@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vocalia.Facades.iTunes.DTOs
+﻿namespace Vocalia.Facades.iTunes.DTOs
 {
     public class Podcast
     {

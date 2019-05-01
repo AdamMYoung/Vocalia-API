@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vocalia.ServiceBus.Types
+﻿namespace Vocalia.ServiceBus.Types
 {
     public static class Queues
     {
