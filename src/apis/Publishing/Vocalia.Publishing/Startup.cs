@@ -72,7 +72,6 @@ namespace Vocalia.Publishing
             }
 
             app.UseAuthentication();
-            app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
