@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using Refit;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Vocalia.Facades.iTunes;
-using Vocalia.Facades.iTunes.DTOs;
 
 namespace Vocalia.Podcast.Facades.iTunes
 {

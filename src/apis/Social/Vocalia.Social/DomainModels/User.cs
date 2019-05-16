@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vocalia.Social.DomainModels
+﻿namespace Vocalia.Social.DomainModels
 {
     public class User
     {

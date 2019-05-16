@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vocalia.Publishing.Db
+﻿namespace Vocalia.Publishing.Db
 {
     public class UnassignedPodcastMember
     {

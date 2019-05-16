@@ -118,6 +118,8 @@ namespace Vocalia.Podcast.Repositories
                     ImageUrl = p.ImageUrl
                 }));
 
+                podcasts = fetchedPodcasts;
+
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddHours(1));
                 Cache.Set(cacheTerm, podcasts, cacheEntryOptions);
             }

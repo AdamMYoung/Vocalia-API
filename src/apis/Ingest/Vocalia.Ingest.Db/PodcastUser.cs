@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vocalia.Ingest.Db
+﻿namespace Vocalia.Ingest.Db
 {
     public class PodcastUser
     {

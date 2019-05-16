@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Options;
 using ObjectBus;
 using ObjectBus.Options;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vocalia.Publishing.Db;
-using Vocalia.ServiceBus.Types.Publishing;
 
 namespace Vocalia.Publishing.ServiceBus
 {
